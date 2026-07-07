@@ -1,0 +1,6 @@
+torch>=2.0
+transformers>=4.40
+datasets>=3,<4
+accelerate
+sentencepiece
+protobuf

@@ -174,12 +174,14 @@
     <div class="bar" style="width:75%; background:#57b98a">delete reasoning: acting 0.75 &middot; halt 0.25 &middot; D 0.61</div>
   </div>
   <p class="soft">bar width = acting rate</p>
-  <p style="margin-top:.7em"><b>Deleting tool calls more than doubles halting (0.19 → 0.47)
-     and raises divergence well above the control (0.76 vs 0.51). Deleting observations,
-     the single largest content type, is statistically indistinguishable from random
-     deletion (0.50 vs 0.51).</b></p>
-  <p>This runs counter to token-importance compression: the content type holding the most
-     information has the least behavioral value per token.</p>
+  <p style="margin-top:.7em"><b>Remove the tool calls and the agent breaks: it stops
+     acting twice as often (halt 0.19 to 0.47) and its behavior drifts far from the
+     original (D 0.76 vs 0.51). Remove the observations, the biggest chunk of the
+     context, and nothing special happens: the result looks the same as deleting
+     random tokens (D 0.50 vs 0.51).</b></p>
+  <p>The surprise: the biggest, most information-rich part of the context is the safest
+     to throw away, and the small record of past actions is the part the agent
+     actually needs.</p>
   <p class="soft">exp4 v2 (role-aware), N=24, Qwen3.5-9B; ordering replicated on
      GLM-4.7-Flash (acting 0.49 vs 0.77 control), across five runs and two seeds,
      and on-policy (halt 0.66 vs 0.34).</p>

@@ -284,15 +284,15 @@
     <div class="card"><span class="tag win">block-aware (ours)</span>
       <p>acting <span class="num">0.80</span><br>agreement <span class="num">0.55</span></p></div>
   </div>
-  <p style="margin-top:1em">The metric also works for <b>selection</b>.
-     Pick the best of 8 candidate summaries by lowest divergence:
-     agreement with the real action goes from <span class="num">0.38</span> (random pick)
-     to <span class="num">0.55</span>. Paired p = 0.0004. Replicated at longer contexts on
-     177 examples: divergence <span class="num">0.67 [0.64, 0.69]</span> selected vs
-     <span class="num">0.72 [0.69, 0.74]</span> random; the intervals do not overlap.</p>
-  <p class="soft">exp9, exp11. This makes offline training possible: rank candidate
-     summaries by divergence, train on the preference pairs. No critic, no environment
-     rollouts, unlike the RL approach in CompactionRL.</p>
+  <p style="margin-top:1em">The metric can also <b>pick the best summary</b>. Write 8
+     different candidate summaries of the same history, score each with D, and keep the
+     one with the lowest score. With that summary, the agent repeats its original action
+     <span class="num">55%</span> of the time; with a randomly picked candidate, only
+     <span class="num">38%</span> (p = 0.0004). A larger repeat run on
+     <span class="num">177</span> examples with longer contexts shows the same pattern.</p>
+  <p class="soft">exp9, exp11. If the metric can rank summaries, it can also supply
+     training data: keep the good-vs-bad summary pairs and train a compressor on them
+     offline, with no reinforcement learning loop needed (unlike CompactionRL).</p>
 </section>
 
 <!-- 8 FORMAT -->

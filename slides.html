@@ -139,15 +139,13 @@
   <div style="margin-top:.6em; max-width:760px">
     <div class="bar" style="width:74%; background:var(--green)">full context (100% kept): 73% agreement</div>
     <div class="bar" style="width:67%; background:#57b98a">keep recent: newest half of old history + raw slice (56% kept): 67%</div>
-    <div class="bar" style="width:30%; background:var(--red)">LLM summary + raw slice (19% kept): 30%</div>
+    <div style="display:flex; align-items:center; margin:.3em 0">
+      <div class="bar" style="width:30%; background:var(--red); margin:0"></div>
+      <span style="margin-left:.5em; font-size:.95em; color:var(--ink)">LLM summary + raw slice (19% kept): 30%</span>
+    </div>
   </div>
   <p style="margin-top:.9em"><b>Note the budgets are not matched here</b>: the summary
-     condition keeps far fewer tokens (19% vs 56%). This slide only establishes that D
-     tracks the external reference. The budget-matched comparison is Finding 2, where
-     the summary still loses to truncation at every equal budget.</p>
-  <p class="soft">These runs use 4k-token decision windows (raw slice 512 tokens,
-     summaries capped at 256). The same measurement at 16k-token windows on the agent's
-     own trajectories gives nearly identical numbers: 0.74 / 0.67 / 0.30.</p>
+     condition keeps far fewer tokens (19% vs 56%).</p>
   <p>The two scores agree: compression methods that our metric D rates as more damaging
      also reproduce the agent's recorded action less often. Since D matches this
      independent reference, we can trust what it measures.</p>

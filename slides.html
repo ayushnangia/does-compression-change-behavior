@@ -156,9 +156,13 @@
             (acting rate 0.94, vs 0.99 for full context).</li>
       </ul>
       <p style="margin-top:.7em">The industry default is the worst thing we tested.</p>
-      <p class="soft">exp6. Scope: SWE-agent traces, 4k contexts, Qwen3.5.
-         The on-policy version was noise-limited and is being re-measured with a
-         coarser metric. Consistent with recency results in KV-cache work (StreamingLLM).</p>
+      <p style="margin-top:.5em"><b>Scope update from the on-policy re-measurement:</b>
+         on the agent's own trajectories, truncation loses its advantage and the
+         <b>block-aware compressor becomes the best curve</b> at moderate-to-high
+         budgets. Summaries stay mediocre everywhere.</p>
+      <p class="soft">exp6 (off-policy 4k) and exp6-coarse (on-policy, tool-level metric;
+         preliminary at N=13, confidence intervals re-running now).
+         Consistent with recency results in KV-cache work (StreamingLLM).</p>
     </div>
     <div>
       <svg viewBox="0 0 380 230" width="100%">

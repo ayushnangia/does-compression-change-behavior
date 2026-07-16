@@ -148,7 +148,9 @@ def main():
     save_result("exp6_rate_distortion", {
         "model": args.model, "usable": usable, "floor": floor,
         "rates": args.rates, "curves": rows,
-        "raw": {f"{c}@{r:g}": stats[(c, r)]["change"]
+        "raw": {f"{c}@{r:g}": {"change": stats[(c, r)]["change"],
+                                     "coarse": stats[(c, r)]["coarse"],
+                                     "acting": stats[(c, r)]["acting"]}
                 for c in compressors for r in args.rates},
         "raw_floors": floors,
     })

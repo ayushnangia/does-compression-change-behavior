@@ -68,7 +68,8 @@ def build_variants(msgs, mi, handoff, tokenizer, model, device, budget, rng):
     post_ids = ids(post_head)
     if len(pre_ids) < 2 * budget or len(post_ids) > 6000:
         return None
-    ref = (pre_ids + post_ids)[-24576:]                          # uncompacted reference
+    ref = (pre_ids + post_ids)[-16384:]   # uncompacted reference (16k cap:
+    # 24k x 8 samples OOMs A100-40 under HF generate; 16k matches the program)
 
     va = {}
     va["production"] = ids(WRAP.format(s=handoff.strip()[:6000])) + post_ids

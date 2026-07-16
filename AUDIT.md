@@ -105,6 +105,23 @@ could not have detected it either way**":
   multi-draw summaries, CIs, paired p, raw saved.
 Do not quote round-1 numbers except as an infrastructure lesson.
 
+## Scale-up round findings (July 16)
+
+- **exp6-coarse resolves the on-policy flattening: it WAS a metric ceiling.**
+  At tool-level granularity the on-policy D(R) landscape un-flattens, and the
+  ordering CHANGES: block_aware becomes the best curve at R>=0.5 (coarse
+  change 0.23-0.24, acting 0.66-0.70) while keep_recent loses its off-policy
+  dominance (acting 0.39-0.53). Revised claim: truncation-beats-summary is
+  the OFF-policy 4k story; ON-policy, the measured block-aware design wins.
+  Status: preliminary (N=13). First run saved no coarse per-example arrays
+  (payload gap, fixed); CI/paired-test rerun submitted (65709063). Do not
+  quote effect sizes until it lands.
+- exp4@16k on-policy: halting effect replicates (none 0.42 vs 0.16); change
+  column ceiling-limited as expected.
+- exp15 v1 OOM'd at 24k reconstructions x8 samples on A100-40 (HF path);
+  refs capped to 16k (consistent with the program) + allocator hint;
+  rerun 65708856.
+
 ## Still open (known, accepted, scheduled)
 
 - Repo-level train/held-out split for E-B (before any writeup).

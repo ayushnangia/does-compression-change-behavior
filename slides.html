@@ -202,14 +202,11 @@
         <li>Keep-recent was also nearly lossless in acting rate
             (0.94, vs 0.99 for full context).</li>
       </ul>
-      <p style="margin-top:.5em"><b>Update from the re-measurement on our own models'
-         trajectories (on-policy):</b> there, truncation loses its advantage and the
-         <b>block-aware compressor becomes the best curve</b> at moderate-to-high
-         budgets. Summaries remain mediocre everywhere.</p>
-      <p class="soft">exp6 (pre-recorded traces, Qwen3.5) and exp6-coarse
-         (on-policy, tool-level metric): block-aware D 0.23 [0.13, 0.34] vs keep-recent
-         0.47 [0.35, 0.62], paired p = 0.074 at N=13. Suggestive, not confirmed; a larger
-         run is scheduled. Consistent with recency results in KV-cache work (StreamingLLM).</p>
+      <p style="margin-top:.5em">Early re-measurement on our own models' trajectories
+         suggests the block-aware compressor may do even better there; still testing,
+         a larger run is scheduled.</p>
+      <p class="soft">exp6, Qwen3.5. Consistent with recency results in KV-cache work
+         (StreamingLLM).</p>
     </div>
     <div>
       <svg viewBox="0 0 430 270" width="100%">

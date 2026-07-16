@@ -411,14 +411,13 @@
 <section class="slide">
   <h2>In the queue, and what comes next</h2>
   <ul>
-    <li><b>Score real compactions</b> (running): evaluate the summaries a production
-        agent actually wrote at real window-exhaustion moments, against our block-aware
-        rule and truncation.</li>
+    <li><b>Score compactions with a stronger model</b>, one that can complete
+        Terminal-Bench tasks: compare the summaries it writes at window-exhaustion
+        moments against our block-aware rule and truncation, and measure the effect
+        of compression on task success directly.</li>
     <li><b>Train a compressor with D</b> (running): use the good-vs-bad summary pairs
         as training data and test whether the trained compressor preserves behavior
         better.</li>
-    <li><b>Use a stronger model</b> that can complete Terminal-Bench tasks, so we can
-        also measure the effect of compression on end-to-end task success.</li>
     <li><b>Revisit the credit question</b>: weight each compaction by the damage it
         actually causes, instead of the current back-loaded schemes.</li>
   </ul>

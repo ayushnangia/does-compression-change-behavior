@@ -187,7 +187,7 @@
      actually needs.</p>
   <p class="soft">exp4 v2 (role-aware), N=24, Qwen3.5-9B; ordering replicated on
      GLM-4.7-Flash (acting 0.49 vs 0.77 control), across five runs and two seeds,
-     and on-policy (halt 0.66 vs 0.34).</p>
+     and on our own models' trajectories (acting 0.34 vs 0.66 control).</p>
 </section>
 
 <!-- 6 RD CURVES -->
@@ -351,7 +351,7 @@
   <ul style="margin-top:.5em">
     <li>The <b>first</b> compaction does nearly all the damage: divergence jumps to
         <span class="num">2.3x</span> the noise floor immediately. Further compactions
-        add little divergence; they mainly increase halting
+        add little divergence; they mainly make the model act less often
         (acting <span class="num">0.53 → 0.46</span>).</li>
     <li>CompactionRL's credit scheme does the opposite: computed from their own
         equations, the first summary in a four-compaction chain is trained at

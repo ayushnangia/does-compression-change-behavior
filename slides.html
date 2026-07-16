@@ -346,22 +346,25 @@
     <div>
       <svg viewBox="0 0 430 280" width="100%">
         <!-- left panel: measured damage -->
-        <text x="115" y="14" text-anchor="middle" font-size="12" fill="#1a2233" font-weight="600">behavior change added</text>
-        <text x="115" y="28" text-anchor="middle" font-size="12" fill="#1a2233" font-weight="600">by each compaction (exp7)</text>
+        <text x="115" y="14" text-anchor="middle" font-size="12" fill="#1a2233" font-weight="600">behavior change D after</text>
+        <text x="115" y="28" text-anchor="middle" font-size="12" fill="#1a2233" font-weight="600">one compaction (exp10)</text>
         <line x1="38" y1="210" x2="200" y2="210" stroke="#8a97b5"/>
         <line x1="38" y1="210" x2="38" y2="45" stroke="#8a97b5"/>
         <g font-size="9" fill="#5a6b8c" text-anchor="end">
-          <text x="34" y="213">0</text><text x="34" y="131">+0.25</text><text x="34" y="51">+0.50</text></g>
-        <rect x="55" y="73" width="32" height="137" fill="#e05252" rx="3"/>
-        <rect x="105" y="206" width="32" height="4" fill="#ed8585" rx="2"/>
-        <rect x="155" y="206" width="32" height="4" fill="#ed8585" rx="2"/>
-        <g font-size="10" font-weight="600" text-anchor="middle">
-          <text x="71" y="65" fill="#e05252">+0.43</text>
-          <text x="121" y="198" fill="#c77">+0.00</text><text x="171" y="198" fill="#c77">+0.00</text></g>
+          <text x="34" y="213">0</text><text x="34" y="133">0.5</text><text x="34" y="53">1.0</text></g>
+        <line x1="38" y1="157" x2="200" y2="157" stroke="#8a97b5" stroke-dasharray="5 4"/>
+        <text x="196" y="170" text-anchor="end" font-size="9" fill="#8a97b5">noise floor ~0.33</text>
+        <polyline points="55,72 100,117 145,135 190,132" fill="none" stroke="#e05252" stroke-width="3"/>
+        <g fill="#e05252"><circle cx="55" cy="72" r="4"/><circle cx="100" cy="117" r="4"/>
+          <circle cx="145" cy="135" r="4"/><circle cx="190" cy="132" r="4"/></g>
+        <g font-size="10" fill="#e05252" font-weight="600" text-anchor="middle">
+          <text x="63" y="62">0.86</text><text x="104" y="107">0.58</text>
+          <text x="145" y="152" >0.47</text><text x="186" y="122">0.49</text></g>
         <g font-size="10" fill="#5a6b8c" text-anchor="middle">
-          <text x="71" y="224">1st</text><text x="121" y="224">2nd</text><text x="171" y="224">3rd</text></g>
-        <text x="119" y="238" text-anchor="middle" font-size="9" fill="#5a6b8c">total D: noise floor 0.45 before, 0.88 after the 1st,</text>
-        <text x="119" y="250" text-anchor="middle" font-size="9" fill="#5a6b8c">still 0.88 after the 2nd and 3rd (GLM-4.7-Flash)</text>
+          <text x="55" y="224">0</text><text x="100" y="224">1</text>
+          <text x="145" y="224">2</text><text x="190" y="224">3</text></g>
+        <text x="119" y="238" text-anchor="middle" font-size="9" fill="#5a6b8c">steps taken after the compaction</text>
+        <text x="119" y="250" text-anchor="middle" font-size="9" fill="#5a6b8c">damage peaks immediately, then fades</text>
         <!-- right panel: credit -->
         <text x="330" y="14" text-anchor="middle" font-size="12" fill="#1a2233" font-weight="600">training signal per summary</text>
         <text x="330" y="28" text-anchor="middle" font-size="12" fill="#1a2233" font-weight="600">(CompactionRL's equations)</text>
@@ -393,8 +396,9 @@
   <ul>
     <li>We set up the full Terminal-Bench 2.0 pipeline (89 tasks) to also measure
         compression effects on end-to-end task success.</li>
-    <li>The benchmark is too hard for the models we can run: they did not complete
-        any task. A stronger model is needed for this part of the evaluation.</li>
+    <li>The benchmark is too hard for the models we can run (Qwen3.5-35B-A3B,
+        int4-quantized): they did not complete any task. A stronger model is needed
+        for this part of the evaluation.</li>
     <li>Until then, we rely on the logged-action agreement measure, which we validated
         earlier in the deck.</li>
   </ul>

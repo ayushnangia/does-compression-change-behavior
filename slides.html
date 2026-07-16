@@ -406,32 +406,20 @@
 <!-- 11 NEXT -->
 <section class="slide">
   <h2>In the queue, and what comes next</h2>
-  <div class="cards">
-    <div class="card"><span class="tag info">running</span>
-      <p><b>exp15: real production compactions</b></p><p class="soft">Score the summaries
-      a production agent actually wrote at 132 window-exhaustion moments, against
-      our block-aware rule and truncation. Two earlier attempts had a context-construction
-      artifact (wrapper variants began with a document header and no trace body, so the
-      model treated the task as just starting); found, fixed, verified, rerunning.</p></div>
-    <div class="card"><span class="tag info">running</span>
-      <p><b>T4: the training test</b></p><p class="soft">Pair generation succeeded at scale:
-      177 examples, 86 preference pairs above the noise gap, trainee-written
-      candidates, task-level held-out split. (A first attempt trained nothing: wrong pair
-      source, 4 optimizer steps, underpowered eval; all fixed.) Train and eval are
-      rerunning after an allocator fix. Summary portability across executors is
-      pre-established (exp12), so post-training co-adaptation will be detectable.</p></div>
-    <div class="card"><span class="tag meh">tested, parked</span>
-      <p><b>Deletion manifest (exp13)</b></p><p class="soft">A group suggestion: after
-      compaction, inject a note listing what was deleted and how to retrieve it.
-      Small gains only (acting +4 points, lookup share +8), and no benefit when combined
-      with a summary. Possibly masked by the test harness already advertising retrieval;
-      a cleaner retest is designed but not scheduled.</p></div>
-  </div>
-  <p style="margin-top:1em"><b>After that:</b> a 64k-context probe, a citation-graph
-     literature pass, then the paper.</p>
-  <p><b>The longer program:</b> format-native compaction per model family, block-aware
-     token budgets, and behaviorally-trained compressors at roughly 0.1% of the usual
-     RL compute. The 6x batched scorer for all of this is already built and tested.</p>
+  <ul>
+    <li><b>Score real compactions</b> (running): evaluate the summaries a production
+        agent actually wrote at real window-exhaustion moments, against our block-aware
+        rule and truncation.</li>
+    <li><b>Train a compressor with D</b> (running): use the good-vs-bad summary pairs
+        as training data and test whether the trained compressor preserves behavior
+        better.</li>
+    <li><b>Use a stronger model</b> that can complete Terminal-Bench tasks, so we can
+        also measure the effect of compression on end-to-end task success.</li>
+    <li><b>Revisit the credit question</b>: weight each compaction by the damage it
+        actually causes, instead of the current back-loaded schemes.</li>
+  </ul>
+  <p style="margin-top:1em"><b>Then:</b> longer contexts, a full literature pass,
+     and the paper.</p>
 </section>
 
 <!-- 13 REFERENCES -->

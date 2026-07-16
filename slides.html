@@ -112,8 +112,8 @@
      that <i>you choose</i>). We keep the framework and choose a different measure:</p>
   <p style="font-size:1.5em; margin:.8em 0"><b>Distortion = how much the agent's
      next-action distribution changes.</b></p>
-  <p><b>Test bed:</b> decision points mined from real software-agent traces
-     (nvidia/Open-SWE-Traces). At each decision point we compress the older history,
+  <p><b>Test bed:</b> we take real software-agent runs and stop them mid-task, right
+     before the agent's next step. At each stopping point we compress the older history,
      keep the recent turns raw, and sample the model's next action 8 times with the
      full context and 8 times with the compressed one.</p>
   <div class="cards">
@@ -135,8 +135,8 @@
   <h2>Validating the metric against logged actions</h2>
   <p>A divergence metric computed against the model's own full-context output is
      self-referential. To ground it externally, we use the fact that each trace records
-     the action the original agent actually took at every decision point.</p>
-  <p><b>Procedure:</b> at each decision point, build the context under each condition.
+     the action the original agent actually took at every stopping point.</p>
+  <p><b>Procedure:</b> at each stopping point, build the context under each condition.
      Every condition keeps the most recent <span class="num">512</span> tokens raw
      (that is how real compaction systems work); they differ in what replaces the
      older history. Sample the next action 8 times per condition and measure the

@@ -347,21 +347,25 @@
       <svg viewBox="0 0 430 280" width="100%">
         <!-- left panel: measured damage -->
         <text x="115" y="14" text-anchor="middle" font-size="12" fill="#1a2233" font-weight="600">behavior change D after</text>
-        <text x="115" y="28" text-anchor="middle" font-size="12" fill="#1a2233" font-weight="600">k compactions (exp7)</text>
+        <text x="115" y="28" text-anchor="middle" font-size="12" fill="#1a2233" font-weight="600">k compactions</text>
+        <text x="115" y="40" text-anchor="middle" font-size="9" fill="#5a6b8c">exp7, GLM-4.7-Flash (its noise floor is 0.45, higher than Qwen's)</text>
         <line x1="38" y1="210" x2="200" y2="210" stroke="#8a97b5"/>
         <line x1="38" y1="210" x2="38" y2="45" stroke="#8a97b5"/>
         <g font-size="9" fill="#5a6b8c" text-anchor="end">
           <text x="34" y="213">0</text><text x="34" y="128">0.5</text><text x="34" y="43">1.0</text></g>
-        <rect x="55" y="60" width="32" height="150" fill="#e05252" rx="3"/>
-        <rect x="105" y="60" width="32" height="150" fill="#ed8585" rx="3"/>
-        <rect x="155" y="60" width="32" height="150" fill="#ed8585" rx="3"/>
+        <rect x="50" y="136" width="30" height="74" fill="#b9c6e0" rx="3"/>
+        <rect x="88" y="65" width="30" height="145" fill="#e05252" rx="3"/>
+        <rect x="126" y="65" width="30" height="145" fill="#ed8585" rx="3"/>
+        <rect x="164" y="65" width="30" height="145" fill="#ed8585" rx="3"/>
+        <text x="65" y="129" text-anchor="middle" font-size="10" fill="#5a6b8c" font-weight="600">0.45</text>
+        <text x="196" y="148" text-anchor="end" font-size="9" fill="#8a97b5">noise floor</text>
         <g font-size="10" fill="#e05252" font-weight="600" text-anchor="middle">
-          <text x="71" y="53">0.88</text><text x="121" y="53">0.88</text><text x="171" y="53">0.88</text></g>
-        <line x1="38" y1="133" x2="200" y2="133" stroke="#8a97b5" stroke-dasharray="5 4"/>
-        <text x="196" y="146" text-anchor="end" font-size="9" fill="#8a97b5">noise floor 0.45</text>
+          <text x="103" y="58">0.88</text><text x="141" y="58">0.88</text><text x="179" y="58">0.88</text></g>
+        <line x1="38" y1="136" x2="200" y2="136" stroke="#8a97b5" stroke-dasharray="5 4"/>
         <g font-size="10" fill="#5a6b8c" text-anchor="middle">
-          <text x="71" y="224">k=1</text><text x="121" y="224">k=2</text><text x="171" y="224">k=3</text></g>
-        <text x="119" y="240" text-anchor="middle" font-size="10" fill="#5a6b8c">flat: the 1st does all the damage</text>
+          <text x="65" y="224">none</text><text x="103" y="224">k=1</text>
+          <text x="141" y="224">k=2</text><text x="179" y="224">k=3</text></g>
+        <text x="119" y="240" text-anchor="middle" font-size="10" fill="#5a6b8c">jumps at the 1st compaction, then flat</text>
         <!-- right panel: credit -->
         <text x="330" y="14" text-anchor="middle" font-size="12" fill="#1a2233" font-weight="600">training signal per summary</text>
         <text x="330" y="28" text-anchor="middle" font-size="12" fill="#1a2233" font-weight="600">(CompactionRL's equations)</text>

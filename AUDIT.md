@@ -122,6 +122,27 @@ Do not quote round-1 numbers except as an infrastructure lesson.
   refs capped to 16k (consistent with the program) + allocator hint;
   rerun 65708856.
 
+## Final harvest (July 16, second pass)
+
+- **exp6-coarse WITH CIs**: on-policy at R=0.5, block_aware coarse-D 0.23
+  [0.13,0.34] vs keep_recent 0.47 [0.35,0.62] (paired p=0.074) and summary
+  0.41 (p=0.095). Direction consistent at R=0.75, weaker. Verdict: the
+  ceiling explanation confirmed; block-aware-best-on-policy is REAL but
+  marginal at N=13. Quote as "suggestive (p~0.07-0.10)"; N=48 rerun would
+  settle it.
+- **exp15 v2's 0.00-acting anomaly was OUR construction artifact**: post
+  segments were serialized separately, so wrapper-based variants began with
+  a fresh <agent_trace> document header and no trace body; the model treated
+  them as a task starting. v1 of the geometry has the same flaw, so NO prior
+  exp15 numbers are quotable except keep_recent-style trends. Fixed (single
+  serialization, char-offset slicing, verified headerless); rerun 65729683.
+- **T4 phase 1 SUCCEEDED at scale**: 177 usable examples at 16k, floor 0.253
+  (marginalized target), select-by-D fresh 0.67 [0.64,0.69] vs random 0.72
+  [0.69,0.74] — E-A replicates at 16k with non-overlapping CIs. 86
+  gap-filtered pairs written. Phase 2 OOM was allocator FRAGMENTATION
+  (15.3GB reserved-unallocated); expandable_segments added; resume job
+  65729682 (train+eval only, pairs preserved).
+
 ## Still open (known, accepted, scheduled)
 
 - Repo-level train/held-out split for E-B (before any writeup).

@@ -136,11 +136,6 @@
   <p>A divergence metric computed against the model's own full-context output is
      self-referential. To ground it externally, we use the fact that each trace records
      the action the original agent actually took at every stopping point.</p>
-  <p><b>Procedure:</b> at each stopping point, build the context under each condition.
-     Every condition keeps the most recent <span class="num">512</span> tokens raw
-     (that is how real compaction systems work); they differ in what replaces the
-     older history. Sample the next action 8 times per condition and measure the
-     fraction whose tool call matches the logged action:</p>
   <div style="margin-top:.6em; max-width:760px">
     <div class="bar" style="width:74%; background:var(--green)">full context (100% kept): 73% agreement</div>
     <div class="bar" style="width:67%; background:#57b98a">keep recent: newest half of old history + raw slice (56% kept): 67%</div>

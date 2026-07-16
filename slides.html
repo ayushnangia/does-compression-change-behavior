@@ -136,18 +136,23 @@
   <p>A divergence metric computed against the model's own full-context output is
      self-referential. To ground it externally, we use the fact that each trace records
      the action the original agent actually took at every decision point.</p>
-  <p><b>Procedure:</b> at each decision point, construct the context under each condition
-     (full context, recent tokens only, and LLM summary, all at matched token budgets), sample
-     the next action 8 times, and measure the fraction of samples whose tool call matches
-     the logged action:</p>
-  <div style="margin-top:.6em; max-width:720px">
-    <div class="bar" style="width:74%; background:var(--green)">full context: 73% agreement</div>
-    <div class="bar" style="width:67%; background:#57b98a">recent tokens only: 67%</div>
-    <div class="bar" style="width:30%; background:var(--red)">LLM summary: 30%</div>
+  <p><b>Procedure:</b> at each decision point, build the context under each condition.
+     Every condition keeps the most recent <span class="num">512</span> tokens raw
+     (that is how real compaction systems work); they differ in what replaces the
+     older history. Sample the next action 8 times per condition and measure the
+     fraction whose tool call matches the logged action:</p>
+  <div style="margin-top:.6em; max-width:760px">
+    <div class="bar" style="width:74%; background:var(--green)">full context (avg 4096 tok, 100%): 73% agreement</div>
+    <div class="bar" style="width:67%; background:#57b98a">keep recent: newest 50% of old history + raw slice (avg 2304 tok, 56%): 67%</div>
+    <div class="bar" style="width:30%; background:var(--red)">LLM summary: &le;256-tok summary + wrapper + raw slice (avg ~800 tok, 19%): 30%</div>
   </div>
-  <p style="margin-top:.9em">The two scores agree: compression methods that our metric D
-     rates as more damaging also reproduce the agent's recorded action less often.
-     Since D matches this independent reference, we can trust what it measures.</p>
+  <p style="margin-top:.9em"><b>Note the budgets are not matched here</b>: the summary
+     condition keeps far fewer tokens (19% vs 56%). This slide only establishes that D
+     tracks the external reference. The budget-matched comparison is Finding 2, where
+     the summary still loses to truncation at every equal budget.</p>
+  <p>The two scores agree: compression methods that our metric D rates as more damaging
+     also reproduce the agent's recorded action less often. Since D matches this
+     independent reference, we can trust what it measures.</p>
   <p>We also tested whether the full-context reference point is stable. Keeping the content
      identical but adding irrelevant filler text still changed the model's actions
      (drift 0.56 padded vs 0.60 truncated). Context length by itself shifts behavior,

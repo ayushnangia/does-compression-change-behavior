@@ -337,12 +337,11 @@
             learning signal the last one gets. The summary that matters most is
             trained the least.</li>
       </ul>
-      <p style="margin-top:.8em"><b>Our answer: skip the credit problem entirely.</b>
-         Score every summary immediately, at the place it was written, using D.
-         The damage a summary causes shows up right away (and fades within a couple
-         of steps as new turns accumulate), so that is where the signal is.</p>
-      <p class="soft">exp7, exp1 (computed from their equations), exp10 (recovery).
-         Whether this signal trains a compressor is the T4 run in the queue.</p>
+      <p style="margin-top:.8em"><b>D offers a possible way out:</b> instead of passing
+         credit back from the final task outcome, score each summary immediately with D
+         at the place it was written. Whether that actually trains a better compressor
+         is an open question we are testing now (the T4 run).</p>
+      <p class="soft">exp7, exp1 (computed from their equations).</p>
     </div>
     <div>
       <svg viewBox="0 0 430 270" width="100%">

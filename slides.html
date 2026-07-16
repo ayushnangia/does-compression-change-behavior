@@ -286,13 +286,10 @@
   </div>
   <p style="margin-top:1em">The metric can also <b>pick the best summary</b>. Write 8
      different candidate summaries of the same history, score each with D, and keep the
-     one with the lowest score. With that summary, the agent repeats its original action
-     <span class="num">55%</span> of the time; with a randomly picked candidate, only
-     <span class="num">38%</span> (p = 0.0004). For scale: even the full uncompressed
-     context only matches <span class="num">73%</span> of the time, because sampling is
-     random. So selection recovers about half the gap that compression opened. A larger
-     repeat run on <span class="num">177</span> examples with longer contexts shows the
-     same pattern.</p>
+     one with the lowest score. The selected summary keeps the agent noticeably closer
+     to its original behavior than a random pick, recovering about half the gap that
+     compression opened. A larger repeat run on <span class="num">177</span> examples
+     with longer contexts shows the same pattern.</p>
   <p class="soft">exp9, exp11. If the metric can rank summaries, it can also supply
      training data: keep the good-vs-bad summary pairs and train a compressor on them
      offline, with no reinforcement learning loop needed (unlike CompactionRL).</p>

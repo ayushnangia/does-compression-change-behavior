@@ -344,34 +344,44 @@
       <p class="soft">exp7, exp1 (computed from their equations).</p>
     </div>
     <div>
-      <svg viewBox="0 0 430 270" width="100%">
-        <!-- left panel: damage -->
-        <text x="115" y="20" text-anchor="middle" font-size="12" fill="#1a2233" font-weight="600">damage caused</text>
-        <text x="115" y="35" text-anchor="middle" font-size="10" fill="#5a6b8c">(measured, exp7)</text>
-        <line x1="30" y1="210" x2="200" y2="210" stroke="#8a97b5"/>
-        <rect x="45" y="70" width="34" height="140" fill="#e05252" rx="3"/>
-        <rect x="95" y="192" width="34" height="18" fill="#f0a8a8" rx="3"/>
-        <rect x="145" y="196" width="34" height="14" fill="#f0a8a8" rx="3"/>
-        <text x="62" y="62" text-anchor="middle" font-size="10" fill="#e05252" font-weight="600">nearly all</text>
-        <text x="137" y="184" text-anchor="middle" font-size="10" fill="#c77" font-weight="600">almost nothing</text>
+      <svg viewBox="0 0 430 280" width="100%">
+        <!-- left panel: measured damage -->
+        <text x="115" y="14" text-anchor="middle" font-size="12" fill="#1a2233" font-weight="600">behavior change D after</text>
+        <text x="115" y="28" text-anchor="middle" font-size="12" fill="#1a2233" font-weight="600">k compactions (exp7)</text>
+        <line x1="38" y1="210" x2="200" y2="210" stroke="#8a97b5"/>
+        <line x1="38" y1="210" x2="38" y2="45" stroke="#8a97b5"/>
+        <g font-size="9" fill="#5a6b8c" text-anchor="end">
+          <text x="34" y="213">0</text><text x="34" y="128">0.5</text><text x="34" y="43">1.0</text></g>
+        <rect x="55" y="60" width="32" height="150" fill="#e05252" rx="3"/>
+        <rect x="105" y="60" width="32" height="150" fill="#ed8585" rx="3"/>
+        <rect x="155" y="60" width="32" height="150" fill="#ed8585" rx="3"/>
+        <g font-size="10" fill="#e05252" font-weight="600" text-anchor="middle">
+          <text x="71" y="53">0.88</text><text x="121" y="53">0.88</text><text x="171" y="53">0.88</text></g>
+        <line x1="38" y1="133" x2="200" y2="133" stroke="#8a97b5" stroke-dasharray="5 4"/>
+        <text x="196" y="146" text-anchor="end" font-size="9" fill="#8a97b5">noise floor 0.45</text>
         <g font-size="10" fill="#5a6b8c" text-anchor="middle">
-          <text x="62" y="224">1st</text><text x="112" y="224">2nd</text><text x="162" y="224">3rd</text></g>
+          <text x="71" y="224">k=1</text><text x="121" y="224">k=2</text><text x="171" y="224">k=3</text></g>
+        <text x="119" y="240" text-anchor="middle" font-size="10" fill="#5a6b8c">flat: the 1st does all the damage</text>
         <!-- right panel: credit -->
-        <text x="330" y="20" text-anchor="middle" font-size="12" fill="#1a2233" font-weight="600">training signal received</text>
-        <text x="330" y="35" text-anchor="middle" font-size="10" fill="#5a6b8c">(CompactionRL, their equations)</text>
-        <line x1="245" y1="210" x2="420" y2="210" stroke="#8a97b5"/>
-        <rect x="255" y="191" width="28" height="19" fill="#a9c2f7" rx="3"/>
-        <rect x="295" y="174" width="28" height="36" fill="#7fa3f4" rx="3"/>
-        <rect x="335" y="139" width="28" height="71" fill="#5c88f2" rx="3"/>
-        <rect x="375" y="70" width="28" height="140" fill="#3b6ef6" rx="3"/>
-        <text x="269" y="184" text-anchor="middle" font-size="10" fill="#3b6ef6" font-weight="600">13.5%</text>
-        <text x="389" y="62" text-anchor="middle" font-size="10" fill="#3b6ef6" font-weight="600">100%</text>
+        <text x="330" y="14" text-anchor="middle" font-size="12" fill="#1a2233" font-weight="600">training signal per summary</text>
+        <text x="330" y="28" text-anchor="middle" font-size="12" fill="#1a2233" font-weight="600">(CompactionRL's equations)</text>
+        <line x1="248" y1="210" x2="420" y2="210" stroke="#8a97b5"/>
+        <line x1="248" y1="210" x2="248" y2="45" stroke="#8a97b5"/>
+        <g font-size="9" fill="#5a6b8c" text-anchor="end">
+          <text x="244" y="213">0</text><text x="244" y="128">50%</text><text x="244" y="43">100%</text></g>
+        <rect x="258" y="188" width="28" height="22" fill="#a9c2f7" rx="3"/>
+        <rect x="298" y="168" width="28" height="42" fill="#7fa3f4" rx="3"/>
+        <rect x="338" y="128" width="28" height="82" fill="#5c88f2" rx="3"/>
+        <rect x="378" y="50" width="28" height="160" fill="#3b6ef6" rx="3"/>
+        <g font-size="10" fill="#3b6ef6" font-weight="600" text-anchor="middle">
+          <text x="272" y="181">13.5%</text><text x="312" y="161">26%</text>
+          <text x="352" y="121">51%</text><text x="392" y="43">100%</text></g>
         <g font-size="10" fill="#5a6b8c" text-anchor="middle">
-          <text x="269" y="224">1st</text><text x="309" y="224">2nd</text>
-          <text x="349" y="224">3rd</text><text x="389" y="224">4th</text></g>
+          <text x="272" y="224">1st</text><text x="312" y="224">2nd</text>
+          <text x="352" y="224">3rd</text><text x="392" y="224">4th</text></g>
+        <text x="334" y="240" text-anchor="middle" font-size="10" fill="#5a6b8c">rising: the 1st is trained least</text>
         <!-- caption -->
-        <text x="222" y="250" text-anchor="middle" font-size="11" fill="#1a2233" font-weight="600">the compression that hurts most is trained least</text>
-        <text x="222" y="265" text-anchor="middle" font-size="10" fill="#5a6b8c">x-axis: position of the compression in the task</text>
+        <text x="225" y="264" text-anchor="middle" font-size="11" fill="#1a2233" font-weight="600">the compaction that hurts most gets the least training signal</text>
       </svg>
     </div>
   </div>

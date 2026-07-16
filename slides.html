@@ -45,7 +45,7 @@
   <h1>Compress the Behavior,<br>Not the Information</h1>
   <p style="font-size:1.5em; margin-top:.7em">When an agent's memory gets compacted,
      does the agent still <b>do</b> the same things?</p>
-  <p class="soft" style="margin-top:2em">14 experiments. Qwen3.5 and GLM-4.7 model families.
+  <p class="soft" style="margin-top:2em">16 experiments. Qwen3.5 and GLM-4.7 model families.
      Terminal-Bench 2.0 infrastructure.</p>
 </section>
 
@@ -331,6 +331,33 @@
      so this is an upper bound on recovery. Claims, confounds, and per-claim status: AUDIT.md.</p>
 </section>
 
+<!-- 9b CREDIT INVERSION -->
+<section class="slide">
+  <h2>Finding 6: damage is front-loaded, RL credit is back-loaded</h2>
+  <p>When compaction happens repeatedly in one long task, which compaction matters most?
+     We compacted the same history up to three times and measured behavior after each step:</p>
+  <ul style="margin-top:.5em">
+    <li>The <b>first</b> compaction does nearly all the damage: divergence jumps to
+        <span class="num">2.3x</span> the noise floor immediately. Further compactions
+        add little divergence; they mainly increase halting
+        (acting <span class="num">0.53 → 0.46</span>).</li>
+    <li>CompactionRL's credit scheme does the opposite: computed from their own
+        equations, the first summary in a four-compaction chain is trained at
+        <span class="num">13.5%</span> of the learning signal the last one receives.</li>
+    <li>Group-normalized RL (GRPO-style) adds a second distortion: a rollout that
+        compacted four times carries <span class="num">3.2x</span> the gradient weight
+        of an uncompacted one, for the same outcome.</li>
+  </ul>
+  <p style="margin-top:.8em"><b>Our conclusion is to step around the credit problem rather
+     than re-weight it:</b> grade each summary immediately at its own boundary, using
+     divergence as the signal. No terminal-reward credit path, no critic, no group
+     normalization. Finding 5 (damage is transient) supports this: the useful signal
+     about a summary exists right where it was written.</p>
+  <p class="soft">exp7, exp1 (exact computation), exp2 (simulation). Selection by this
+     signal already works (p = 0.0004, Finding 3); whether it trains a compressor is the
+     T4 run currently in the queue.</p>
+</section>
+
 <!-- 10 HONEST NEGATIVE -->
 <section class="slide">
   <h2>The grounded benchmark: an honest negative</h2>
@@ -359,7 +386,11 @@
     <div class="card"><span class="tag info">queued</span>
       <p><b>T4: the training test</b></p><p class="soft">Trainee writes its own
       candidate summaries, 280 examples, divergence as the training signal,
-      task-level held-out split.</p></div>
+      task-level held-out split. A first attempt produced no training at all
+      (pairs written by the wrong model, 4 optimizer steps, underpowered eval);
+      this run fixes all three causes. Baseline portability of summaries across
+      executors is already established (exp12), so post-training co-adaptation
+      will be detectable.</p></div>
     <div class="card"><span class="tag info">queued</span>
       <p><b>exp6-coarse</b></p><p class="soft">Decide whether the flat curves on our own
       models' trajectories are a real effect or a ceiling of the fine-grained metric.</p></div>

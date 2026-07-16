@@ -142,14 +142,17 @@
      older history. Sample the next action 8 times per condition and measure the
      fraction whose tool call matches the logged action:</p>
   <div style="margin-top:.6em; max-width:760px">
-    <div class="bar" style="width:74%; background:var(--green)">full context (avg 4096 tok, 100%): 73% agreement</div>
-    <div class="bar" style="width:67%; background:#57b98a">keep recent: newest 50% of old history + raw slice (avg 2304 tok, 56%): 67%</div>
-    <div class="bar" style="width:30%; background:var(--red)">LLM summary: &le;256-tok summary + wrapper + raw slice (avg ~800 tok, 19%): 30%</div>
+    <div class="bar" style="width:74%; background:var(--green)">full context (100% kept): 73% agreement</div>
+    <div class="bar" style="width:67%; background:#57b98a">keep recent: newest half of old history + raw slice (56% kept): 67%</div>
+    <div class="bar" style="width:30%; background:var(--red)">LLM summary + raw slice (19% kept): 30%</div>
   </div>
   <p style="margin-top:.9em"><b>Note the budgets are not matched here</b>: the summary
      condition keeps far fewer tokens (19% vs 56%). This slide only establishes that D
      tracks the external reference. The budget-matched comparison is Finding 2, where
      the summary still loses to truncation at every equal budget.</p>
+  <p class="soft">These runs use 4k-token decision windows (raw slice 512 tokens,
+     summaries capped at 256). The same measurement at 16k-token windows on the agent's
+     own trajectories gives nearly identical numbers: 0.74 / 0.67 / 0.30.</p>
   <p>The two scores agree: compression methods that our metric D rates as more damaging
      also reproduce the agent's recorded action less often. Since D matches this
      independent reference, we can trust what it measures.</p>
@@ -157,8 +160,7 @@
      identical but adding irrelevant filler text still changed the model's actions
      (drift 0.56 padded vs 0.60 truncated). Context length by itself shifts behavior,
      so training targets should be averaged over several context lengths.</p>
-  <p class="soft">exp8, exp3. Replicated on the agent's own live-environment runs:
-     0.74 / 0.67 / 0.30, nearly identical.</p>
+  <p class="soft">exp8 (4k and 16k), exp3.</p>
 </section>
 
 <!-- 5 BLOCK LAW -->

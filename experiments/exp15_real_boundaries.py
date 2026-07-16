@@ -52,16 +52,26 @@ def find_events(path):
 
 
 def build_variants(msgs, mi, handoff, tokenizer, model, device, budget, rng):
-    """Return (ref_ids, {name: ids}, logged) or None if unusable."""
+    """Return (ref_ids, {name: ids}, logged) or None if unusable.
+
+    Serialize the WHOLE trajectory once and slice by character offsets.
+    (v1 serialized pre and post separately, so wrapper-based variants began
+    with a fresh <agent_trace> document header and no trace body; the model
+    treated them as a task STARTING and never acted. Geometry artifact,
+    not a finding.)"""
     task = {"instance_id": "t", "repo": "t"}
-    pre = _serialize({**task, "trajectory": msgs[:mi]})          # true history
-    # post-compaction segment: skip marker + handoff message (mi, mi+1)
-    post = _serialize({**task, "trajectory": msgs[mi + 2:]})
-    m = re.search(r"<tool_calls>", post)
+    full = _serialize({**task, "trajectory": msgs})
+    m_start = full.find(f"<turn index={mi} ")
+    m_end = full.find(f"<turn index={mi + 2} ")
+    if m_start < 0 or m_end < 0:
+        return None
+    pre = full[:m_start]                       # true history, single header
+    post_all = full[m_end:]                    # resumes with a plain <turn>
+    m = re.search(r"<tool_calls>", post_all)
     if not m:
         return None
-    post_head = post[: m.start()]                                # up to next real action
-    logged = parse_action(post[m.start(): m.start() + 2000])
+    post_head = post_all[: m.start()]          # up to the next real action
+    logged = parse_action(post_all[m.start(): m.start() + 2000])
 
     ids = lambda t: tokenizer(t, add_special_tokens=False)["input_ids"]
     pre_ids = ids(pre)

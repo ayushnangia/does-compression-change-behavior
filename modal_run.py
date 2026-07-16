@@ -36,6 +36,6 @@ def run(model: str, num_examples: int, samples: int, scaffold: bool):
 
 
 @app.local_entrypoint()
-def main(model: str = "Qwen/Qwen3-8B", num_examples: int = 8,
+def main(model: str = "Qwen/Qwen3.5-9B", num_examples: int = 8,
          samples: int = 8, scaffold: bool = False):
     run.remote(model, num_examples, samples, scaffold)

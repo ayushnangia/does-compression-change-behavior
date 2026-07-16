@@ -12,9 +12,24 @@ All three are simple and reported honestly:
 
 from __future__ import annotations
 
+import math
+from collections import Counter
+
 
 def _label(a):
     return a if a is not None else "NO_ACTION"
+
+
+def action_entropy(actions) -> float:
+    """Shannon entropy (bits) of the sampled action distribution, NO_ACTION
+    included. Mean behavior change hides HOW uncertainty is damaged:
+    compression can collapse the distribution (overconfident on one action)
+    or inflate it (scattered). Read against the full-context entropy —
+    preserving the model's uncertainty structure, not just its argmax, is
+    part of behavior preservation."""
+    n = len(actions)
+    return -sum((c / n) * math.log2(c / n)
+                for c in Counter(_label(a) for a in actions).values())
 
 
 def acting_rate(actions) -> float:
@@ -26,6 +41,15 @@ def lookup_rate(actions, action_kind) -> float:
     """Fraction of samples where the model chose an information-gathering
     (lookup) action rather than a task action or nothing."""
     return sum(action_kind(a) == "lookup" for a in actions) / len(actions)
+
+
+def action_change_tools(actions_a, actions_b) -> float:
+    """action_change at TOOL-NAME granularity (args stripped). Full labels
+    saturate near 1.0 (ceiling); tool-level TV has a lower ceiling and
+    detects compounding that label-level TV can hide."""
+    strip = lambda a: a.split("::", 1)[0] if a else None
+    return action_change([strip(a) for a in actions_a],
+                         [strip(b) for b in actions_b])
 
 
 def action_change(actions_a, actions_b) -> float:

@@ -1,0 +1,20 @@
+{
+  "slug": "scale-compaction-regime",
+  "phase": "explore",
+  "iteration": 1,
+  "goal": "Scale the behavioral-compression program to the REAL compaction regime: long contexts (16k-64k, actual window exhaustion), vLLM-batched scoring (10x), large pair sets (1k+), iterative DPO, and D(R)/block-law measurement at scale - to build measurably better compaction.",
+  "success_criteria": [
+    "scorer throughput >= 5x current HF path, verified on identical inputs (same D +/- floor)",
+    "examples at >= 16k context from real trajectories incl. genuine window-exhaustion points",
+    "1k+ gap-filtered DPO pairs; adapter beats base summarizer on held-out long-context D and grounded agreement",
+    "D(R) + block law measured at 16k+ (do 4k findings survive scale?)"
+  ],
+  "tier": "standard",
+  "budget": {"exploration_rounds": 2, "research_calls": 1},
+  "inventory_snapshot": "2026-07-15T11:30:47Z model=anthropic/claude-fable-5 tools=read,bash,edit,write,loop_* skills=alliance-ml,loop-* NOTE: no subagent tool available -> direct probes instead of delegation",
+  "assumptions": [],
+  "open_questions": [],
+  "must_haves": {"truths": [], "artifacts": [], "key_links": []},
+  "evidence_ledger": [],
+  "impact_closure": {}
+}

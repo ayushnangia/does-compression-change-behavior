@@ -45,7 +45,6 @@ always kept raw (that's how real systems work).
 | `keep_recent` | keep only the last half of the tokens | simplest lossy method |
 | `summary` | model summarizes the old history | what real products actually do |
 | `paraphrase` | reword the old history, keep all the info | control: separates "lost info" from "different words" |
-| `noise` | perturb the model's output to match `summary`'s likelihood-damage | control: is any change this size damaging, or is it summaries specifically? |
 | `pointer` | drop the old history but leave "see file X" pointers | control: damage the agent *can* recover from |
 | `hallucinator` | drop the old history, say "all done, proceed confidently" | control: damage the agent *cannot* recover from |
 
@@ -57,16 +56,21 @@ The last two are the honest test of the metric: a good measure must say
 A person with a compressed memory doesn't fail — they look something up. An
 agent can too: re-read a file, grep the code. So a different next action might
 be **adaptive** (going to re-read), not **damage**. To measure this honestly,
-`run_experiment.py --scaffold` offers the agent an explicit tool menu
-including a lookup, and when it looks something up we hand back the relevant
-piece of the original history and let it continue. If the compressed agent
-recovers and reaches the same action, that compression was fine.
+`run_experiment.py --scaffold` (implemented in `scaffold.py`) offers the agent
+an explicit tool menu including lookups, and when it looks something up we hand
+back the relevant slice of the *original, pre-compression* history and let it
+continue — up to two lookups before it must act. If the compressed agent
+recovers and reaches the same action, that compression was fine; if it stays
+silent even with the menu, the information loss was real. In `--scaffold`
+mode the full-context reference goes through the same menu, so the two are
+compared over the same action space, and the `lookup` column reports the
+fraction of rollouts that consulted history.
 
 ## What we found (in the bigger study this repo distills)
 
 - Summaries don't make the agent act *wrong* so much as make it **stop
-  acting** — acting rate collapses while an equally-damaging random
-  perturbation barely moves it.
+  acting** — the acting rate collapses even though the compressed history
+  still nominally lets the agent continue.
 - Standard quality checks (perplexity / "can it answer questions") say
   compression is nearly lossless while behavior falls apart. The two come
   apart.
@@ -82,10 +86,10 @@ can run it, see it, and extend it.
 pip install -r requirements.txt
 
 # small model, runs on a free Colab GPU or slowly on CPU:
-python run_experiment.py --model Qwen/Qwen2.5-1.5B-Instruct --num-examples 8
+python run_experiment.py --model Qwen/Qwen3.5-4B --num-examples 8
 
 # add the recovery test (offer a tool menu, allow lookups):
-python run_experiment.py --model Qwen/Qwen2.5-1.5B-Instruct --scaffold
+python run_experiment.py --model Qwen/Qwen3.5-4B --scaffold
 
 # on a cloud GPU with the full-size model (needs Modal):
 modal run modal_run.py
@@ -98,6 +102,7 @@ Results print as a table and save to `results/`.
 - `data.py` — load real agent traces and cut them at decision points.
 - `compressors.py` — the seven ways to shrink the history.
 - `behavior.py` — sample the model's next actions and parse them.
+- `scaffold.py` — the recovery test: tool menu + hand back history on lookup.
 - `metrics.py` — acting rate, action change, the noise floor.
 - `run_experiment.py` — tie it together, print the table.
 - `modal_run.py` — run on a cloud GPU.

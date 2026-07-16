@@ -6,7 +6,7 @@ actions, and compare them to the full-context actions. We print, per
 compressor: acting rate, how much the behavior changed (vs the noise floor),
 and the lookup rate.
 
-    python run_experiment.py --model Qwen/Qwen2.5-1.5B-Instruct --num-examples 8
+    python run_experiment.py --model Qwen/Qwen3.5-4B --num-examples 8
     python run_experiment.py --scaffold        # add the recovery test
 """
 
@@ -17,40 +17,52 @@ import json
 import time
 from pathlib import Path
 
-import torch
-
 from behavior import action_kind, sample_actions
 from compressors import TEXT_COMPRESSORS
-from data import load_examples
+from data import load_examples, load_examples_file
 from metrics import acting_rate, action_change, lookup_rate, normalized_change
+from scaffold import recover_actions
 
 
 def build_context(name, ex, tokenizer, model, device):
     """Return the token ids for one compressor on one example.
-    'full' and 'noise' both use the raw context (noise is applied later)."""
-    if name in ("full", "noise"):
+    'full' uses the raw context unchanged (the baseline)."""
+    if name == "full":
         return ex.context_ids
     old = ex.context_ids[: -len(ex.recent_ids)]
     compressed_old = TEXT_COMPRESSORS[name](old, tokenizer, model, device)
     return compressed_old + ex.recent_ids
 
 
-def calibrate_noise_std(model, tokenizer, examples, device):
-    """Pick a noise level whose likelihood-damage matches `summary`, so the
-    noise control is a fair comparison. Simple version: a fixed sensible
-    default; tune if you want an exact match."""
-    return 1.5
+def sample_behavior(ctx, old_text, args, model, tokenizer, device, *, seed):
+    """Return (actions, used_lookups) for one context.
+
+    With --scaffold, run the recovery loop: offer a tool menu and, when the
+    agent looks something up, hand back the relevant slice of the original
+    history and let it continue (see scaffold.py). Without it, just sample the
+    next action directly. `used_lookups` is None outside scaffold mode.
+    """
+    if args.scaffold:
+        return recover_actions(model, tokenizer, ctx, old_text, device,
+                               samples=args.samples, seed=seed)
+    acts = sample_actions(model, tokenizer, ctx, device,
+                          samples=args.samples, seed=seed)
+    return acts, None
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--model", default="Qwen/Qwen2.5-1.5B-Instruct")
+    ap.add_argument("--model", default="Qwen/Qwen3.5-4B")
     ap.add_argument("--num-examples", type=int, default=8)
     ap.add_argument("--samples", type=int, default=8)
     ap.add_argument("--context-tokens", type=int, default=1024)
     ap.add_argument("--recent-tokens", type=int, default=128)
     ap.add_argument("--scaffold", action="store_true",
                     help="offer a tool menu incl. lookup (the recovery test)")
+    ap.add_argument("--examples-file", default=None,
+                    help="load prefetched examples (see prefetch.py) instead "
+                         "of streaming from HuggingFace — needed on offline "
+                         "compute nodes")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", default="results")
     args = ap.parse_args()
@@ -64,12 +76,15 @@ def main():
     ).eval()
     device = model.device
 
-    examples = load_examples(
-        tokenizer, context_tokens=args.context_tokens,
-        recent_tokens=args.recent_tokens, num_examples=args.num_examples, seed=args.seed,
-    )
-    noise_std = calibrate_noise_std(model, tokenizer, examples, device)
-    names = ["full", "keep_recent", "summary", "paraphrase", "noise", "pointer", "hallucinator"]
+    if args.examples_file:
+        examples = load_examples_file(args.examples_file, args.num_examples)
+        print(f"loaded {len(examples)} prefetched examples from {args.examples_file}")
+    else:
+        examples = load_examples(
+            tokenizer, context_tokens=args.context_tokens,
+            recent_tokens=args.recent_tokens, num_examples=args.num_examples, seed=args.seed,
+        )
+    names = ["full", "keep_recent", "summary", "paraphrase", "pointer", "hallucinator"]
 
     # accumulate per-compressor stats over the usable examples
     stats = {n: {"acting": [], "change": [], "lookup": []} for n in names}
@@ -79,28 +94,37 @@ def main():
 
     for ei, ex in enumerate(examples):
         base = args.seed * 9973 + ei * 17
+        # the original history that compression throws away; the recovery test
+        # serves lookups from this exact text (see scaffold.serve_lookup)
+        old_text = tokenizer.decode(
+            ex.context_ids[: -len(ex.recent_ids)], skip_special_tokens=True)
         # full-context behavior, twice: once as the reference, once to measure
-        # the noise floor (how much identical contexts differ from sampling)
-        full_a = sample_actions(model, tokenizer, ex.context_ids, device,
-                                samples=args.samples, seed=base + 1)
+        # the noise floor (how much identical contexts differ from sampling).
+        # In scaffold mode the reference also goes through the menu so the
+        # action space matches what the compressed agent is compared against.
+        full_a, _ = sample_behavior(ex.context_ids, old_text, args,
+                                    model, tokenizer, device, seed=base + 1)
         # only keep examples where the model actually acts with full context,
         # otherwise there is no behavior to compare
         if acting_rate(full_a) < 0.5:
             print(f"example {ei}: skipped (full-context model rarely acts)")
             continue
         usable += 1
-        full_b = sample_actions(model, tokenizer, ex.context_ids, device,
-                                samples=args.samples, seed=base + 2)
+        full_b, _ = sample_behavior(ex.context_ids, old_text, args,
+                                    model, tokenizer, device, seed=base + 2)
         floors.append(action_change(full_a, full_b))
 
         for name in names:
             ctx = build_context(name, ex, tokenizer, model, device)
-            ns = noise_std if name == "noise" else 0.0
-            acts = sample_actions(model, tokenizer, ctx, device,
-                                  samples=args.samples, noise_std=ns, seed=base + 3)
+            acts, used = sample_behavior(ctx, old_text, args, model, tokenizer,
+                                         device, seed=base + 3)
             stats[name]["acting"].append(acting_rate(acts))
             stats[name]["change"].append(action_change(full_a, acts))
-            stats[name]["lookup"].append(lookup_rate(acts, action_kind))
+            # in scaffold mode: fraction of rollouts that consulted history;
+            # otherwise: fraction whose next action was itself a lookup
+            look = (sum(used) / len(used)) if used is not None \
+                else lookup_rate(acts, action_kind)
+            stats[name]["lookup"].append(look)
         print(f"example {ei}: done ({time.time()-t0:.0f}s)")
 
     if usable == 0:

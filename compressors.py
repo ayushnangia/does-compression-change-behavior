@@ -88,11 +88,8 @@ def hallucinator(old_ids, tokenizer, model, device):
     return _ids(tokenizer, note)
 
 
-# `full` and `noise` are handled specially in run_experiment.py:
-#   full  = keep the old history unchanged
-#   noise = keep full context but perturb the model's logits at generation
-#           time to match summary's likelihood-damage (a control done in the
-#           behavior step, not here)
+# `full` is handled specially in run_experiment.py: it keeps the old history
+# unchanged and is the baseline every compressor is compared against.
 
 TEXT_COMPRESSORS = {
     "keep_recent": keep_recent,

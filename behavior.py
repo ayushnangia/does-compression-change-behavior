@@ -9,11 +9,17 @@ Two things live here:
 
 from __future__ import annotations
 
+import ast
 import json
 import re
 
-# a tool call in the trace format
-TOOLCALL_RE = re.compile(r"<tool_calls>\s*(.*?)\s*(?:</tool_calls>|$)", re.DOTALL)
+# a tool call — both the trace format (<tool_calls>, plural) and the native
+# Qwen3/3.5 chat format (<tool_call>, singular) that newer models emit
+TOOLCALL_RE = re.compile(r"<tool_calls?>\s*(.*?)\s*(?:</tool_calls?>|$)", re.DOTALL)
+# reasoning blocks of thinking models: text inside <think> is deliberation,
+# not an executed action, so it is stripped before parsing. An unclosed
+# <think> that consumes the whole continuation honestly parses as no action.
+THINK_RE = re.compile(r"<think>.*?(?:</think>|$)", re.DOTALL)
 # tools offered by the --scaffold menu, written like read_file(...)
 MENU_RE = re.compile(r"\b(read_file|grep|run_tests|edit|submit)\b\s*\(", re.I)
 
@@ -28,6 +34,7 @@ COMMIT_WORDS = re.compile(r"\b(str_replace|create|write|insert|edit|patch|pytest
 def parse_action(text: str) -> "str | None":
     """Return a normalized action like 'edit::path=foo.py', or the menu form
     'read_file::foo.py', or None if the continuation contains no tool call."""
+    text = THINK_RE.sub("", text)
     m = MENU_RE.search(text)
     if m:
         name = m.group(1).lower()
@@ -37,15 +44,49 @@ def parse_action(text: str) -> "str | None":
     if not m:
         return None
     body = m.group(1)
+    # trace rows store tool calls as PYTHON-repr dicts (single quotes), the
+    # models emit either that or real JSON — try both, then a quote-agnostic
+    # regex. ast.literal_eval only parses literals, so it is safe on
+    # model-generated text.
+    obj = None
     try:
         obj = json.loads(body)
-        call = obj[0] if isinstance(obj, list) and obj else obj
-        fn = call.get("function", call) if isinstance(call, dict) else {}
-        name = fn.get("name") or call.get("name")
     except Exception:
-        nm = re.search(r'"name"\s*:\s*"([^"]+)"', body)
-        name = nm.group(1) if nm else None
-    return name if name else None
+        try:
+            obj = ast.literal_eval(body)
+        except Exception:
+            obj = None
+    name, args = None, ""
+    if obj is not None:
+        call = obj[0] if isinstance(obj, list) and obj else obj
+        if isinstance(call, dict):
+            fn = call.get("function", call)
+            name = ((fn.get("name") if isinstance(fn, dict) else None)
+                    or call.get("name")
+                    or call.get("function_name"))   # Terminus trajectory format
+            raw = (fn.get("arguments", "") if isinstance(fn, dict) else "") \
+                or call.get("arguments", "")
+            if isinstance(raw, str):
+                args = raw
+            else:
+                # model-generated args can be ANY literal (sets crash plain
+                # json.dumps — this killed two jobs). default=str makes
+                # serialization total; sort for label stability.
+                try:
+                    args = json.dumps(raw, default=str, sort_keys=True)
+                except Exception:
+                    args = str(raw)
+    if name is None:
+        nm = re.search(r'["\'](?:function_)?name["\']\s*:\s*["\']([^"\']+)["\']', body)
+        if not nm:
+            return None
+        name = nm.group(1)
+        am = re.search(r'["\']arguments["\']\s*:\s*["\']?(.{0,80})', body)
+        args = am.group(1) if am else ""
+    # include (truncated) arguments: with agentic traces most calls share one
+    # tool name (execute_bash), so name-only labels would make every action
+    # look identical and flatten action_change to zero.
+    return f"{name}::{args[:60]}" if args else name
 
 
 def action_kind(action: "str | None") -> str:
@@ -63,27 +104,12 @@ def action_kind(action: "str | None") -> str:
     return "commit"  # a tool call that isn't clearly a lookup counts as commit
 
 
-def sample_actions(model, tokenizer, context_ids, device, *,
-                   samples=8, max_new=384, temperature=0.7, noise_std=0.0, seed=0):
-    """Sample `samples` next-actions. Returns the list of parsed action labels
-    (None where the model produced no tool call).
-
-    `noise_std` > 0 adds Gaussian noise to the logits at each step — the
-    control that asks "is any perturbation this size damaging, or summaries
-    specifically?"
-    """
+def sample_texts(model, tokenizer, context_ids, device, *,
+                 samples=8, max_new=768, temperature=0.7, top_p=1.0, seed=0):
+    """Sample `samples` raw continuations (decoded text) from `context_ids`.
+    top_p=1.0 (full distribution) measures true behavior; pass e.g. 0.9 to
+    emulate production sampling."""
     import torch
-
-    processors = None
-    if noise_std > 0:
-        from transformers import LogitsProcessorList
-
-        gen = torch.Generator(device="cpu").manual_seed(seed)
-
-        def add_noise(_ids, scores):
-            return scores + torch.randn(scores.shape, generator=gen).to(scores.device, scores.dtype) * noise_std
-
-        processors = LogitsProcessorList([add_noise])
 
     torch.manual_seed(seed)
     with torch.no_grad():
@@ -91,12 +117,17 @@ def sample_actions(model, tokenizer, context_ids, device, *,
             torch.tensor([context_ids], device=device),
             attention_mask=torch.ones(1, len(context_ids), device=device),
             max_new_tokens=max_new, do_sample=True, temperature=temperature,
-            top_p=1.0, top_k=0, num_return_sequences=samples,
-            logits_processor=processors,
+            top_p=top_p, top_k=0, num_return_sequences=samples,
             pad_token_id=tokenizer.pad_token_id or tokenizer.eos_token_id,
         )
-    actions = []
-    for i in range(out.shape[0]):
-        text = tokenizer.decode(out[i, len(context_ids):], skip_special_tokens=True)
-        actions.append(parse_action(text))
-    return actions
+    return [tokenizer.decode(out[i, len(context_ids):], skip_special_tokens=True)
+            for i in range(out.shape[0])]
+
+
+def sample_actions(model, tokenizer, context_ids, device, *,
+                   samples=8, max_new=768, temperature=0.7, seed=0):
+    """Sample `samples` next-actions. Returns the list of parsed action labels
+    (None where the model produced no tool call)."""
+    texts = sample_texts(model, tokenizer, context_ids, device, samples=samples,
+                         max_new=max_new, temperature=temperature, seed=seed)
+    return [parse_action(t) for t in texts]

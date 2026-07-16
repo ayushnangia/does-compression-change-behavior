@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Compress the Behavior, Not the Information</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { --ink:#1a2233; --soft:#5a6b8c; --bg:#f6f8fc; --card:#ffffff;
+          --blue:#3b6ef6; --red:#e05252; --green:#2ea36b; --amber:#e8a13c; }
+  * { box-sizing:border-box; margin:0; }
+  body { font-family:'Segoe UI', system-ui, sans-serif; background:var(--bg);
+         color:var(--ink); overflow:hidden; }
+  .slide { display:none; width:100vw; height:100vh; padding:5vh 8vw;
+           flex-direction:column; justify-content:center; }
+  .slide.on { display:flex; }
+  h1 { font-size:2.9em; line-height:1.2; }
+  h2 { font-size:2.1em; margin-bottom:.6em; }
+  p, li { font-size:1.3em; line-height:1.55; }
+  li { margin-bottom:.4em; }
+  ul { margin-left:1.2em; }
+  .soft { color:var(--soft); font-size:.75em; }
+  .num { font-family:ui-monospace,monospace; background:#eef2fb;
+         border-radius:6px; padding:0 .3em; }
+  .cards { display:flex; gap:1.2em; margin-top:1em; flex-wrap:wrap; }
+  .card { background:var(--card); border-radius:14px; padding:1em 1.2em;
+          box-shadow:0 4px 14px rgba(30,50,90,.08); flex:1; min-width:200px; }
+  .tag { display:inline-block; border-radius:999px; padding:.15em .7em;
+         font-size:.8em; font-weight:600; color:#fff; margin-bottom:.4em; }
+  .win{background:var(--green)} .lose{background:var(--red)}
+  .meh{background:var(--amber)} .info{background:var(--blue)}
+  .bar { height:28px; border-radius:6px; margin:.3em 0; color:#fff;
+         font-size:.95em; display:flex; align-items:center; padding-left:.6em;
+         white-space:nowrap; }
+  footer { position:fixed; bottom:12px; right:20px; color:var(--soft); font-size:.9em; }
+  .nav { position:fixed; bottom:12px; left:20px; color:var(--soft); font-size:.9em; }
+  svg text { font-family:'Segoe UI',sans-serif; }
+  .two { display:flex; gap:3vw; align-items:center; }
+  .two > div { flex:1; }
+</style>
+</head>
+<body>
+
+<!-- 1 TITLE -->
+<section class="slide on">
+  <h1>Compress the Behavior,<br>Not the Information</h1>
+  <p style="font-size:1.5em; margin-top:.7em">When an agent's memory gets compacted,
+     does the agent still <b>do</b> the same things?</p>
+  <p style="font-size:1.5em">Nobody was measuring that. We built the instrument,
+     tested the instrument, and used it.</p>
+  <p class="soft" style="margin-top:2em">14 experiments. Qwen3.5 and GLM-4.7 model families.
+     Terminal-Bench 2.0 infrastructure on Narval A100s.</p>
+</section>
+
+<!-- 2 THE PROBLEM -->
+<section class="slide">
+  <h2>The problem</h2>
+  <div class="two">
+    <div>
+      <ul>
+        <li>Long-running agents outgrow their context window mid-task.</li>
+        <li>Every production system does the same thing:
+            <b>summarize the old history and keep going.</b></li>
+        <li>Quality is checked with information metrics.
+            Perplexity, QA probes, "are the facts still there?"</li>
+      </ul>
+      <p style="margin-top:.8em"><b>The unasked question:</b> after compaction,
+         is the agent's next action still the action it would have taken?</p>
+      <p><b>Keeping the facts is not the same as keeping the policy.</b></p>
+    </div>
+    <div>
+      <svg viewBox="0 0 400 220" width="100%">
+        <rect x="10" y="30" width="150" height="170" rx="8" fill="#fff" stroke="#c9d4ea"/>
+        <text x="85" y="20" text-anchor="middle" font-size="13" fill="#5a6b8c">full history (40k tokens)</text>
+        <g fill="none" stroke="#b9c6e0" stroke-width="3">
+          <line x1="25" y1="55" x2="145" y2="55"/><line x1="25" y1="80" x2="145" y2="80"/>
+          <line x1="25" y1="105" x2="145" y2="105"/><line x1="25" y1="130" x2="120" y2="130"/>
+          <line x1="25" y1="155" x2="145" y2="155"/><line x1="25" y1="180" x2="100" y2="180"/>
+        </g>
+        <text x="195" y="115" font-size="28" fill="#5a6b8c">→</text>
+        <rect x="240" y="60" width="145" height="55" rx="8" fill="#fff3d6" stroke="#e8c26b"/>
+        <text x="312" y="83" text-anchor="middle" font-size="12" fill="#8c6a1e">LLM-written summary</text>
+        <text x="312" y="101" text-anchor="middle" font-size="12" fill="#8c6a1e">(~256 tokens)</text>
+        <rect x="240" y="130" width="145" height="55" rx="8" fill="#fff" stroke="#c9d4ea"/>
+        <text x="312" y="153" text-anchor="middle" font-size="12" fill="#5a6b8c">recent turns</text>
+        <text x="312" y="171" text-anchor="middle" font-size="12" fill="#5a6b8c">(kept raw)</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 3 FRAMING -->
+<section class="slide">
+  <h2>Our framing: rate&ndash;distortion, with a twist</h2>
+  <p>Lossy compression always trades <b>rate</b> (how much you keep) against
+     <b>distortion</b> (what you lose). We keep that framework but change what counts as loss:</p>
+  <p style="font-size:1.5em; margin:.8em 0"><b>Distortion = how much the agent's
+     next-action distribution changes.</b></p>
+  <div class="cards">
+    <div class="card"><p><b>Acting rate</b></p>
+      <p class="soft">Does the agent still make a tool call, or does it drift into prose?</p></div>
+    <div class="card"><p><b>Action divergence (D)</b></p>
+      <p class="soft">Distance between next-action distributions, sampled 8 times each.</p></div>
+    <div class="card"><p><b>Ground-truth agreement</b></p>
+      <p class="soft">The traces record what the agent actually did next. That is our answer key.</p></div>
+  </div>
+  <p style="margin-top:1em"><b>Noise discipline:</b> the same context sampled twice already
+     differs by <span class="num">about 0.3</span>. We measured that wobble first,
+     and never trust any effect smaller than it.</p>
+</section>
+
+<!-- 4 VALIDITY -->
+<section class="slide">
+  <h2>First, we tested the measuring stick itself</h2>
+  <p>Does our metric track reality? Agreement with the agent's real logged next action:</p>
+  <div style="margin-top:.6em; max-width:720px">
+    <div class="bar" style="width:74%; background:var(--green)">full context: 73% agreement</div>
+    <div class="bar" style="width:67%; background:#57b98a">just keep recent tokens: 67%</div>
+    <div class="bar" style="width:30%; background:var(--red)">LLM summary: 30%</div>
+  </div>
+  <p style="margin-top:.9em">High divergence on our metric means low agreement with reality.
+     The stick measures something real.</p>
+  <p>We also stress-tested the reference itself. A padding control showed it is
+     sensitive to context length, so training targets should average over lengths.
+     That critique came from our own group thread. We tested it and it was right.</p>
+  <p class="soft">exp8, exp3. Replicated on the agent's own live-environment runs:
+     0.74 / 0.67 / 0.30, nearly identical.</p>
+</section>
+
+<!-- 5 BLOCK LAW -->
+<section class="slide">
+  <h2>Finding 1: the block law</h2>
+  <p>Agent context has three kinds of content. We deleted each kind at the same token budget:</p>
+  <div style="margin-top:.7em; max-width:800px">
+    <div class="bar" style="width:66%; background:var(--red)">delete tool calls (29% of tokens): halting triples</div>
+    <div class="bar" style="width:96%; background:var(--green)">delete observations (52% of tokens!): same as random deletion</div>
+    <div class="bar" style="width:88%; background:#57b98a">delete reasoning prose (6%): mild effect</div>
+  </div>
+  <p style="margin-top:.9em"><b>Behavioral value lives in the action history,
+     not in the informational bulk.</b></p>
+  <p>This is the opposite of what token-importance methods assume.
+     The blocks with the most information have the least behavioral value per token.</p>
+  <p class="soft">exp4. Replicated across two model families, five runs, two seeds.
+     The halting effect also replicates on-policy.</p>
+</section>
+
+<!-- 6 RD CURVES -->
+<section class="slide">
+  <h2>Finding 2: summaries are the worst option we measured</h2>
+  <div class="two">
+    <div>
+      <p>We measured distortion at four compression levels (keep 12.5% up to 75%)
+         for four different compressors.</p>
+      <ul style="margin-top:.6em">
+        <li><b>The LLM summary lost at every level.</b></li>
+        <li>Plain "keep the recent tokens" was nearly lossless
+            (acting rate 0.94, vs 0.99 for full context).</li>
+      </ul>
+      <p style="margin-top:.7em">The industry default is the worst thing we tested.</p>
+      <p class="soft">exp6. Scope: SWE-agent traces, 4k contexts, Qwen3.5.
+         The on-policy version was noise-limited and is being re-measured with a
+         coarser metric. Consistent with recency results in KV-cache work (StreamingLLM).</p>
+    </div>
+    <div>
+      <svg viewBox="0 0 380 230" width="100%">
+        <line x1="40" y1="200" x2="360" y2="200" stroke="#8a97b5"/>
+        <line x1="40" y1="200" x2="40" y2="20" stroke="#8a97b5"/>
+        <text x="200" y="222" text-anchor="middle" font-size="12" fill="#5a6b8c">fraction of context kept →</text>
+        <text x="18" y="120" font-size="12" fill="#5a6b8c" transform="rotate(-90 18 120)">behavior distortion ↑</text>
+        <polyline points="60,70 140,105 240,105 330,130" fill="none" stroke="#e05252" stroke-width="4"/>
+        <text x="70" y="55" font-size="13" fill="#e05252" font-weight="600">summary</text>
+        <polyline points="60,120 140,155 240,160 330,150" fill="none" stroke="#2ea36b" stroke-width="4"/>
+        <text x="220" y="185" font-size="13" fill="#2ea36b" font-weight="600">keep recent</text>
+        <line x1="40" y1="168" x2="360" y2="168" stroke="#8a97b5" stroke-dasharray="5 4"/>
+        <text x="345" y="163" text-anchor="end" font-size="11" fill="#8a97b5">sampling floor</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 7 MEASUREMENT->DESIGN -->
+<section class="slide">
+  <h2>Finding 3: the measurement designs better compressors</h2>
+  <p>We turned Finding 1 into a one-line rule: <i>"copy tool calls and file paths
+     exactly, compress everything else."</i> Then we raced it against the prompts
+     real products use:</p>
+  <div class="cards">
+    <div class="card"><span class="tag lose">naive summary</span>
+      <p>acting <span class="num">0.51</span><br>agreement <span class="num">0.33</span></p></div>
+    <div class="card"><span class="tag meh">Claude-Code / OpenHands style</span>
+      <p>acting <span class="num">0.61 to 0.67</span><br>agreement <span class="num">0.34 to 0.38</span></p></div>
+    <div class="card"><span class="tag win">block-aware (ours)</span>
+      <p>acting <span class="num">0.80</span><br>agreement <span class="num">0.55</span></p></div>
+  </div>
+  <p style="margin-top:1em">The metric also works for <b>selection</b>.
+     Pick the best of 8 candidate summaries by lowest divergence:
+     agreement with the real action goes from <span class="num">0.38</span> (random pick)
+     to <span class="num">0.55</span>. Paired p = 0.0004.</p>
+  <p class="soft">exp9, exp11. This is the basis for training compressors offline.
+     No critic, no rollouts, no group normalization.</p>
+</section>
+
+<!-- 8 FORMAT -->
+<section class="slide">
+  <h2>Finding 4: delivery format matters as much as content</h2>
+  <p>Same summary text, different wrapping. Three models, three different personalities:</p>
+  <div class="cards">
+    <div class="card"><b>GLM-4.7-Flash</b> (MoE)
+      <p>trace-style wrapper: <span class="num">0.00</span> (incoherent output!)<br>
+         its native chat format: <span class="num">0.75</span></p></div>
+    <div class="card"><b>Qwen3.5-35B-A3B</b> (the MoE twin)
+      <p>wrapper: <span class="num">0.79</span><br>
+         chat format: <span class="num">0.46</span>. The opposite preference.</p></div>
+    <div class="card"><b>Qwen3.5-27B</b> (dense)
+      <p>fine either way: <span class="num">0.75 to 0.83</span></p></div>
+  </div>
+  <p style="margin-top:1em"><b>There is no universal compaction format.</b>
+     The same content ranges from fine to catastrophic depending on the model.
+     This also explains why trained-compaction gains fail to transfer across setups.</p>
+  <p class="soft">exp5 (content held constant), exp14 (3 models, 2 formats, 2 sampling settings)</p>
+</section>
+
+<!-- 9 CORRECTIONS -->
+<section class="slide">
+  <h2>Where the data corrected us</h2>
+  <ul>
+    <li><b>Compaction damage heals.</b> As the agent keeps working, divergence falls
+        from 0.86 to 0.47 and acting recovers from 0.43 to 0.90 within about two steps.
+        Single-step metrics overstate long-run harm. <span class="soft">(exp10)</span></li>
+    <li><b>One of our ablations was mislabeled</b> and deleted nothing. We caught it
+        because its results matched the control exactly. Fixed and replicated.</li>
+    <li><b>A "training made things worse" result was fake.</b> The training log showed
+        it never actually trained: wrong model wrote the training pairs, only 4 optimizer
+        steps, and the eval had no statistical power. All three causes fixed. Corrected run queued.</li>
+    <li><b>A retrieval-manifest idea from our group</b> tested mostly null at this scale.
+        Reported, not buried. <span class="soft">(exp13)</span></li>
+  </ul>
+  <p style="margin-top:.5em">Catching our own mistakes is what makes the positive results credible.</p>
+  <p class="soft">Every claim, its confounds, and its status: AUDIT.md. Endpoints pre-registered.</p>
+</section>
+
+<!-- 10 HONEST NEGATIVE -->
+<section class="slide">
+  <h2>The grounded benchmark: an honest negative</h2>
+  <ul>
+    <li>We built a fully offline Terminal-Bench 2.0 pipeline on an air-gapped cluster.
+        89 task containers rebuilt for Apptainer, models served with vLLM.</li>
+    <li>Our small open models scored <b>0% Pass@1</b>. Even with 4x time budgets,
+        even on the 25 easiest tasks. Most runs were genuine attempts that ran out of time.</li>
+    <li>The pipeline works. The models are below the benchmark's difficulty floor.
+        So task-level grounding is replaced by the logged-action agreement, which we validated.</li>
+  </ul>
+  <p style="margin-top:.7em"><b>The byproduct became the prize:</b> 129 on-policy trajectories
+     containing <b>132 genuine context-exhaustion events</b>, with the summaries the production
+     agent actually wrote. We are scoring those directly now.</p>
+</section>
+
+<!-- 11 NEXT -->
+<section class="slide">
+  <h2>In the queue, and what comes next</h2>
+  <div class="cards">
+    <div class="card"><span class="tag info">queued</span>
+      <p><b>exp15</b></p><p class="soft">Score real production compactions at genuine
+      window-exhaustion moments, against our block-aware rule and plain truncation.</p></div>
+    <div class="card"><span class="tag info">queued</span>
+      <p><b>T4: the corrected training test</b></p><p class="soft">Trainee writes its own
+      candidate summaries, 280 examples, divergence as the training signal,
+      task-level held-out split.</p></div>
+    <div class="card"><span class="tag info">queued</span>
+      <p><b>exp6-coarse</b></p><p class="soft">Decide whether the on-policy flattening
+      is a real boundary or a metric ceiling.</p></div>
+  </div>
+  <p style="margin-top:1em"><b>After that:</b> a 64k-context probe, a citation-graph
+     literature pass, then the paper.</p>
+  <p><b>The longer program:</b> format-native compaction per model family, block-aware
+     token budgets, and behaviorally-trained compressors at roughly 0.1% of the usual
+     RL compute. The 6x batched scorer for all of this is already built and tested.</p>
+</section>
+
+<!-- 12 TAKEAWAY -->
+<section class="slide">
+  <h2>Takeaway</h2>
+  <h1 style="font-size:2.2em; margin-top:.4em">Keeping the information and keeping the
+     behavior are <span style="color:var(--red)">different goals</span>.<br>
+     Today's compaction optimizes the wrong one.</h1>
+  <p style="margin-top:1em">The gap is measurable above noise. It is grounded against real
+     actions. It replicates across model families and on the agent's own data.
+     And the measure is strong enough to rank, select, and (test pending) train
+     better compressors.</p>
+</section>
+
+<!-- 13 REFERENCES -->
+<section class="slide">
+  <h2>References</h2>
+  <ul style="font-size:1.05em; line-height:1.7">
+    <li>CompactionRL: RL with Context Compaction for Long-Horizon Agents. arXiv:2607.05378. The work we analyze.</li>
+    <li>Shannon (1959), rate-distortion theory. Tishby et al. (1999), information bottleneck. Our framing.</li>
+    <li>LLMLingua-2. arXiv:2403.12968. Closest prior work, information-centric. We change the objective.</li>
+    <li>StreamingLLM / attention sinks. arXiv:2309.17453. Recency dominance at the KV level. Convergent evidence.</li>
+    <li>"Are We Ready For An Agent-Native Memory System?" arXiv:2606.24775. Independently documents the evaluation gap.</li>
+    <li>Lost in the Middle (Liu et al., 2024). RULER (Hsieh et al., 2024). Long-context degradation.</li>
+    <li>Reflexion, MemGPT, Generative Agents, Context Folding. Memory systems without a behavior-preservation metric.</li>
+    <li>Terminal-Bench 2.0 with Harbor. SWE-bench Verified. nvidia/Open-SWE-Traces. Benchmarks and data.</li>
+  </ul>
+  <p class="soft" style="margin-top:.8em">Novelty audit: RELATED.md. Claims and confounds: AUDIT.md.
+     Research question: RQ.md. Repo: github.com/ayushnangia/does-compression-change-behavior</p>
+</section>
+
+<footer id="pg"></footer>
+<div class="nav">← → arrows, or click to advance</div>
+<script>
+  const S = [...document.querySelectorAll('.slide')];
+  let i = 0;
+  const show = () => { S.forEach((s,k)=>s.classList.toggle('on', k===i));
+    document.getElementById('pg').textContent = (i+1) + ' / ' + S.length; };
+  const step = d => { i = Math.min(S.length-1, Math.max(0, i+d)); show(); };
+  addEventListener('keydown', e => {
+    if (e.key==='ArrowRight'||e.key===' '||e.key==='PageDown') step(1);
+    if (e.key==='ArrowLeft'||e.key==='PageUp') step(-1);
+    if (e.key==='Home'){i=0;show();} if(e.key==='End'){i=S.length-1;show();}
+  });
+  addEventListener('click', () => step(1));
+  show();
+</script>
+</body>
+</html>

@@ -3,3 +3,7 @@ __pycache__/
 results/
 .venv/
 .DS_Store
+*.out
+*.log
+experiments/results/dpo_compressor*/
+nohup.out

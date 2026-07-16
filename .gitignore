@@ -7,3 +7,4 @@ results/
 *.log
 experiments/results/dpo_compressor*/
 nohup.out
+.env

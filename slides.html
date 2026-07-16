@@ -214,8 +214,9 @@
          <b>block-aware compressor becomes the best curve</b> at moderate-to-high
          budgets. Summaries remain mediocre everywhere.</p>
       <p class="soft">exp6 (pre-recorded traces, 4k contexts, Qwen3.5) and exp6-coarse
-         (on-policy, tool-level metric; preliminary at N=13, confidence intervals
-         re-running now). Consistent with recency results in KV-cache work (StreamingLLM).</p>
+         (on-policy, tool-level metric): block-aware D 0.23 [0.13, 0.34] vs keep-recent
+         0.47 [0.35, 0.62], paired p = 0.074 at N=13. Suggestive, not confirmed; a larger
+         run is scheduled. Consistent with recency results in KV-cache work (StreamingLLM).</p>
     </div>
     <div>
       <svg viewBox="0 0 430 270" width="100%">
@@ -293,7 +294,9 @@
   <p style="margin-top:1em">The metric also works for <b>selection</b>.
      Pick the best of 8 candidate summaries by lowest divergence:
      agreement with the real action goes from <span class="num">0.38</span> (random pick)
-     to <span class="num">0.55</span>. Paired p = 0.0004.</p>
+     to <span class="num">0.55</span>. Paired p = 0.0004. Replicated at 16k contexts on
+     177 examples: divergence <span class="num">0.67 [0.64, 0.69]</span> selected vs
+     <span class="num">0.72 [0.69, 0.74]</span> random; the intervals do not overlap.</p>
   <p class="soft">exp9, exp11. This makes offline training possible: rank candidate
      summaries by divergence, train on the preference pairs. No critic, no environment
      rollouts, unlike the RL approach in CompactionRL.</p>
@@ -396,20 +399,25 @@
 <section class="slide">
   <h2>In the queue, and what comes next</h2>
   <div class="cards">
-    <div class="card"><span class="tag info">queued</span>
-      <p><b>exp15</b></p><p class="soft">Score real production compactions at genuine
-      window-exhaustion moments, against our block-aware rule and plain truncation.</p></div>
-    <div class="card"><span class="tag info">queued</span>
-      <p><b>T4: the training test</b></p><p class="soft">Trainee writes its own
-      candidate summaries, 280 examples, divergence as the training signal,
-      task-level held-out split. A first attempt produced no training at all
-      (pairs written by the wrong model, 4 optimizer steps, underpowered eval);
-      this run fixes all three causes. Baseline portability of summaries across
-      executors is already established (exp12), so post-training co-adaptation
-      will be detectable.</p></div>
-    <div class="card"><span class="tag info">queued</span>
-      <p><b>exp6-coarse</b></p><p class="soft">Decide whether the flat curves on our own
-      models' trajectories are a real effect or a ceiling of the fine-grained metric.</p></div>
+    <div class="card"><span class="tag info">running</span>
+      <p><b>exp15: real production compactions</b></p><p class="soft">Score the summaries
+      a production agent actually wrote at 132 genuine window-exhaustion moments, against
+      our block-aware rule and truncation. Two earlier attempts had a context-construction
+      artifact (wrapper variants began with a document header and no trace body, so the
+      model treated the task as just starting); found, fixed, verified, rerunning.</p></div>
+    <div class="card"><span class="tag info">running</span>
+      <p><b>T4: the training test</b></p><p class="soft">Pair generation succeeded at scale:
+      177 examples at 16k, 86 preference pairs above the noise gap, trainee-written
+      candidates, task-level held-out split. (A first attempt trained nothing: wrong pair
+      source, 4 optimizer steps, underpowered eval; all fixed.) Train and eval are
+      rerunning after an allocator fix. Summary portability across executors is
+      pre-established (exp12), so post-training co-adaptation will be detectable.</p></div>
+    <div class="card"><span class="tag meh">tested, parked</span>
+      <p><b>Deletion manifest (exp13)</b></p><p class="soft">A group suggestion: after
+      compaction, inject a note listing what was deleted and how to retrieve it.
+      Small gains only (acting +4 points, lookup share +8), and no benefit when combined
+      with a summary. Possibly masked by the test harness already advertising retrieval;
+      a cleaner retest is designed but not scheduled.</p></div>
   </div>
   <p style="margin-top:1em"><b>After that:</b> a 64k-context probe, a citation-graph
      literature pass, then the paper.</p>

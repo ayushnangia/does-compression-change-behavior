@@ -143,6 +143,24 @@ Do not quote round-1 numbers except as an infrastructure lesson.
   (15.3GB reserved-unallocated); expandable_segments added; resume job
   65729682 (train+eval only, pairs preserved).
 
+## exp15 v3 verdict + T4 diagnosis (July 16, evening)
+
+- **exp15 v3 (clean geometry, verified headerless): the wrapper-condition
+  silence PERSISTS** (production and wrapper_only acting 0.00; block_aware
+  0.27; keep_recent 0.76). Reclassified from artifact to format effect: on
+  on-policy Terminus-format contexts, note-style injection suppresses
+  parseable actions for the 9B executor, while trace-shaped compression
+  acts. Consequence: the production-vs-designed summary comparison is
+  CONFOUNDED BY DELIVERY FORMAT; do not quote it. Quotable: keep_recent
+  agrees 0.74 with the real logged action at genuine window-exhaustion
+  boundaries (N=19). block_aware at 0.24 here (reversal vs exp6-coarse;
+  different regime). Follow-up designed: deliver the production summary in
+  trace shape (format-matched) before comparing content quality.
+- **T4 resume failed with the identical fragmentation OOM because torch
+  2.9.1 reads PYTORCH_CUDA_ALLOC_CONF, not the newer PYTORCH_ALLOC_CONF**
+  that was set (venv torch was downgraded by the causal-conv1d wheel).
+  Both names now set; resubmitted (65785915).
+
 ## Still open (known, accepted, scheduled)
 
 - Repo-level train/held-out split for E-B (before any writeup).

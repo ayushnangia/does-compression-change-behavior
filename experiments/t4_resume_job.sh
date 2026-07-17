@@ -9,7 +9,9 @@
 module load cuda/12.9 python/3.11 gcc arrow 2>/dev/null
 source ~/ENV-compress/bin/activate
 export HF_HOME=$SCRATCH/hf HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
-export PYTHONUNBUFFERED=1 PYTORCH_ALLOC_CONF=expandable_segments:True
+export PYTHONUNBUFFERED=1
+export PYTORCH_ALLOC_CONF=expandable_segments:True
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True   # torch 2.9 reads the OLD name
 cd ~/does-compression-change-behavior/experiments
 python dpo_train.py --pairs results/summary_pairs_16k.jsonl \
     --out results/dpo_compressor_r2 --epochs 3

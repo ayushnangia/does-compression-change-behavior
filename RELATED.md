@@ -70,6 +70,27 @@ Shannon 1959 (rate-distortion); Tishby et al. 1999 (IB); Liu et al. 2024
 CompactionRL; Reflexion/MemGPT/generative agents/context folding; SWE-bench;
 Terminal-Bench 2.0/Harbor; Open-SWE-Traces.
 
+
+## Metric lineage (added after the estimator survey)
+
+Our measurement constructs are instances of established families, not inventions:
+- **TV between action distributions** = the policy-distance of trust-region RL
+  (TRPO's monotonic-improvement bounds are stated in total variation;
+  Schulman et al. 2015). We apply it to LLM-agent next-action distributions.
+- **Agreement with logged actions** = action-matching accuracy, the standard
+  imitation-learning evaluation.
+- **Exact logprob-scored next-tool distribution** (ours, implemented): removes
+  sampling noise entirely at tool granularity; closed candidate-set assumption.
+- **Adopted-as-planned upgrades from the UQ/statistics literature:**
+  semantic clustering of sampled outputs before distribution comparison
+  (semantic entropy family: Farquhar et al.; Kernel Language Entropy,
+  arXiv:2405.20003) for the action-equivalence problem; MMD two-sample tests
+  over action embeddings (unbiased small-sample estimator) as robustness check.
+- Rejected with reason: token-level KL (measures phrasing, not behavior).
+
+Caveat unchanged: keyword-level search; citation-graph walk still required
+before external claims of metric novelty.
+
 ## Novelty risk register
 - Keyword search only — MUST citation-walk LLMLingua-2 and 2606.24775
   forward-references before external claims.

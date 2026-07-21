@@ -1,0 +1,11 @@
+{
+  "model": "Qwen/Qwen3.5-35B-A3B",
+  "cells": {
+    "native@top_p=0.9": 0.4583333333333333,
+    "native@top_p=1": 0.4583333333333333,
+    "wrapper@top_p=0.9": 0.7916666666666666,
+    "wrapper@top_p=1": 0.7916666666666666
+  },
+  "n_examples": 6,
+  "samples": 4
+}

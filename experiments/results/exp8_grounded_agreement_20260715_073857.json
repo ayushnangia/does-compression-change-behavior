@@ -1,0 +1,36 @@
+{
+  "model": "Qwen/Qwen3.5-9B",
+  "usable": 25,
+  "compressors": {
+    "full": {
+      "tool": 0.745,
+      "exact": 0.045,
+      "acting": 0.78,
+      "change": 0.0
+    },
+    "keep_recent": {
+      "tool": 0.495,
+      "exact": 0.075,
+      "acting": 0.52,
+      "change": 0.72
+    },
+    "summary": {
+      "tool": 0.26,
+      "exact": 0.02,
+      "acting": 0.285,
+      "change": 0.775
+    },
+    "pointer": {
+      "tool": 0.27,
+      "exact": 0.0,
+      "acting": 0.315,
+      "change": 0.775
+    },
+    "hallucinator": {
+      "tool": 0.27,
+      "exact": 0.0,
+      "acting": 0.295,
+      "change": 0.8
+    }
+  }
+}

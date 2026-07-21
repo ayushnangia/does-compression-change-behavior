@@ -1,0 +1,36 @@
+{
+  "model": "zai-org/GLM-4.7-Flash",
+  "usable": 20,
+  "floor": 0.39375,
+  "budget_frac": 0.5,
+  "variants": {
+    "random_control": {
+      "acting": 0.76875,
+      "change": 0.73125,
+      "none": 0.23125,
+      "lookup": 0.2625,
+      "commit": 0.50625
+    },
+    "drop_tool_calls": {
+      "acting": 0.4875,
+      "change": 0.8,
+      "none": 0.5125,
+      "lookup": 0.28125,
+      "commit": 0.20625
+    },
+    "drop_observations": {
+      "acting": 0.73125,
+      "change": 0.725,
+      "none": 0.26875,
+      "lookup": 0.33125,
+      "commit": 0.4
+    },
+    "drop_reasoning": {
+      "acting": 0.78125,
+      "change": 0.65,
+      "none": 0.21875,
+      "lookup": 0.2875,
+      "commit": 0.49375
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "model": "zai-org/GLM-4.7-Flash",
+  "cells": {
+    "native@top_p=0.9": 0.75,
+    "native@top_p=1": 0.7083333333333334,
+    "wrapper@top_p=0.9": 0.0,
+    "wrapper@top_p=1": 0.0
+  },
+  "n_examples": 6,
+  "samples": 4
+}

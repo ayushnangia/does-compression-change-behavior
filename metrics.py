@@ -52,6 +52,75 @@ def action_change_tools(actions_a, actions_b) -> float:
                          [strip(b) for b in actions_b])
 
 
+def _verb(a):
+    """Verb-level label: tool name + the first token of a shell command when
+    present (bash_command -> 'bash_command ls'). A principled granularity
+    between tool-only (too coarse) and full args (saturates): commands with
+    the same verb are usually semantically close; different verbs rarely are."""
+    if a is None:
+        return None
+    name, _, args = a.partition("::")
+    import re as _re
+    m = _re.search(r'(?:command|keystrokes)\\?":?\s*\\?"?\s*([A-Za-z0-9_./-]+)', args)
+    return f"{name} {m.group(1)}" if m else name
+
+
+def action_change_verbs(actions_a, actions_b) -> float:
+    """action_change at verb granularity (see _verb)."""
+    return action_change([_verb(a) for a in actions_a],
+                         [_verb(b) for b in actions_b])
+
+
+def action_change_all(actions_a, actions_b) -> dict:
+    """All three granularities at once. Reporting standard: quote all three;
+    conclusions that hold at only one granularity are granularity artifacts."""
+    return {"label": action_change(actions_a, actions_b),
+            "verb": action_change_verbs(actions_a, actions_b),
+            "tool": action_change_tools(actions_a, actions_b)}
+
+
+def debiased_change(actions_a, actions_b, n_perm: int = 500, seed: int = 0):
+    """Permutation-debiased divergence + exact p-value.
+
+    Plug-in TV from 8 samples is inflated, and the inflation depends on the
+    distributions' entropy, so a single shared floor is only approximately
+    fair. Exact fix: pool the samples, permute the assignment, and use the
+    permutation null PER COMPARISON.
+      returns (excess, p) where excess = observed TV minus the null mean
+      (a debiased effect size) and p is the exact one-sided p-value.
+    """
+    import random as _rd
+    rng = _rd.Random(seed)
+    obs = action_change(actions_a, actions_b)
+    pool = list(actions_a) + list(actions_b)
+    na = len(actions_a)
+    null = []
+    for _ in range(n_perm):
+        rng.shuffle(pool)
+        null.append(action_change(pool[:na], pool[na:]))
+    null_mean = sum(null) / len(null)
+    p = (1 + sum(v >= obs - 1e-12 for v in null)) / (n_perm + 1)
+    return obs - null_mean, p
+
+
+def harm_score(full_actions, comp_actions, logged: "str | None") -> dict:
+    """Asymmetric divergence: counts only HARMFUL movement, so beneficial
+    divergence scores zero (plain D penalizes improvements over the full-
+    context reference, e.g. exp4's reasoning-deletion raising acting rate).
+      halt_increase: new probability mass on NO_ACTION
+      agree_drop:    lost agreement with the logged real action (if known)
+    """
+    p_no_f = sum(a is None for a in full_actions) / len(full_actions)
+    p_no_c = sum(a is None for a in comp_actions) / len(comp_actions)
+    out = {"halt_increase": max(0.0, p_no_c - p_no_f)}
+    if logged is not None:
+        lt = logged.split("::", 1)[0]
+        ag = lambda acts: sum(a is not None and a.split("::", 1)[0] == lt
+                              for a in acts) / len(acts)
+        out["agree_drop"] = max(0.0, ag(full_actions) - ag(comp_actions))
+    return out
+
+
 def action_change(actions_a, actions_b) -> float:
     """0 = same mix of actions, 1 = completely different. (Total-variation
     distance between the two empirical action distributions.)"""

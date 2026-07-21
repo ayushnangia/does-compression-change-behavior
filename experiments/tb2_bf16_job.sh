@@ -13,14 +13,14 @@ export VLLM_NO_USAGE_STATS=1 LITELLM_LOCAL_MODEL_COST_MAP=True PYTHONUNBUFFERED=
 
 module load cuda/12.9 opencv python/3.12 2>/dev/null
 source /scratch/anangia/ENV-vllm2/bin/activate
-vllm serve Qwen/Qwen3.5-35B-A3B --port 8000 \
+stdbuf -oL -eL vllm serve Qwen/Qwen3.5-35B-A3B --port 8000 \
     --served-model-name qwen35-35b-bf16 \
     --tensor-parallel-size 4 --max-model-len 32768 \
     --gpu-memory-utilization 0.92 > vllm_bf16_$SLURM_JOB_ID.log 2>&1 &
 VLLM_PID=$!
 deactivate
 
-for i in $(seq 1 180); do
+for i in $(seq 1 270); do
     curl -s http://127.0.0.1:8000/health > /dev/null && { echo "vLLM up after ${i}0s"; break; }
     kill -0 $VLLM_PID 2>/dev/null || { echo "vLLM died"; exit 1; }
     sleep 10

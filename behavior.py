@@ -89,6 +89,31 @@ def parse_action(text: str) -> "str | None":
     return f"{name}::{args[:60]}" if args else name
 
 
+def parse_diagnosis(text: str) -> str:
+    """When parse_action returns None, say WHY. Distinguishes behavioral
+    silence from parser blindness (issue: NO_ACTION conflates four different
+    failure modes, and parser misses silently inflate divergence).
+
+    Categories:
+      acted            parse_action found a call
+      toolish_unparsed contains tool-call-like syntax we failed to parse
+                       (> 0 in any cell = investigate the parser, not the model)
+      think_runaway    an unclosed <think> consumed the continuation
+      empty            no meaningful text
+      prose            deliberate text with no tool call (true halt)
+    """
+    if parse_action(text) is not None:
+        return "acted"
+    stripped = THINK_RE.sub("", text)
+    if re.search(r"<tool_calls?|function_name|\"name\"\s*:", text) and stripped.strip():
+        return "toolish_unparsed"
+    if "<think>" in text and not stripped.strip():
+        return "think_runaway"
+    if not text.strip():
+        return "empty"
+    return "prose"
+
+
 def action_kind(action: "str | None") -> str:
     """'lookup', 'commit', or 'none'."""
     if not action:

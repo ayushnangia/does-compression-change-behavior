@@ -204,6 +204,25 @@ for f in list(REPO.glob("*.py")) + list((REPO / "experiments").glob("*.py")):
             hits.append(f"{f.name}:{i}")
 check("no stubs/TODOs", not hits, str(hits))
 
+
+# ---------------- D-metric fixes (issues 1,2,5,6,8,9,10) ----------------
+from behavior import parse_diagnosis
+from metrics import action_change_verbs, debiased_change, harm_score
+check("diag acted", parse_diagnosis('<tool_call>{"name": "x"}</tool_call>') == "acted")
+check("diag toolish_unparsed", parse_diagnosis('call {"name": "broken') == "toolish_unparsed")
+check("diag prose", parse_diagnosis("Task complete.") == "prose")
+check("verb same-verb=0", action_change_verbs(
+    ['bash_command::{"keystrokes": "ls -a"}'] * 8,
+    ['bash_command::{"keystrokes": "ls b"}'] * 8) == 0.0)
+_ex, _p = debiased_change(["x"] * 8, ["y"] * 8)
+check("debiased detects", _ex > 0.5 and _p < 0.05)
+_ex0, _p0 = debiased_change(["x", "y"] * 4, ["x", "y"] * 4)
+check("debiased null", _ex0 <= 0.02 and _p0 > 0.3)
+_h = harm_score(["a::1"] * 4 + [None] * 4, ["b::2"] * 8, logged="b::9")
+check("harm ignores beneficial divergence", _h["halt_increase"] == 0.0 and _h["agree_drop"] == 0.0)
+from compressors import TEXT_COMPRESSORS as _TC
+check("summary_native registered", "summary_native" in _TC)
+
 print(f"\n{PASS} checks passed, {len(FAIL)} failed")
 if FAIL:
     for f in FAIL:

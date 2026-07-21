@@ -161,6 +161,26 @@ Do not quote round-1 numbers except as an infrastructure lesson.
   that was set (venv torch was downgraded by the causal-conv1d wheel).
   Both names now set; resubmitted (65785915).
 
+## Limitations of D and their dispositions (the metric critique, resolved)
+
+| # | issue | disposition |
+|---|-------|-------------|
+| 1 | parser-mediated (misses inflate D) | FIXED: parse_diagnosis classifies every non-action (prose / toolish_unparsed / think_runaway / empty); toolish_unparsed > 0 in any cell = parser bug flag, not a finding |
+| 2 | no semantic action equivalence | MITIGATED: verb-level granularity added (tool + command head); full semantic equivalence remains open |
+| 3 | consequence-blind | STRUCTURAL: requires task outcomes; bf16 TB2 run is the fix-in-progress |
+| 4 | single-step myopia | BY DESIGN + documented rule: never quote D@0 without exp10-style D@k context |
+| 5 | entropy-dependent small-sample bias | FIXED: debiased_change — per-comparison permutation null gives a debiased effect size and an exact p, immune to entropy differences |
+| 6 | granularity arbitrariness | FIXED as a standard: action_change_all reports label/verb/tool together; single-granularity conclusions are artifacts |
+| 7 | ceiling compression in noisy regimes | MITIGATED by 5+6; floors > 0.5 flagged as weak-regime |
+| 8 | penalizes beneficial divergence | FIXED as an additional metric: harm_score counts only halt-increase and agreement-drop; improvements score zero |
+| 9 | format seam rides in every comparison | FIXED: summary_native compressor (trace-format delivery) enables format-matched comparisons; wrapper_only remains the seam control |
+| 10 | NO_ACTION conflates four failures | FIXED by parse_diagnosis categories |
+| 11 | sampling-policy dependence | DOCUMENTED: all numbers conditional on temp 0.7 / top_p 1.0 / 8 samples; exp14 measured the top_p sensitivity |
+
+All fixes unit-tested (suite extended, ALL CLEAR). Adoption note: new experiments
+should report action_change_all + debiased excess + harm_score; existing results
+stand as label-level TV with floors, as published.
+
 ## Still open (known, accepted, scheduled)
 
 - Repo-level train/held-out split for E-B (before any writeup).

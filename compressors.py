@@ -69,6 +69,20 @@ def paraphrase(old_ids, tokenizer, model, device, *, budget=None):
     return gen or old_ids
 
 
+def summary_native(old_ids, tokenizer, model, device, *, budget=256):
+    """Same summary as `summary`, delivered INSIDE the trace format (as a tool
+    turn) instead of as a user-note wrapper. Controls the format seam: exp13
+    and exp15 showed the note-style wrapper itself can dominate or entirely
+    suppress behavior, confounding content comparisons. This is the format-
+    matched delivery for those comparisons."""
+    prompt = old_ids + _ids(tokenizer, SUMMARIZE)
+    gen = _generate(model, tokenizer, prompt, budget, device)
+    text = tokenizer.decode(gen, skip_special_tokens=True)
+    wrapped = (f"<turn index=0 role=tool>\n<content>\n[Context compacted. "
+               f"Summary of prior work: {text}]\n</content>\n</turn>\n")
+    return _ids(tokenizer, wrapped)
+
+
 def pointer(old_ids, tokenizer, model, device):
     """Drop the old history but leave pointers to where the info lives.
     Control: damage the agent CAN recover from (it can re-read the files)."""
@@ -94,6 +108,7 @@ def hallucinator(old_ids, tokenizer, model, device):
 TEXT_COMPRESSORS = {
     "keep_recent": keep_recent,
     "summary": summary,
+    "summary_native": summary_native,
     "paraphrase": paraphrase,
     "pointer": pointer,
     "hallucinator": hallucinator,

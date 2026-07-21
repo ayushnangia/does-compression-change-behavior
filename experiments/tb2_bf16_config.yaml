@@ -1,0 +1,50 @@
+# TB2 with the UN-quantized Qwen3.5-35B-A3B (bf16, TP=4) at a 32k window so
+# Terminus's compaction actually triggers. Group feedback: quantized models
+# scored 0; this is the strongest open model we can serve on one node.
+job_name: tb2-35b-bf16-easy25
+jobs_dir: /scratch/anangia/tb2/jobs
+n_concurrent_trials: 2
+n_attempts: 1
+
+agents:
+  - name: terminus-2
+    model_name: hosted_vllm/qwen35-35b-bf16
+    kwargs:
+      api_base: http://127.0.0.1:8000/v1
+      model_info:
+        max_input_tokens: 32768
+        max_output_tokens: 8192
+        input_cost_per_token: 0.0
+        output_cost_per_token: 0.0
+
+environment:
+  type: singularity
+  kwargs:
+    singularity_image_cache_dir: /scratch/anangia/tb2/sif_cache
+
+tasks:
+  - path: /scratch/anangia/tb2/terminal-bench/crack-7z-hash
+  - path: /scratch/anangia/tb2/terminal-bench/fix-git
+  - path: /scratch/anangia/tb2/terminal-bench/mteb-leaderboard
+  - path: /scratch/anangia/tb2/terminal-bench/prove-plus-comm
+  - path: /scratch/anangia/tb2/terminal-bench/raman-fitting
+  - path: /scratch/anangia/tb2/terminal-bench/configure-git-webserver
+  - path: /scratch/anangia/tb2/terminal-bench/constraints-scheduling
+  - path: /scratch/anangia/tb2/terminal-bench/kv-store-grpc
+  - path: /scratch/anangia/tb2/terminal-bench/mteb-retrieve
+  - path: /scratch/anangia/tb2/terminal-bench/pytorch-model-recovery
+  - path: /scratch/anangia/tb2/terminal-bench/break-filter-js-from-html
+  - path: /scratch/anangia/tb2/terminal-bench/cobol-modernization
+  - path: /scratch/anangia/tb2/terminal-bench/hf-model-inference
+  - path: /scratch/anangia/tb2/terminal-bench/merge-diff-arc-agi-task
+  - path: /scratch/anangia/tb2/terminal-bench/nginx-request-logging
+  - path: /scratch/anangia/tb2/terminal-bench/openssl-selfsigned-cert
+  - path: /scratch/anangia/tb2/terminal-bench/polyglot-c-py
+  - path: /scratch/anangia/tb2/terminal-bench/vulnerable-secret
+  - path: /scratch/anangia/tb2/terminal-bench/code-from-image
+  - path: /scratch/anangia/tb2/terminal-bench/count-dataset-tokens
+  - path: /scratch/anangia/tb2/terminal-bench/custom-memory-heap-crash
+  - path: /scratch/anangia/tb2/terminal-bench/dna-insert
+  - path: /scratch/anangia/tb2/terminal-bench/extract-elf
+  - path: /scratch/anangia/tb2/terminal-bench/financial-document-processor
+  - path: /scratch/anangia/tb2/terminal-bench/git-leak-recovery

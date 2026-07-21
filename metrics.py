@@ -121,6 +121,23 @@ def harm_score(full_actions, comp_actions, logged: "str | None") -> dict:
     return out
 
 
+def ngram_containment(derived_text: str, source_text: str, n: int = 3) -> float:
+    """Fraction of the derived text's word n-grams that appear in the source
+    (Zhang & Khattab 2026's input-side containment, applied to compaction:
+    derived = compressed context, source = original context).
+    1.0 = fully extractive (keep_recent), low = abstractive/novel text
+    (LLM summaries). An INPUT-side measure to pair with output-side D."""
+    from collections import Counter
+    def grams(t):
+        w = t.split()
+        return Counter(tuple(w[i:i + n]) for i in range(len(w) - n + 1))
+    gd, gs = grams(derived_text), grams(source_text)
+    if not gd:
+        return 0.0
+    inter = sum(min(c, gs.get(g, 0)) for g, c in gd.items())
+    return inter / sum(gd.values())
+
+
 def action_change(actions_a, actions_b) -> float:
     """0 = same mix of actions, 1 = completely different. (Total-variation
     distance between the two empirical action distributions.)"""

@@ -181,6 +181,16 @@ All fixes unit-tested (suite extended, ALL CLEAR). Adoption note: new experiment
 should report action_change_all + debiased excess + harm_score; existing results
 stand as label-level TV with floors, as published.
 
+## T4 final verdict (July 21): a clean NULL
+
+Training completed properly (adapter saved, 86 gap-filtered on-policy pairs,
+~30 optimizer steps). Powered task-split eval with CIs and paired test:
+dpo D 0.73 [0.67,0.80] vs base 0.75 [0.68,0.81], acting 0.42 vs 0.46,
+paired p = 0.345. No detectable effect in either direction. The E-B claim
+("D works as an offline training signal") is NOT established at this scale;
+E-A (selection) remains established. Options recorded in COAUTHOR.md:
+1k-pair round, SFT-on-best arm, or publish selection-only.
+
 ## Still open (known, accepted, scheduled)
 
 - Repo-level train/held-out split for E-B (before any writeup).

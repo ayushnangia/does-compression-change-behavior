@@ -91,6 +91,26 @@ Our measurement constructs are instances of established families, not inventions
 Caveat unchanged: keyword-level search; citation-graph walk still required
 before external claims of metric novelty.
 
+
+## Convergent work: harnesses as compositional generalizers (Zhang & Khattab 2026)
+
+Blog (alexzhang13.github.io/blog/2026/harness/): recursive/offloading harnesses
+generalize because context offloading keeps each LM call "locally
+in-distribution"; they measure eval-vs-training trajectory closeness with
+input-side surface metrics (Levenshtein, n-gram containment/Jaccard) and
+explicitly note the missing piece: a principled distance on OUTPUT
+distributions with semantic awareness. Relationship to us:
+- our behavioral D is exactly that output-side measure (their delta-ball /
+  epsilon-ball sketch = their input metrics + our output metric);
+- their in-distribution mechanism explains WHY compaction should work; our
+  format results (exp5/14/15) specify when it fails (format-OOD interfaces);
+- our block law + format collapse jointly refute their smoothness assumption
+  ANISOTROPICALLY: content directions are nearly flat (36% of tokens
+  deletable), format directions are cliffs (constant content, total collapse);
+- testable bridge (planned): correlate D with an in-distribution proxy of the
+  compacted context (perplexity or their n-gram containment vs natural trace
+  contexts) - would unify the two frameworks quantitatively.
+
 ## Novelty risk register
 - Keyword search only — MUST citation-walk LLMLingua-2 and 2606.24775
   forward-references before external claims.

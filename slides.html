@@ -424,9 +424,12 @@
         Terminal-Bench tasks: compare the summaries it writes at window-exhaustion
         moments against our block-aware rule and truncation, and measure the effect
         of compression on task success directly.</li>
-    <li><b>Train a compressor with D</b>: use the good-vs-bad summary pairs
-        as training data and test whether the trained compressor preserves behavior
-        better.</li>
+    <li><b>Train a compressor with D</b>: first attempt completed cleanly
+        (86 preference pairs, task-level held-out split) and came back null:
+        trained D 0.73 [0.67, 0.80] vs base 0.75 [0.68, 0.81], p = 0.345.
+        Selection works; training at ~100 pairs shows no effect either way.
+        Next: a 1k-pair round, or an SFT-on-best arm, or accept
+        selection-only as the claim.</li>
     <li><b>Revisit the credit question</b>: weight each compaction by the damage it
         actually causes, instead of the current back-loaded schemes.</li>
   </ul>

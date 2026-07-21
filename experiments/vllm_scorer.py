@@ -56,3 +56,37 @@ class VLLMScorer:
 
     def sample_actions(self, context_ids, **kw):
         return [parse_action(t) for t in self.sample_texts(context_ids, **kw)]
+
+
+def exact_tool_distribution(self, context_ids, tool_names, tokenizer,
+                            prefix: str = "\n<tool_calls>\n[{'function_name': '"):
+    """EXACT next-tool distribution via logprobs (no sampling, no floor).
+
+    For each candidate tool name, score the continuation
+    context + prefix + name and sum the logprobs of the name's tokens.
+    Softmax over candidates = the model's next-tool distribution,
+    computed exactly. TV between two such distributions is noise-free.
+
+    Limitation: tool-name granularity only (arguments are open-ended),
+    and the candidate set must be supplied (closed-world assumption).
+    """
+    import math
+    from vllm import SamplingParams, TokensPrompt
+    pre = tokenizer(prefix, add_special_tokens=False)["input_ids"]
+    prompts, spans = [], []
+    for name in tool_names:
+        name_ids = tokenizer(name, add_special_tokens=False)["input_ids"]
+        prompts.append(TokensPrompt(
+            prompt_token_ids=list(context_ids) + pre + name_ids))
+        spans.append(len(name_ids))
+    params = SamplingParams(max_tokens=1, prompt_logprobs=0, temperature=0)
+    outs = self.llm.generate(prompts, [params] * len(prompts))
+    scores = []
+    for out, span in zip(outs, spans):
+        lps = out.prompt_logprobs[-span:]
+        total = sum(next(iter(d.values())).logprob for d in lps if d)
+        scores.append(total)
+    m = max(scores)
+    exps = [math.exp(s - m) for s in scores]
+    z = sum(exps)
+    return {n: e / z for n, e in zip(tool_names, exps)}

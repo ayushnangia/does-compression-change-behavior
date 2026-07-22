@@ -52,7 +52,7 @@ def spearman(xs, ys):
 
 def mean_nll(model, ids, device):
     import torch
-    x = torch.tensor([ids[-8192:]], device=device)   # cap for memory
+    x = torch.tensor([ids[-4096:]], device=device)   # cap for memory (8k OOMed alongside 16k sampling)
     with torch.no_grad():
         out = model(x, labels=x)
     return float(out.loss)

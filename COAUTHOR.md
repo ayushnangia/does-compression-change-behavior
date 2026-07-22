@@ -228,10 +228,16 @@ Numbers cited are means; CIs and raw arrays are in the result JSONs.
   ninth trained nothing (documented). The tenth completed cleanly and is a
   NULL: dpo D 0.73 [0.67,0.80] vs base 0.75 [0.68,0.81], p=0.345. D as a
   training signal is NOT established at ~100 pairs.
-- **exp17 (in flight).** Minimal behavioral core: rates down to 2% kept,
-  including an action-skeleton condition (context = only the tool calls).
-- **exp18 arms (in flight).** exp8/exp4 at 32k and 64k on window-filling
-  on-policy examples.
+- **exp17 (minimal behavioral core).** N=19, coarse floor 0.13. The knee
+  is below 2%: truncation keeping 2% of the old history (~330 tokens of
+  16k) still agrees 0.59 with the real action vs 0.68 at 25% kept; 12x more
+  compression costs ~9 points. Extractive-2% beats abstractive summaries
+  (0.30, exp8) by ~30 points; the skeleton (tool calls only) has the lowest
+  coarse divergence at R>=0.125. One model, coarse granularity, recent
+  slice raw as in real systems.
+- **exp18 arms (parked).** exp8/exp4 at 32k/64k OOM'd on the HF path (KV
+  at 32k x 8 samples); rerun requires porting those scripts to the vLLM
+  scorer.
 - **exp19 (in flight).** Exact logprob tool distribution vs the sampled
   estimate: correlation and noise elimination.
 - **exp20 (in flight).** The OOD bridge: does input-side

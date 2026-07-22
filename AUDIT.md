@@ -191,6 +191,21 @@ paired p = 0.345. No detectable effect in either direction. The E-B claim
 E-A (selection) remains established. Options recorded in COAUTHOR.md:
 1k-pair round, SFT-on-best arm, or publish selection-only.
 
+## exp17 + final-batch dispositions (July 21)
+
+- **exp17 (minimal behavioral core), N=19, coarse floor 0.13: the knee is
+  below 2%.** keep_recent at 2% of old history (~330 tokens of 16k) still
+  agrees 0.59 with the real action (25% kept: 0.68); the 12x compression
+  from 25%->2% costs ~9 points. Extractive-2% beats abstractive summaries
+  (0.30, exp8, same raw recent slice) by ~30 points. Skeleton (calls only)
+  has the lowest coarse-D at R>=0.125. One model, coarse granularity.
+- 32k/64k HF arms OOM'd (KV at 32k x 8 samples): parked pending the
+  vLLM-scorer port of exp4/exp8.
+- TB2-bf16 failed twice at vLLM TP=4 startup with zero log output even
+  unbuffered: do not spend more blind queue cycles; needs an interactive
+  salloc debug or the H100-cluster route.
+- exp19 (timeout) and exp20 (NLL-cap OOM) refixed and resubmitted.
+
 ## Still open (known, accepted, scheduled)
 
 - Repo-level train/held-out split for E-B (before any writeup).

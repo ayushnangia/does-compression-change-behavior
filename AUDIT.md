@@ -206,6 +206,16 @@ E-A (selection) remains established. Options recorded in COAUTHOR.md:
   salloc debug or the H100-cluster route.
 - exp19 (timeout) and exp20 (NLL-cap OOM) refixed and resubmitted.
 
+## exp20 verdict (July 21): the OOD bridge holds via containment
+
+Spearman(3-gram containment vs original, coarse-D) = -0.55 across 6
+conditions x 17 examples at 25% budget; condition means monotone
+(keep_recent 1.00->0.13 D through wrapper_only 0.00->0.51). NLL is a poor
+predictor (+0.11): fluency is not behavioral safety. Note-vs-trace summary
+delivery identical for 9B at 4k (the format cliff is model/regime-specific).
+Caveats: N=17, one rate, cluster-driven correlation. Predictive rule:
+compact extractively; abstractive tokens cost behavior.
+
 ## Still open (known, accepted, scheduled)
 
 - Repo-level train/held-out split for E-B (before any writeup).

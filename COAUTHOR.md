@@ -240,9 +240,12 @@ Numbers cited are means; CIs and raw arrays are in the result JSONs.
   scorer.
 - **exp19 (in flight).** Exact logprob tool distribution vs the sampled
   estimate: correlation and noise elimination.
-- **exp20 (in flight).** The OOD bridge: does input-side
-  out-of-distribution-ness (containment, NLL) predict D? Includes
-  summary_note vs summary_trace (same content, different format).
+- **exp20 (the OOD bridge).** Input-side extractiveness predicts
+  behavioral preservation: Spearman(containment, coarse-D) = -0.55, with
+  monotone condition means (keep_recent 1.00 containment -> D 0.13;
+  summaries 0.08 -> 0.44; wrapper_only 0.00 -> 0.51). NLL is a poor
+  predictor (+0.11). Quantitatively links Zhang & Khattab's
+  in-distribution mechanism to our D. N=17, one rate, cluster-driven.
 - **Terminal-Bench 2.0 grounding.** Full offline pipeline on an air-gapped
   cluster (89 task containers rebuilt for Apptainer, models via vLLM,
   Terminus-2 agent). All quantized models scored 0% Pass@1 (0/53, 0/69

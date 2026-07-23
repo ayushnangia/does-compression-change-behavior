@@ -216,6 +216,21 @@ delivery identical for 9B at 4k (the format cliff is model/regime-specific).
 Caveats: N=17, one rate, cluster-driven correlation. Predictive rule:
 compact extractively; abstractive tokens cost behavior.
 
+## exp19 verdict (July 23): sampled tool-level TV is noise-dominated; exact estimator confirms floor-referencing was load-bearing
+
+On identical compressed-vs-full pairs, exact logprob TV over the next-tool
+distribution averages 0.029 while the 8-sample estimate averages 0.275
+(r=-0.32, meaningless at N=10). Reading: the true "which tool" shift under
+compression is tiny; the sampled number at this granularity is ~90% sampling
+floor. Our floor-referencing practice was therefore necessary and correct,
+and headline effects (which run 0.5-0.8 vs floor ~0.33 and are carried by
+the halting/acting channel) are unaffected. Caveat: the exact method
+conditions on a tool call being made, so it cannot measure halting - the
+channel exp4 identified as primary. The two estimators are complementary,
+not interchangeable. Took 4 attempts (module-level method, 7.6GB logprob
+spike, KV pre-allocation absorbing the freed headroom); final fix chunk=1024
++ util=0.80.
+
 ## Still open (known, accepted, scheduled)
 
 - Repo-level train/held-out split for E-B (before any writeup).

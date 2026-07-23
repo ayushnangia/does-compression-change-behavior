@@ -1,0 +1,64 @@
+{
+ "design": "same compressed-vs-full pairs measured by 8-sample TV vs exact logprob TV over next-tool distribution",
+ "n": 10,
+ "pairs": [
+  {
+   "example": 0,
+   "sampled_tv": 0.38,
+   "exact_tv": 0.002
+  },
+  {
+   "example": 1,
+   "sampled_tv": 0.12,
+   "exact_tv": 0.0
+  },
+  {
+   "example": 2,
+   "sampled_tv": 0.12,
+   "exact_tv": 0.244
+  },
+  {
+   "example": 3,
+   "sampled_tv": 0.12,
+   "exact_tv": 0.041
+  },
+  {
+   "example": 4,
+   "sampled_tv": 0.25,
+   "exact_tv": 0.0
+  },
+  {
+   "example": 5,
+   "sampled_tv": 0.25,
+   "exact_tv": 0.0
+  },
+  {
+   "example": 6,
+   "sampled_tv": 0.0,
+   "exact_tv": 0.001
+  },
+  {
+   "example": 7,
+   "sampled_tv": 0.38,
+   "exact_tv": 0.001
+  },
+  {
+   "example": 8,
+   "sampled_tv": 0.5,
+   "exact_tv": 0.001
+  },
+  {
+   "example": 9,
+   "sampled_tv": 0.62,
+   "exact_tv": 0.0
+  }
+ ],
+ "sampled_mean": 0.275,
+ "exact_mean": 0.029,
+ "pearson_r": -0.32,
+ "caveats": [
+  "N=10; r is noise at this N",
+  "exact method conditions on a tool call being made: it cannot see the halting channel, which exp4 showed is the main behavioral effect",
+  "harvested from log; script omitted save_result"
+ ]
+}

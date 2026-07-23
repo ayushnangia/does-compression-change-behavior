@@ -1,0 +1,68 @@
+# Migration runbook: Narval -> H100 cluster (Nibi / Killarney / Fir)
+
+Why: Narval A100-40GB cannot serve Qwen3.5-35B-A3B bf16 (vllm 0.25 MoE
+multi-GPU engine init hangs at TP=2 and TP=4, jobs 66203598 et al.), and the
+64k arms OOM. H100-80GB fits the 35B on a single GPU and doubles headroom.
+Bonus: Nibi/Killarney/Fir have internet on compute nodes, which removes the
+entire offline-baking tax (no --examples-file prefetch dance, no sif
+pre-baking, HF downloads just work).
+
+## What travels how
+
+| asset | size | method |
+|---|---|---|
+| repo + ALL examples_*.json + results | ~60MB | `git clone` (everything tracked) |
+| TB2 trajectories (153 files, 132 compaction events) | 2.1MB | `migration_payload.tar.gz` IN this repo |
+| DPO checkpoints (rounds 1+2, LoRA) | 120MB | rsync from narval (below); backstop at narval `$HOME/dpo_checkpoints.tar.gz` |
+| HF model cache | ~500GB | re-download on target (internet available) |
+| TB2 task sifs | ~25GB | re-bake on target (`tb2-eval/bake_all_sifs.sh`), faster with internet |
+| venvs | - | rebuild (same CVMFS stack on all Alliance clusters) |
+
+## Steps on the target cluster
+
+1. Clone:
+   `cd $SCRATCH && git clone https://github.com/ayushnangia/does-compression-behavior dccb`
+   (use the PAT from .env if private; .env itself must be copied by hand, it is gitignored)
+2. Unpack trajectories: `tar xzf migration_payload.tar.gz` -> `tb2_trajectories/`
+3. Checkpoints (only if resuming E-B work):
+   `rsync narval.alliancecan.ca:/home/anangia/dpo_checkpoints.tar.gz .`
+4. Venvs (adjust python module names to target's `module avail`):
+   - compress: `module load cuda python/3.11 gcc arrow; python -m venv $SCRATCH/ENV-compress2`
+     then `pip install torch transformers trl peft accelerate` (+ `fla-core causal-conv1d` for Qwen3.5)
+   - vllm: `module load cuda python/3.12; python -m venv $SCRATCH/ENV-vllm2; pip install vllm`
+   - harbor: python 3.12 venv, `pip install harbor==0.20`
+5. Models: `HF_HOME=$SCRATCH/hf python prefetch.py` (or plain `huggingface-cli download` - internet works)
+6. Gate: `python tests/run_tests.py` before ANY submission (same rule as Narval)
+
+## Cluster-specific notes
+
+- Accounts: def-zhijing / def-rgrosse are Alliance-wide; Killarney may need the
+  aip- allocation (check `sshare -U` after login)
+- H100 needs torch >= 2.5.1 (our stack is 2.9, fine)
+- Slurm GPU spec changes: `--gpus-per-node=a100:1` -> check target's gres name
+  (`h100`, `h100_80gb`, or bare `--gpus=1`; see target docs)
+- torch 2.9 reads PYTORCH_CUDA_ALLOC_CONF not PYTORCH_ALLOC_CONF; job scripts
+  set both (keep it)
+- vllm scorer: chunked prefill (max_num_batched_tokens=1024) + util 0.80 is
+  REQUIRED for exact_tool_distribution on long contexts (7.6GB fp32 logprob
+  spike otherwise; see AUDIT.md exp19 entry). On 80GB cards you may relax to
+  util 0.90 but keep the chunking.
+- Apptainer: same workflow if needed, but with compute-node internet harbor
+  can pull images directly on some clusters - test one task first
+
+## First H100 jobs, in order
+
+1. tb2_bf16: Qwen3.5-35B-A3B single-GPU vLLM serve + Terminus-2, easy-25
+   subset first. This is the run Narval could not do; expect nonzero Pass@1
+   (paper reports 27% class for this model on TB2).
+2. If (1) produces solved tasks: regenerate on-policy 16k/32k examples from
+   COMPETENT trajectories, rerun exp8 grounding with task success available.
+3. 64k arms of exp4/exp8 (previously OOM).
+4. GLM-4.5-Air (106B) on 3xH100 if the group wants oracle-scale.
+
+## What does NOT need to move
+
+- Old job logs (*.out): archived in git history where they mattered (AUDIT.md
+  records every verdict); raw logs stay on Narval until scratch purge
+- Narval-specific job headers: every experiments/*_job.sh needs the gres line
+  edited anyway - do it per-job as you resubmit, not in bulk

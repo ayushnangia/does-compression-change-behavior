@@ -116,6 +116,18 @@ debugjob -g 1 srun bash experiments/smoke_35b_trillium.sh   # vLLM 35B single-GP
 #   with --dependency=afterok:<smoke_id>
 ```
 
+Trillium smoke test VERIFIED on a login-node H100 (2026-07-23, maintenance
+still on; login nodes have 4x H100 and SciNet blesses short tests there):
+single GPU serves bf16 35B at 32k, 74.1GB used, 126k KV tokens, completion OK.
+Two failure modes found and fixed en route, baked into the scripts:
+1. NO `stdbuf` around `vllm serve`: Gentoo's libstdbuf.so is LD_PRELOADed
+   into nvcc's /bin/sh (system glibc) and every flashinfer JIT build dies
+   with GLIBC_ABI_DT_RELR. PYTHONUNBUFFERED=1 suffices.
+2. `--max-num-seqs 128`: Qwen3.5 linear-attention needs one Mamba cache
+   block per decode seq; only ~135 blocks fit next to 66GB of weights, and
+   vllm's default max_num_seqs=1024 aborts engine init.
+Flashinfer JIT kernels now cached in ~/.cache/flashinfer for compute jobs.
+
 Trillium files added during migration:
 - `experiments/bake_sifs_trillium.sh` - pre-bake TB2 sifs into harbor's exact
   cache naming (`<image with / and : -> _>.sif`), from the config's task list

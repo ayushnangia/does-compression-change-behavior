@@ -13,12 +13,17 @@ cd $SCRATCH
 module load gcc cuda python/3.12 arrow/19.0.1 opencv/4.13.0
 source $HOME/ENV-vllm2/bin/activate
 
+# NOTE: no stdbuf here. Gentoo's libstdbuf.so gets LD_PRELOADed into nvcc's
+# /bin/sh (system glibc), killing flashinfer JIT builds with
+# "GLIBC_ABI_DT_RELR not found". PYTHONUNBUFFERED=1 covers buffering.
 LOG=$SCRATCH/smoke_35b_vllm.log
-stdbuf -oL -eL vllm serve Qwen/Qwen3.5-35B-A3B --port 8000 \
+vllm serve Qwen/Qwen3.5-35B-A3B --port 8000 \
     --served-model-name qwen35-35b-bf16 \
     --tensor-parallel-size 1 --max-model-len 32768 \
-    --max-num-batched-tokens 1024 \
+    --max-num-batched-tokens 1024 --max-num-seqs 128 \
     --gpu-memory-utilization 0.92 > $LOG 2>&1 &
+# --max-num-seqs 128: Qwen3.5 linear-attn needs one Mamba cache block per
+# decode seq; only ~135 blocks fit beside 66GB of weights on one H100-80.
 VLLM_PID=$!
 
 for i in $(seq 1 120); do

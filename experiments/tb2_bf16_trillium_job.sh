@@ -15,11 +15,13 @@ export VLLM_NO_USAGE_STATS=1 LITELLM_LOCAL_MODEL_COST_MAP=True PYTHONUNBUFFERED=
 
 module load gcc cuda python/3.12 arrow/19.0.1 opencv/4.13.0 2>/dev/null
 source $HOME/ENV-vllm2/bin/activate
-stdbuf -oL -eL vllm serve Qwen/Qwen3.5-35B-A3B --port 8000 \
+# no stdbuf: its LD_PRELOAD breaks flashinfer JIT nvcc builds (GLIBC_ABI_DT_RELR)
+vllm serve Qwen/Qwen3.5-35B-A3B --port 8000 \
     --served-model-name qwen35-35b-bf16 \
     --tensor-parallel-size 1 --max-model-len 32768 \
-    --max-num-batched-tokens 1024 \
+    --max-num-batched-tokens 1024 --max-num-seqs 128 \
     --gpu-memory-utilization 0.92 > vllm_bf16_$SLURM_JOB_ID.log 2>&1 &
+# --max-num-seqs 128: one Mamba cache block per decode seq; ~135 fit on H100-80
 VLLM_PID=$!
 deactivate
 

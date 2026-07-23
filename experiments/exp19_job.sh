@@ -6,6 +6,7 @@
 #SBATCH --output=exp19_%j.out
 module load cuda/12.9 opencv python/3.12 2>/dev/null
 source /scratch/anangia/ENV-vllm2/bin/activate
+export PYTORCH_ALLOC_CONF=expandable_segments:True PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export HF_HOME=$SCRATCH/hf HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 export VLLM_NO_USAGE_STATS=1 PYTHONUNBUFFERED=1
 cd /scratch/anangia/dccb/experiments

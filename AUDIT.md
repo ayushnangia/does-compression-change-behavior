@@ -231,6 +231,21 @@ not interchangeable. Took 4 attempts (module-level method, 7.6GB logprob
 spike, KV pre-allocation absorbing the freed headroom); final fix chunk=1024
 + util=0.80.
 
+## exp21 verdict (July 23): canonical shorthand works if and only if it keeps the native wrapper
+
+Group-proposed compressor: rewrite each tool call as GREP/READ/EDIT shorthand
+(10.0x measured compression on tool-call tokens, 100% parse coverage).
+N=19, floor 0.13, pre-registered predictions. P3 confirmed (p=0.013): identical
+shorthand content scores 0.61 agreement inside <tool_calls> tags vs 0.42 bare -
+19 points from format alone, our cleanest content-held-constant format test.
+P2 directional (wrapped 0.61 vs raw skeleton 0.53 at 2% budget, p=0.34).
+P1 wrong informatively: at moderate budgets raw skeleton beats canonical by
+~5-9 pts, consistent with exp20's containment law (canonicalizing destroys
+verbatim n-grams). Saturation result: the full 16k action history canonicalizes
+to ~870 tokens holding 0.53-0.61 vs 0.68 for 3840 raw recent tokens.
+Deployable rule: shorthand the action history, keep the native tool-call
+wrapper. Caveats: N=19, one model (9B), one trace domain.
+
 ## Still open (known, accepted, scheduled)
 
 - Repo-level train/held-out split for E-B (before any writeup).

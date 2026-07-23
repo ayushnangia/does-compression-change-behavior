@@ -26,8 +26,12 @@ class VLLMScorer:
     def __init__(self, model: str, *, max_model_len: int = 32768,
                  gpu_memory_utilization: float = 0.90):
         from vllm import LLM
+        # max_num_batched_tokens caps the prefill chunk so prompt_logprobs
+        # (fp32 over full vocab per position) allocates ~1GB, not chunk=16k
+        # positions x 150k vocab ~ 7.6GB (OOM on A100-40, job 66266814).
         self.llm = LLM(model=model, max_model_len=max_model_len,
                        gpu_memory_utilization=gpu_memory_utilization,
+                       max_num_batched_tokens=2048,
                        enforce_eager=False)
 
     def sample_texts_batch(self, contexts, *, samples=8, max_new=768,

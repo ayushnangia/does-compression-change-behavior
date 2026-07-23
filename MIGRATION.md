@@ -1,4 +1,4 @@
-# Migration runbook: Narval -> H100 cluster (Nibi / Killarney / Fir)
+# Migration runbook: Narval -> H100 cluster (Trillium / Nibi / Killarney / Fir)
 
 Why: Narval A100-40GB cannot serve Qwen3.5-35B-A3B bf16 (vllm 0.25 MoE
 multi-GPU engine init hangs at TP=2 and TP=4, jobs 66203598 et al.), and the
@@ -59,6 +59,39 @@ pre-baking, HF downloads just work).
    COMPETENT trajectories, rerun exp8 grounding with task success available.
 3. 64k arms of exp4/exp8 (previously OOM).
 4. GLM-4.5-Air (106B) on 3xH100 if the group wants oracle-scale.
+
+## Trillium-specific (if target = Trillium, most H100 nodes: 63 nodes x 4x H100-SXM-80GB, NVLink)
+
+Trillium is like Narval in the one way that matters: **no internet on compute
+nodes**. Our offline discipline ports unchanged (prefetch on login node,
+HF_HUB_OFFLINE=1, --examples-file, sifs baked on login). Differences:
+
+1. Login: `trillium.alliancecan.ca` (CPU) / `trillium-gpu.alliancecan.ca` (GPU side)
+2. **Whole-node scheduling**: no `--mem` needed (you get the node's 749GB);
+   GPU request is `--gpus-per-node=h100:N` (N=1-4). Drop `--mem` and
+   `--cpus-per-task` lines from job headers.
+3. **venv goes in $HOME on the login node** (SciNet recommendation), NOT
+   scratch: `python -m venv ~/ENV-compress2` etc. Update job scripts'
+   `source` lines accordingly.
+4. **`debugjob -g 1`** gives an interactive GPU for up to 2h with fast start.
+   USE THIS FIRST for the vLLM 35B serve test - it is exactly the interactive
+   debug loop Narval never gave us (home/project are read-only inside
+   debugjob; work from scratch).
+5. NVLink within node: the 106B GLM-4.5-Air fits TP=4 on ONE node with fast
+   interconnect - Trillium is the only listed cluster where that is routine.
+6. Storage is VAST NVMe (fast small-file reads) - the HF cache and sif
+   copies will be quicker than Narval Lustre.
+
+Trillium first-command sequence:
+```bash
+ssh trillium.alliancecan.ca
+cd $SCRATCH && git clone <repo> dccb && cd dccb && tar xzf migration_payload.tar.gz
+module load python/3.11 && python -m venv ~/ENV-compress2 && source ~/ENV-compress2/bin/activate
+pip install torch transformers trl peft accelerate fla-core causal-conv1d
+HF_HOME=$SCRATCH/hf python prefetch.py          # login node has internet
+python tests/run_tests.py                        # gate, as always
+debugjob -g 1                                    # then: vLLM 35B single-GPU smoke test
+```
 
 ## What does NOT need to move
 

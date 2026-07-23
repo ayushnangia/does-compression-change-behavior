@@ -82,16 +82,48 @@ HF_HUB_OFFLINE=1, --examples-file, sifs baked on login). Differences:
 6. Storage is VAST NVMe (fast small-file reads) - the HF cache and sif
    copies will be quicker than Narval Lustre.
 
-Trillium first-command sequence:
+Trillium first-command sequence (VERIFIED on trig-login01, 2026-07-23):
 ```bash
 ssh trillium.alliancecan.ca
 cd $SCRATCH && git clone <repo> dccb && cd dccb && tar xzf migration_payload.tar.gz
-module load python/3.11 && python -m venv ~/ENV-compress2 && source ~/ENV-compress2/bin/activate
-pip install torch transformers trl peft accelerate fla-core causal-conv1d
-HF_HOME=$SCRATCH/hf python prefetch.py          # login node has internet
+# NOTE: gcc must be loaded BEFORE cuda; use virtualenv --no-download, NOT
+# python -m venv (plain venv cannot see module-provided packages, so pip
+# pulls the pyarrow/opencv "noinstall" dummies and dies)
+module load gcc cuda python/3.11 arrow/19.0.1
+virtualenv --no-download ~/ENV-compress2 && source ~/ENV-compress2/bin/activate
+pip install --no-index torch transformers trl peft accelerate fla-core \
+    causal-conv1d 'datasets>=3,<4' sentencepiece protobuf
+# datasets must stay <4: datasets 5.x wants pyarrow>=21, arrow/19.0.1 has 19.0.1
+deactivate
+# vllm venv: opencv/4.13.0 required (vllm dep opencv-python-headless>=4.13)
+module load gcc cuda python/3.12 arrow/19.0.1 opencv/4.13.0
+virtualenv --no-download ~/ENV-vllm2 && source ~/ENV-vllm2/bin/activate
+pip install --no-index vllm    # -> vllm 0.25.0, torch 2.11
+deactivate
+# harbor venv: no Alliance wheel, comes from PyPI (login node has internet)
+virtualenv --no-download ~/ENV-harbor2 && source ~/ENV-harbor2/bin/activate
+pip install harbor==0.20
+deactivate
+HF_HOME=$SCRATCH/hf hf download Qwen/Qwen3.5-35B-A3B   # 67GB, ~15 min
 python tests/run_tests.py                        # gate, as always
-debugjob -g 1                                    # then: vLLM 35B single-GPU smoke test
+# TB2 tasks WITHOUT touching Narval: harbor registry has them
+mkdir -p $SCRATCH/tb2/{jobs,sif_cache}
+harbor download terminal-bench@2.0 -o $SCRATCH/tb2      # 89 tasks -> tb2/terminal-bench/
+bash experiments/bake_sifs_trillium.sh           # pre-bake easy-25 sifs (~44GB)
+debugjob -g 1 srun bash experiments/smoke_35b_trillium.sh   # vLLM 35B single-GPU smoke test
+# or, queue-through-maintenance chain:
+#   sbatch experiments/smoke_35b_sbatch.sh, then tb2_bf16_trillium_job.sh
+#   with --dependency=afterok:<smoke_id>
 ```
+
+Trillium files added during migration:
+- `experiments/bake_sifs_trillium.sh` - pre-bake TB2 sifs into harbor's exact
+  cache naming (`<image with / and : -> _>.sif`), from the config's task list
+- `experiments/smoke_35b_trillium.sh` - single-H100 bf16 35B serve + one
+  completion; the 5-minute gate before the 16h job
+- `experiments/smoke_35b_sbatch.sh` - same, as a batch job for dependency chains
+- `experiments/tb2_bf16_trillium_job.sh` - the TB2 easy-25 run, Trillium
+  headers (h100:1, TP=1, no --mem/--cpus), venvs from $HOME
 
 ## What does NOT need to move
 

@@ -67,13 +67,17 @@ def _extract_keystrokes(text: str) -> list[str]:
 
 
 MAX_COMPACTIONS = 3  # CompactionRL parity: "at most three compaction operations"
+# ONE handoff budget shared by every arm (chars ~ 4 chars/token ~ 6k tokens).
+# Arms may only differ in WHAT fills the budget, never in HOW MUCH - otherwise
+# the comparison is budget-confounded.
+HANDOFF_BUDGET_CHARS = 24000
 
 
 def _capped(self) -> bool:
     return self._summarization_count >= MAX_COMPACTIONS
 
 
-def _fallback_keep_recent(msgs, original_instruction, budget_chars=24000):
+def _fallback_keep_recent(msgs, original_instruction, budget_chars=HANDOFF_BUDGET_CHARS):
     kept, used = [], 0
     for m in reversed(msgs):
         t = _msg_text(m)
@@ -103,7 +107,7 @@ class KeepRecentTerminus(Terminus2):
         if _capped(self):  # parity cap: identical fallback across arms
             self._summarization_count += 1
             return _fallback_keep_recent(msgs, original_instruction), None
-        budget_chars = 24000  # ~6k tokens of verbatim recency
+        budget_chars = HANDOFF_BUDGET_CHARS
         kept, used = [], 0
         for m in reversed(msgs):
             t = _msg_text(m)
@@ -138,8 +142,17 @@ class OneLinerTerminus(Terminus2):
         for m in msgs:
             for ks in _extract_keystrokes(_msg_text(m)):
                 lines.append(_canon_command(ks))
-        history = "\n".join(f"<tool_call>{l}</tool_call>" for l in lines[-200:])
-        tail = "\n\n".join(_msg_text(m) for m in msgs[-4:])[:8000]
+        # same total budget as every other arm: tail gets a third,
+        # the canonical history gets the rest (it is 10x denser)
+        tail_budget = HANDOFF_BUDGET_CHARS // 3
+        tail = "\n\n".join(_msg_text(m) for m in msgs[-4:])[-tail_budget:]
+        hist_budget = HANDOFF_BUDGET_CHARS - len(tail)
+        wrapped = [f"<tool_call>{l}</tool_call>" for l in lines]
+        history = ""
+        for w in reversed(wrapped):  # newest actions kept first if over budget
+            if len(history) + len(w) + 1 > hist_budget:
+                break
+            history = w + "\n" + history
         handoff = (
             f"Original task:\n{original_instruction}\n\n"
             "You are resuming this task. Complete record of every command "

@@ -48,6 +48,7 @@ Docs: [AUDIT.md](docs/AUDIT.md) claims and confounds ledger -
 [COAUTHOR.md](docs/COAUTHOR.md) complete technical briefing -
 [MIGRATION.md](docs/MIGRATION.md) H100 cluster runbook -
 [CODE_MAP.md](docs/CODE_MAP.md) what each file does, in plain language -
+[THREATS.md](docs/THREATS.md) every attack a reviewer can make, with status -
 [REVIEW.md](docs/REVIEW.md) how to check this work -
 [DECISIONS.md](docs/DECISIONS.md) who chose each convention and how to replace it -
 [H200_PLAN.md](docs/H200_PLAN.md) the model coverage plan -

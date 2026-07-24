@@ -7,8 +7,8 @@ Status codes: DEFENDED (evidence exists) / IN-FLIGHT (job running or queued)
 
 | # | attack | status |
 |---|---|---|
-| 1.1 | "Halting is your parser failing on formats you didn't handle" - we found and fixed exactly such bugs (Qwen native XML, GLM arg_key) AFTER measuring | IN-FLIGHT: requant 66356112. Until it lands, the headline halt numbers are formally unverified |
-| 1.2 | "Halting is your 768-token cap truncating long deliberation" | IN-FLIGHT: same requant runs at 10240 |
+| 1.1 | "Halting is your parser failing on formats you didn't handle" | DEFENDED (requant, Jul 24): effect survives at 0.31 vs 0.10 halts (3.1x); old numbers were inflated ~7pts and are retired. AUDIT has the re-quote |
+| 1.2 | "Halting is your 768-token cap truncating long deliberation" | DEFENDED: same requant, 10240 budget; differential effect intact |
 | 1.3 | "Deleting tool-call blocks leaves structurally mangled turns; the model freezes at malformed text, not missing information" | PARTIALLY DEFENDED: observation-deletion also mangles structure and is free - but the mangling is not identical across conditions. A structure-preserving ablation (replace blocks with placeholder) was never run. UNDEFENDED at the margin |
 | 1.4 | "One-shot halt is not deployment: harbor auto-fixes, feeds errors back, retries 3x - your freeze law may vanish under the real loop" | UNDEFENDED except by disclosure; exp22 trajectories will show post-compaction stall rates in the real loop |
 | 1.5 | "Two lineages (Qwen, GLM) is not a law" | IN-FLIGHT: H200 plan, 9 lineages |

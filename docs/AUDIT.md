@@ -255,6 +255,17 @@ extreme-rate (p=0.34) fail and stay labeled suggestive; expB DPO
 non-significance is the null claim itself. The three headline claims
 survive family-wise correction; nothing presented as a finding fails it.
 
+## exp4 requant verdict (July 24): freeze law SURVIVES, magnitude re-quoted
+
+Under the fixed parser (5 formats) and deployment budget (10240): halts
+0.31 (drop tool calls) vs 0.10 (control) - ratio 3.1x, absolute gap 21pts
+(was 28). The old parser + 768 cap inflated halts EVERYWHERE (control
+0.19 -> 0.10), confirming the bugs were real; the differential effect is
+intact and observations remain free (0.09 vs 0.10). Label-level change is
+at ceiling (floor 0.70) - halt/acting carries the finding, as before.
+Usable N 15/24 under the stricter conditions; temp still 0.7 (X.1 open).
+QUOTE THE NEW NUMBERS from here on: 0.31 vs 0.10.
+
 ## Still open (known, accepted, scheduled)
 
 - Repo-level train/held-out split for E-B (before any writeup).

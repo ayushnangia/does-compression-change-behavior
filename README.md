@@ -36,20 +36,22 @@ not task success - quantized models score 0% on Terminal-Bench (see
 behavior.py compressors.py data.py metrics.py scaffold.py    core library
 experiments/exp*.py       one experiment each, self-documenting headers
 experiments/run_all.sh    reproduce everything: cpu | gpu | queue
-experiments/jobs/         Slurm job scripts (Narval + Trillium)
 experiments/results/      every result JSON ever produced
 data/                     all measurement datasets (4k-64k) + raw trajectories
 tb2/                      offline Terminal-Bench 2.0 harness (vLLM+harbor+Apptainer)
 docs/                     AUDIT (claims ledger), COAUTHOR (full briefing),
-                          RELATED, MIGRATION (H100 runbook), slides
+                          MIGRATION (cluster runbook), slides
 tests/run_tests.py        68 checks; gate for every job submission
 ```
 
 Docs: [AUDIT.md](docs/AUDIT.md) claims and confounds ledger -
 [COAUTHOR.md](docs/COAUTHOR.md) complete technical briefing -
-[RELATED.md](docs/RELATED.md) novelty and metric lineage -
 [MIGRATION.md](docs/MIGRATION.md) H100 cluster runbook -
 [slides.html](docs/slides.html) talk.
+
+Everything else (Slurm job scripts per cluster, figures, planning docs,
+paper-review notes) lives on the `research-archive` branch - main carries
+only what you need to read, run, and check the findings.
 
 ## Quickstart
 

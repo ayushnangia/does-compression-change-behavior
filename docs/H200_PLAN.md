@@ -42,6 +42,15 @@ anywhere in the paper (the int4-scores-0% lesson, tb2/README.md).
 | **Nemotron-3-Ultra-550B-A55B** | 2026-06-03 | 561B | 1.12TB = weights alone eat the cluster |
 | 1-2 closed frontier | - | - | grounding reference row only |
 
+**Closed-frontier candidates for the reference rows** (API-only, no open
+weights on HF as of 2026-07-24 - verified by search, community repos with
+these names are finetunes/merges): Kimi-K3, GPT-5.5, Sol, Terra, Fable.
+Include whichever have OpenRouter endpoints at run time; for each, pin the
+provider, record the endpoint + date (closed models change silently behind
+fixed names - trajectories must carry the run date), and run the one-task
+smoke before the full spend. These rows ground the paper's numbers against
+the frontier; they join no local experiment.
+
 ## The reviewer rebuttal this buys
 
 - **9 independent lineages** (Alibaba, Zhipu, OpenAI, Mistral, Poolside,

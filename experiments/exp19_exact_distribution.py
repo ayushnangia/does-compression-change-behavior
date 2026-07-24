@@ -19,7 +19,16 @@ from metrics import action_change_tools
 from stats import mean
 from vllm_scorer import VLLMScorer
 
-TOOLS = ["bash_command", "write_file", "str_replace", "task_complete"]
+def tools_from_examples(examples):
+    """The candidate tool set is whatever appears in the logged actions -
+    derived from data, not hardcoded (docs/THREATS review fix)."""
+    seen = []
+    for ex in examples:
+        if ex.logged_action:
+            name = ex.logged_action.split("::", 1)[0]
+            if name not in seen:
+                seen.append(name)
+    return seen or ["bash_command"]
 
 def main():
     ap = argparse.ArgumentParser()

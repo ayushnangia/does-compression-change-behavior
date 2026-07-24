@@ -27,6 +27,30 @@ where it is homegrown it is marked HOMEGROWN with its replacement path.
 | Logged-action agreement as grounding | HOMEGROWN (forced) | quantized models score 0% on TB2, so task success was unavailable | replaced by real TB2 Pass@1 the moment the bf16 Trillium run lands |
 | Trajectory format for on-policy data | external | we consume harbor's `trajectory.json` as-is | harbor / Terminal-Bench 2.0 schema |
 
+
+## Generation-budget and sampling conventions (sourced 2026-07-24, no invented numbers)
+
+Adopted verbatim from the deployment stack, cited:
+
+- **Output cap 10240** = harbor reads `max_output_tokens` from deployment
+  model_info (`harbor/llms/lite_llm.py:191`); our TB2 config sets 10240.
+  Ours was 768 until 2026-07-24 - an invented cap that could truncate long
+  deliberation into a false halt. Requant covers it.
+- **Temperature: harbor passes none** unless explicitly configured
+  (`lite_llm.py:310`); the model/server default applies (GLM-4.7 ships 1.0;
+  Qwen3.5-9B ships no generation_config -> server default 1.0). Our 0.7 was
+  invented; flagged. Floor-referencing absorbs the variance shift, but the
+  deployment-default arm belongs in any requant.
+- **Stop strings**: harbor uses none (runs to EOS/cap). We stop at the first
+  closed tool call as a pure compute optimization - measurement-neutral BY
+  CONSTRUCTION because our label is the first closed call either way.
+- **Halt semantics differ from deployment**: harbor never terminates on
+  unparseable output - it auto-fixes truncated JSON, feeds the parse error
+  back to the model, and retries the API call 3x (`lite_llm.py:258`,
+  parser auto-fixes, error-feedback loop). Our "halt" is a one-shot
+  measurement. Deployed, the freeze law manifests as wasted turns and
+  retries, not a literal stop. State this in any writeup.
+
 ## The externalization plan (ordered by value)
 
 1. **Parsing -> vLLM, PER-MODEL parsers.** Serve with

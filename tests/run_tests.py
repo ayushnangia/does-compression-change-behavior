@@ -48,6 +48,11 @@ check("parse set-args (job-killer regression)", (parse_action(
     "<tool_calls>[{'function_name': 'b', 'arguments': {'x', 'y'}}]</tool_calls>") or "").startswith("b::"))
 check("parse prose", parse_action("The task is complete.") is None)
 check("parse menu", parse_action('I will read_file("src/a.py") now') == 'read_file::"src/a.py"')
+check("parse menu-hedged-prose", parse_action("Maybe I could grep(pattern) the file first.") is None)
+check("parse menu-example-prose", parse_action("Use a tool, for example edit(path).") is None)
+check("parse glm-native", (parse_action(
+    "<tool_call>execute_bash<arg_key>command</arg_key><arg_value>ls -la</arg_value></tool_call>")
+    or "").startswith("execute_bash::"))
 check("kind menu-lookup", action_kind("read_file::x") == "lookup")
 check("kind menu-commit", action_kind("submit::") == "commit")
 check("kind bash-ls", action_kind('execute_bash::{"command": "ls -la"}') == "lookup")
@@ -197,6 +202,22 @@ for rf in (REPO / "experiments" / "results").glob("*.json"):
     except Exception as e:
         bad.append(f"{rf.name}: {e}")
 check("all result JSONs parse", not bad, str(bad))
+
+
+# ---- real generation path: sample_texts consumed end-to-end (tiny model) ----
+# the monkeypatched checks above never execute model.generate; this does,
+# so the stop_strings/tokenizer kwargs are verified against the installed
+# transformers, not assumed. Random weights; we only test mechanics.
+import behavior as _bh
+from transformers import AutoTokenizer as _AT, Qwen2Config as _QC, Qwen2ForCausalLM as _QM
+_tok = _AT.from_pretrained("Qwen/Qwen3.5-9B", trust_remote_code=True)
+_cfg = _QC(vocab_size=_tok.vocab_size + 64, hidden_size=64, num_hidden_layers=2,
+           num_attention_heads=4, num_key_value_heads=2, intermediate_size=128,
+           max_position_embeddings=512)
+_m = _QM(_cfg).eval()
+_ids = _tok("hello world", add_special_tokens=False)["input_ids"]
+_texts = _bh.sample_texts(_m, _tok, _ids, "cpu", samples=2, max_new=8, seed=0)
+check("generate+stop_strings consumed", len(_texts) == 2 and all(isinstance(x, str) for x in _texts))
 
 # no stubs / TODOs anywhere
 import re as _re

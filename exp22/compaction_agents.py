@@ -55,14 +55,14 @@ def _msg_text(m) -> str:
 
 
 def _extract_keystrokes(text: str) -> list[str]:
-    """Pull command keystrokes out of a Terminus JSON response (tolerant)."""
-    out = []
-    for m in re.finditer(r'"keystrokes"\s*:\s*"((?:[^"\\]|\\.)*)"', text):
-        try:
-            out.append(json.loads(f'"{m.group(1)}"').strip())
-        except Exception:
-            out.append(m.group(1).strip())
-    return [k for k in out if k]
+    """Extract command keystrokes from a Terminus response using HARBOR'S OWN
+    parser (with its auto-fixes), not a homegrown regex - the action space is
+    defined by the scaffold, so the scaffold's parser is the ground truth."""
+    from harbor.agents.terminus_2.terminus_json_plain_parser import (
+        TerminusJSONPlainParser,
+    )
+    result = TerminusJSONPlainParser().parse_response(text)
+    return [c.keystrokes.strip() for c in result.commands if c.keystrokes.strip()]
 
 
 class KeepRecentTerminus(Terminus2):

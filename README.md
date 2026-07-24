@@ -48,6 +48,7 @@ Docs: [AUDIT.md](docs/AUDIT.md) claims and confounds ledger -
 [COAUTHOR.md](docs/COAUTHOR.md) complete technical briefing -
 [MIGRATION.md](docs/MIGRATION.md) H100 cluster runbook -
 [REVIEW.md](docs/REVIEW.md) how to check this work -
+[DECISIONS.md](docs/DECISIONS.md) who chose each convention and how to replace it -
 [slides.html](docs/slides.html) talk.
 
 Everything else (Slurm job scripts per cluster, figures, planning docs,

@@ -18,11 +18,8 @@ agents:
         input_cost_per_token: 0.0
         output_cost_per_token: 0.0
 
-datasets:
-  - path: /scratch/anangia/tb2/terminal-bench
-
 tasks:
-  - regex-log
+  - path: /scratch/anangia/tb2/terminal-bench/regex-log
 
 environment:
   type: singularity

@@ -20,9 +20,9 @@ for i in $(seq 1 120); do
 done
 module load apptainer gcc arrow 2>/dev/null
 export APPTAINER_CACHEDIR=$SCRATCH/apptainer_cache APPTAINER_TMPDIR=$SLURM_TMPDIR
-export PYTHONPATH=/scratch/anangia/dccb:${PYTHONPATH:-}
+export PYTHONPATH=/scratch/anangia/exp22wt:${PYTHONPATH:-}
 source /scratch/anangia/ENV-harbor2/bin/activate
-harbor run -c /scratch/anangia/dccb/exp22/smoke_config.yaml -y
+harbor run -c /scratch/anangia/exp22wt/exp22/smoke_config.yaml -y
 S=$?
 kill $VPID 2>/dev/null
 exit $S

@@ -47,6 +47,7 @@ tests/run_tests.py        68 checks; gate for every job submission
 Docs: [AUDIT.md](docs/AUDIT.md) claims and confounds ledger -
 [COAUTHOR.md](docs/COAUTHOR.md) complete technical briefing -
 [MIGRATION.md](docs/MIGRATION.md) H100 cluster runbook -
+[REVIEW.md](docs/REVIEW.md) how to check this work -
 [slides.html](docs/slides.html) talk.
 
 Everything else (Slurm job scripts per cluster, figures, planning docs,

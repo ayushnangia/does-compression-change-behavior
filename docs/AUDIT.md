@@ -246,6 +246,15 @@ to ~870 tokens holding 0.53-0.61 vs 0.68 for 3840 raw recent tokens.
 Deployable rule: shorthand the action history, keep the native tool-call
 wrapper. Caveats: N=19, one model (9B), one trace domain.
 
+## Multiple-comparisons control (added 2026-07-24, hostile-review fix)
+
+Benjamini-Hochberg at q=0.05 over the family of presented primary endpoints
+(m=6): exp11 selection (p=0.0004), exp21 wrapper effect (p=0.013), exp4
+freeze law (acting, p=0.016) PASS; exp6-coarse (p=0.074) and exp21
+extreme-rate (p=0.34) fail and stay labeled suggestive; expB DPO
+non-significance is the null claim itself. The three headline claims
+survive family-wise correction; nothing presented as a finding fails it.
+
 ## Still open (known, accepted, scheduled)
 
 - Repo-level train/held-out split for E-B (before any writeup).

@@ -36,11 +36,17 @@ Adopted verbatim from the deployment stack, cited:
   model_info (`harbor/llms/lite_llm.py:191`); our TB2 config sets 10240.
   Ours was 768 until 2026-07-24 - an invented cap that could truncate long
   deliberation into a false halt. Requant covers it.
-- **Temperature: harbor passes none** unless explicitly configured
-  (`lite_llm.py:310`); the model/server default applies (GLM-4.7 ships 1.0;
-  Qwen3.5-9B ships no generation_config -> server default 1.0). Our 0.7 was
-  invented; flagged. Floor-referencing absorbs the variance shift, but the
-  deployment-default arm belongs in any requant.
+- **Temperature: the literature value is 1.0.** Three independent sources
+  agree: CompactionRL (arXiv:2607.05378, experiments section: "top-p=1.0,
+  temperature=1.0" in harbor with Terminus-KIRA - the closest published
+  setup to ours), harbor's pass-nothing default (`lite_llm.py:310` -> server
+  default 1.0), and GLM-4.7's own generation_config (1.0). Our top_p=1.0
+  already matches CompactionRL exactly; our temperature=0.7 was invented.
+  SEQUENCED SWITCH: the queued requants run at 0.7 to isolate the parser
+  fix (one variable at a time); after they land, the default flips to 1.0
+  and the headline table reruns under the full cited standard
+  (temp 1.0 / top_p 1.0 / max_out 10240 / per-model formats / BFCL match /
+  floors + paired permutation).
 - **Stop strings**: harbor uses none (runs to EOS/cap). We stop at the first
   closed tool call as a pure compute optimization - measurement-neutral BY
   CONSTRUCTION because our label is the first closed call either way.

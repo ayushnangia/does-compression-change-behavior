@@ -65,6 +65,28 @@ def _extract_keystrokes(text: str) -> list[str]:
     return [c.keystrokes.strip() for c in result.commands if c.keystrokes.strip()]
 
 
+
+MAX_COMPACTIONS = 3  # CompactionRL parity: "at most three compaction operations"
+
+
+def _capped(self) -> bool:
+    return self._summarization_count >= MAX_COMPACTIONS
+
+
+def _fallback_keep_recent(msgs, original_instruction, budget_chars=24000):
+    kept, used = [], 0
+    for m in reversed(msgs):
+        t = _msg_text(m)
+        if used + len(t) > budget_chars and kept:
+            break
+        kept.append(t); used += len(t)
+    kept.reverse()
+    return (f"Original task:\n{original_instruction}\n\n"
+            "You are resuming this task. Older history was dropped; the most "
+            "recent exchanges are below, verbatim.\n\n" + "\n\n".join(kept) +
+            "\n\nContinue the task from the current terminal state.")
+
+
 class KeepRecentTerminus(Terminus2):
     """Arm A: verbatim-recency compaction. Keeps the newest messages whole
     until ~half the proactive threshold is used; drops everything older."""
@@ -75,6 +97,12 @@ class KeepRecentTerminus(Terminus2):
         msgs = list(getattr(chat, "messages", []) or [])
         if not msgs:
             return original_instruction, None
+        if _capped(self):  # parity cap: identical fallback across arms
+            self._summarization_count += 1
+            return _fallback_keep_recent(msgs, original_instruction), None
+        if _capped(self):  # parity cap: identical fallback across arms
+            self._summarization_count += 1
+            return _fallback_keep_recent(msgs, original_instruction), None
         budget_chars = 24000  # ~6k tokens of verbatim recency
         kept, used = [], 0
         for m in reversed(msgs):

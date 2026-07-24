@@ -1,0 +1,30 @@
+# exp22 smoke: ONE task, our custom agent via import_path, 9B on Narval.
+# Verifies: harbor loads the subclass, episode runs, compaction fires if hit.
+job_name: exp22-smoke
+jobs_dir: /scratch/anangia/tb2/jobs
+n_concurrent_trials: 1
+n_attempts: 1
+
+agents:
+  - import_path: exp22.compaction_agents:KeepRecentTerminus
+    model_name: hosted_vllm/qwen35-9b
+    kwargs:
+      api_base: http://127.0.0.1:8000/v1
+      max_turns: 250
+      proactive_summarization_threshold: 8000
+      model_info:
+        max_input_tokens: 32768
+        max_output_tokens: 10240
+        input_cost_per_token: 0.0
+        output_cost_per_token: 0.0
+
+datasets:
+  - path: /scratch/anangia/tb2/terminal-bench
+
+tasks:
+  - regex-log
+
+environment:
+  type: singularity
+  kwargs:
+    singularity_image_cache_dir: /scratch/anangia/tb2/sif_cache

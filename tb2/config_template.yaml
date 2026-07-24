@@ -1,0 +1,24 @@
+# Harbor config template - eval_tb2.sh substitutes @SERVED@ / @TB2@ / @PORT@.
+job_name: tb2-@SERVED@
+jobs_dir: @TB2@/jobs
+n_concurrent_trials: 2
+n_attempts: 1
+
+agents:
+  - name: terminus-2
+    model_name: hosted_vllm/@SERVED@
+    kwargs:
+      api_base: http://127.0.0.1:@PORT@/v1
+      model_info:
+        max_input_tokens: 32768
+        max_output_tokens: 10240
+        input_cost_per_token: 0.0
+        output_cost_per_token: 0.0
+
+datasets:
+  - path: @TB2@/terminal-bench
+
+environment:
+  type: singularity
+  kwargs:
+    singularity_image_cache_dir: @TB2@/sif_cache

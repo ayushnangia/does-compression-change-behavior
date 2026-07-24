@@ -9,3 +9,7 @@ experiments/results/dpo_compressor*/
 nohup.out
 .env
 dpo_checkpoints.tar.gz
+logs/
+__pycache__/
+*.out
+*.log

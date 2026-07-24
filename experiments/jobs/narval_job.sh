@@ -22,11 +22,11 @@ cd ~/does-compression-change-behavior
 # pass 1: plain next-action comparison
 python run_experiment.py \
   --model Qwen/Qwen3.5-9B \
-  --examples-file examples_prefetched.json \
+  --examples-file data/examples_prefetched.json \
   --num-examples 32 --samples 8
 
 # pass 2: the recovery test (tool menu + lookups served from real history)
 python run_experiment.py \
   --model Qwen/Qwen3.5-9B \
-  --examples-file examples_prefetched.json \
+  --examples-file data/examples_prefetched.json \
   --num-examples 32 --samples 8 --scaffold

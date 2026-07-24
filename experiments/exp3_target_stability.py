@@ -14,7 +14,7 @@ target is length-stable and safe to distill; if drift >> floor, a flat
 full-context target imports length artifacts and should be marginalized
 over lengths/layouts.
 
-    python exp3_target_stability.py --examples-file ../examples_prefetched.json
+    python exp3_target_stability.py --examples-file ../data/examples_prefetched.json
 """
 
 from __future__ import annotations

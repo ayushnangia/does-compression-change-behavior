@@ -13,7 +13,7 @@ source ~/ENV-compress/bin/activate
 export HF_HOME=$SCRATCH/hf HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 
 cd ~/does-compression-change-behavior/experiments
-EX=../examples_64.json
+EX=../data/examples_64.json
 
 python exp9_summary_policies.py --examples-file $EX --num-examples 24
 python exp10_propagation.py     --examples-file $EX --num-examples 24

@@ -13,7 +13,7 @@ summary vs summary_native: same content, different format). If input-side
 OOD-ness correlates with D, "keep the compacted state in-distribution"
 becomes a predictive design rule rather than two descriptive findings.
 
-    python exp20_ood_bridge.py --examples-file ../examples_16k_large.json
+    python exp20_ood_bridge.py --examples-file ../data/examples_16k_large.json
 """
 
 from __future__ import annotations

@@ -15,15 +15,15 @@ export PYTHONUNBUFFERED=1 PYTORCH_ALLOC_CONF=expandable_segments:True
 
 cd ~/does-compression-change-behavior/experiments
 
-# tokenizer-identity guard: examples_64 is Qwen3.5-9B-tokenized
+# tokenizer-identity guard: data/examples_64 is Qwen3.5-9B-tokenized
 python - <<'EOF'
 from transformers import AutoTokenizer
 a = AutoTokenizer.from_pretrained("Qwen/Qwen3.5-9B", trust_remote_code=True)
 b = AutoTokenizer.from_pretrained("Qwen/Qwen3.5-35B-A3B", trust_remote_code=True)
 s = "def f():\n  return 1  # <tool_calls>"
 assert a(s)["input_ids"] == b(s)["input_ids"], "tokenizer mismatch - re-prefetch!"
-print("35B-A3B tokenizer identical: examples_64 reusable")
+print("35B-A3B tokenizer identical: data/examples_64 reusable")
 EOF
 
 python exp14_interface_fragility.py --model Qwen/Qwen3.5-35B-A3B \
-    --examples-file ../examples_64.json
+    --examples-file ../data/examples_64.json

@@ -26,7 +26,7 @@ def main():
     ap.add_argument("--context-tokens", type=int, default=4096)
     ap.add_argument("--recent-tokens", type=int, default=512)
     ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--out", default="examples_prefetched.json")
+    ap.add_argument("--out", default="data/examples_prefetched.json")
     args = ap.parse_args()
 
     from huggingface_hub import snapshot_download

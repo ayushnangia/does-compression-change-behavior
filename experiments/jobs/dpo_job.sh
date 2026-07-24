@@ -15,5 +15,5 @@ export HF_HOME=$SCRATCH/hf HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 
 cd ~/does-compression-change-behavior/experiments
 python dpo_train.py --pairs results/summary_pairs.jsonl
-python evaluate_compressor.py --examples-file ../examples_64.json \
+python evaluate_compressor.py --examples-file ../data/examples_64.json \
     --adapter results/dpo_compressor --train-cutoff 24 --num-eval 24

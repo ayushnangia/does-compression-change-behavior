@@ -20,7 +20,7 @@ export HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
 
 cd ~/does-compression-change-behavior/experiments
-EX=../examples_prefetched.json
+EX=../data/examples_prefetched.json
 
 python exp3_target_stability.py  --examples-file $EX --num-examples 16
 python exp4_block_ablation.py    --examples-file $EX --num-examples 16

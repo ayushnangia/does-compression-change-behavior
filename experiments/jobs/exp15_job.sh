@@ -1,6 +1,6 @@
 #!/bin/bash
 # exp15: score PRODUCTION compactions at the 23 real window-exhaustion
-# boundaries + 16k pilot arms (exp4/exp8 on examples_16k, HF path).
+# boundaries + 16k pilot arms (exp4/exp8 on data/examples_16k, HF path).
 #   sbatch --account=def-zhijing experiments/exp15_job.sh   (repo root)
 #SBATCH --gpus-per-node=a100:1
 #SBATCH --cpus-per-task=8
@@ -16,5 +16,5 @@ export PYTHONUNBUFFERED=1
 cd ~/does-compression-change-behavior/experiments
 
 python exp15_real_boundaries.py
-python exp8_grounded_agreement.py --examples-file ../examples_16k.json --num-examples 24
-python exp4_block_ablation.py     --examples-file ../examples_16k.json --num-examples 16
+python exp8_grounded_agreement.py --examples-file ../data/examples_16k.json --num-examples 24
+python exp4_block_ablation.py     --examples-file ../data/examples_16k.json --num-examples 16

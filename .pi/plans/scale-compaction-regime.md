@@ -22,7 +22,7 @@ truths:
   protocol)
 - DPO held-out split is BY TASK/REPO (not index)
 artifacts:
-- experiments/vllm_scorer.py (+ equivalence test), examples_16k.json,
+- experiments/vllm_scorer.py (+ equivalence test), data/examples_16k.json,
   exp15 real-boundary results JSON, scaled exp4/exp6/exp8 results,
   round-1 adapter + held-out eval JSON
 key_links:
@@ -46,7 +46,7 @@ class (same engine) — probe first in the job.
 DoD: equivalence test passes + >=5x throughput measured.
 
 ### T2 — Long-context on-policy prefetch (parallel with T1)
-Objective: examples_16k.json from ALL TB2 trajectories at
+Objective: data/examples_16k.json from ALL TB2 trajectories at
 --context-tokens 16384; NEW: detect real compaction events (system steps
 matching 'Performed context summarization') and store
 `compaction_event: true` + the actual Terminus summary text alongside.

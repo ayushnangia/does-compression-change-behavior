@@ -14,7 +14,7 @@ Compressors at rates {0.02, 0.05, 0.125, 0.25}:
 Metrics per cell: acting rate, coarse divergence (tool-level), agreement with
 the logged real action. CIs and raw arrays saved.
 
-    python exp17_minimal_core.py --examples-file ../examples_16k_large.json
+    python exp17_minimal_core.py --examples-file ../data/examples_16k_large.json
 """
 
 from __future__ import annotations

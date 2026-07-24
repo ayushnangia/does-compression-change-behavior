@@ -7,7 +7,7 @@ For N examples: compute (a) sampled tool-level TV between full and compressed
 tool distributions. Report correlation, and the exact-method noise on
 identical contexts (should be ~0 by construction).
 
-    (ENV-vllm2)  python exp19_exact_distribution.py --examples-file ../examples_16k_large.json
+    (ENV-vllm2)  python exp19_exact_distribution.py --examples-file ../data/examples_16k_large.json
 """
 from __future__ import annotations
 import argparse, sys

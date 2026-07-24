@@ -14,7 +14,7 @@ budgets will produce unequal behavior damage AND qualitatively different
 failure profiles (halt vs lookup vs different-commit) — which a single flat
 divergence would average away.
 
-    python exp4_block_ablation.py --examples-file ../examples_prefetched.json
+    python exp4_block_ablation.py --examples-file ../data/examples_prefetched.json
 """
 
 from __future__ import annotations

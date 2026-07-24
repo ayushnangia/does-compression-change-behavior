@@ -21,7 +21,7 @@ summary quality gates everything downstream — the behavioral basis for
 arguing summaries deserve uniform (not temporally discounted) credit. If
 D(k) is flat after k=1, the chain-depth concern is overstated.
 
-    python exp7_compaction_chain.py --examples-file ../examples_prefetched.json
+    python exp7_compaction_chain.py --examples-file ../data/examples_prefetched.json
 """
 
 from __future__ import annotations

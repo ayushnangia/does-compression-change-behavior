@@ -12,7 +12,7 @@ Phased for single-GPU batching (T1's 6.2x scorer):
   B. 9B engine: reference behavior at 2 lengths + all candidate scorings,
      batched; fresh re-score of each argmin (winner's-curse guard)
 
-    (ENV-vllm)  python exp16_pairs_at_scale.py --examples-file ../examples_16k_large.json
+    (ENV-vllm)  python exp16_pairs_at_scale.py --examples-file ../data/examples_16k_large.json
 """
 
 from __future__ import annotations

@@ -13,7 +13,7 @@ Also writes every scored candidate to a fixed-name pairs file
 rejected = argmax-D per example (first NUM examples are train; the rest of
 the examples file is held out for evaluation).
 
-    python exp11_best_of_n.py --examples-file ../examples_64.json
+    python exp11_best_of_n.py --examples-file ../data/examples_64.json
 """
 
 from __future__ import annotations

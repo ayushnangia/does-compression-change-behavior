@@ -16,7 +16,7 @@ re-measure behavioral divergence at each subsequent decision point.
 Both full and compressed branches receive IDENTICAL continuations, so any
 divergence at step j is attributable to the single compression at step 0.
 
-    python exp10_propagation.py --examples-file ../examples_64.json
+    python exp10_propagation.py --examples-file ../data/examples_64.json
 """
 
 from __future__ import annotations

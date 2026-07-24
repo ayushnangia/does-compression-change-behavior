@@ -10,4 +10,4 @@ export PYTORCH_ALLOC_CONF=expandable_segments:True PYTORCH_CUDA_ALLOC_CONF=expan
 export HF_HOME=$SCRATCH/hf HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 export VLLM_NO_USAGE_STATS=1 PYTHONUNBUFFERED=1
 cd /scratch/anangia/dccb/experiments
-python exp19_exact_distribution.py --examples-file ../examples_16k_large.json --num-examples 10
+python exp19_exact_distribution.py --examples-file ../data/examples_16k_large.json --num-examples 10

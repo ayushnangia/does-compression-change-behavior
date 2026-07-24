@@ -16,6 +16,6 @@ export PYTHONUNBUFFERED=1 PYTORCH_ALLOC_CONF=expandable_segments:True
 cd ~/does-compression-change-behavior/experiments
 
 python exp14_interface_fragility.py --model zai-org/GLM-4.7-Flash \
-    --examples-file ../examples_glm.json
+    --examples-file ../data/examples_glm.json
 python exp14_interface_fragility.py --model Qwen/Qwen3.5-27B \
-    --examples-file ../examples_64.json
+    --examples-file ../data/examples_64.json

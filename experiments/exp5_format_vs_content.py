@@ -20,7 +20,7 @@ Honest scope: the full claim is about training; this measures the
 inference-time footprint of the mechanism (formats the base model was never
 adapted to). A positive result makes the claim plausible, not proven.
 
-    python exp5_format_vs_content.py --examples-file ../examples_prefetched.json
+    python exp5_format_vs_content.py --examples-file ../data/examples_prefetched.json
 """
 
 from __future__ import annotations

@@ -14,7 +14,7 @@ If compression lowers agreement-with-reality in step with our behavior-change
 metric D, then D is grounded; if D moves but grounded agreement does not,
 D is measuring something else.
 
-    python exp8_grounded_agreement.py --examples-file ../examples_64.json
+    python exp8_grounded_agreement.py --examples-file ../data/examples_64.json
 """
 
 from __future__ import annotations

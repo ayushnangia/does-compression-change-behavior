@@ -4,7 +4,7 @@ closing the off-policy confound).
 
 Run on the login node (tokenizer only, no GPU, no internet needed):
 
-    python prefetch_onpolicy.py --out examples_onpolicy.json
+    python prefetch_onpolicy.py --out data/examples_onpolicy.json
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ def main():
     ap.add_argument("--num-examples", type=int, default=64)
     ap.add_argument("--max-per-task", type=int, default=2)
     ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--out", default="examples_onpolicy.json")
+    ap.add_argument("--out", default="data/examples_onpolicy.json")
     args = ap.parse_args()
 
     from transformers import AutoTokenizer

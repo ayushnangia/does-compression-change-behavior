@@ -13,7 +13,7 @@ Two readings of one table:
 All policies get the same budget and are scored on: acting, change (vs
 floor), entropy, and grounded agreement with the trace's logged action.
 
-    python exp9_summary_policies.py --examples-file ../examples_64.json
+    python exp9_summary_policies.py --examples-file ../data/examples_64.json
 """
 
 from __future__ import annotations

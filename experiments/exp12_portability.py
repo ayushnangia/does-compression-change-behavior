@@ -13,7 +13,7 @@ transfer exactly.
                                         inference-level seed of the loop-
                                         adaptation effect.
 
-    python exp12_portability.py --examples-file ../examples_64.json
+    python exp12_portability.py --examples-file ../data/examples_64.json
 """
 
 from __future__ import annotations

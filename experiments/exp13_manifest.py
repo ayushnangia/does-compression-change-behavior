@@ -19,7 +19,7 @@ Two evaluation modes:
   scaffold  — the recovery test (tool menu + lookups served from the real
               deleted history): where "how to retrieve" should actually pay.
 
-    python exp13_manifest.py --examples-file ../examples_64.json
+    python exp13_manifest.py --examples-file ../data/examples_64.json
 """
 
 from __future__ import annotations

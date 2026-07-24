@@ -17,7 +17,7 @@ Distortion is action_change vs the full-context behavior, read against the
 sampling floor. acting_rate is reported alongside (halting is the failure
 mode flat distortion hides).
 
-    python exp6_rate_distortion.py --examples-file ../examples_prefetched.json
+    python exp6_rate_distortion.py --examples-file ../data/examples_prefetched.json
 """
 
 from __future__ import annotations

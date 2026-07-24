@@ -8,7 +8,7 @@ floor of sampling twice from the identical context.
 
 21 experiments on Qwen3.5 (9B/27B/35B-A3B) and GLM-4.7-Flash, on-policy
 agent traces from 4k to 64k tokens. Every result JSON is in
-`experiments/results/`; every claim's confounds are in [AUDIT.md](AUDIT.md).
+`experiments/results/`; every claim's confounds are in [AUDIT.md](docs/AUDIT.md).
 
 ## Findings
 
@@ -33,22 +33,23 @@ not task success - quantized models score 0% on Terminal-Bench (see
 ## Repo layout
 
 ```
-behavior.py  compressors.py  data.py  metrics.py  scaffold.py   core library
-experiments/exp*.py          one experiment each, self-documenting headers
-experiments/run_all.sh       reproduce everything: cpu | gpu | queue
-experiments/vllm_scorer.py   batched scorer (6.2x throughput, equivalence-tested)
-experiments/results/         every result JSON ever produced
-tb2/                         offline Terminal-Bench 2.0 harness (vLLM+harbor+Apptainer)
-tests/run_tests.py           70+ checks; gate for every job submission
-examples_*.json              all measurement datasets (4k-64k, on-policy)
-migration_payload.tar.gz     153 raw agent trajectories (132 compaction events)
+behavior.py compressors.py data.py metrics.py scaffold.py    core library
+experiments/exp*.py       one experiment each, self-documenting headers
+experiments/run_all.sh    reproduce everything: cpu | gpu | queue
+experiments/jobs/         Slurm job scripts (Narval + Trillium)
+experiments/results/      every result JSON ever produced
+data/                     all measurement datasets (4k-64k) + raw trajectories
+tb2/                      offline Terminal-Bench 2.0 harness (vLLM+harbor+Apptainer)
+docs/                     AUDIT (claims ledger), COAUTHOR (full briefing),
+                          RELATED, MIGRATION (H100 runbook), slides
+tests/run_tests.py        68 checks; gate for every job submission
 ```
 
-Docs: [AUDIT.md](AUDIT.md) claims and confounds ledger -
-[COAUTHOR.md](COAUTHOR.md) complete technical briefing -
-[RELATED.md](RELATED.md) novelty and metric lineage -
-[MIGRATION.md](MIGRATION.md) H100 cluster runbook -
-[slides.html](slides.html) talk.
+Docs: [AUDIT.md](docs/AUDIT.md) claims and confounds ledger -
+[COAUTHOR.md](docs/COAUTHOR.md) complete technical briefing -
+[RELATED.md](docs/RELATED.md) novelty and metric lineage -
+[MIGRATION.md](docs/MIGRATION.md) H100 cluster runbook -
+[slides.html](docs/slides.html) talk.
 
 ## Quickstart
 

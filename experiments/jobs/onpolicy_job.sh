@@ -14,7 +14,7 @@ export HF_HOME=$SCRATCH/hf HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 export PYTHONUNBUFFERED=1
 
 cd ~/does-compression-change-behavior/experiments
-EX=../examples_onpolicy.json
+EX=../data/examples_onpolicy.json
 
 python exp8_grounded_agreement.py --examples-file $EX --num-examples 32
 python exp4_block_ablation.py     --examples-file $EX --num-examples 24

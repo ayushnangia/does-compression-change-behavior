@@ -87,7 +87,7 @@ def main():
     ap.add_argument("--backend", choices=["hf", "vllm"])
     ap.add_argument("--compare", nargs=2, metavar=("HF_JSON", "VLLM_JSON"))
     ap.add_argument("--model", default="Qwen/Qwen3.5-9B")
-    ap.add_argument("--examples-file", default="../examples_64.json")
+    ap.add_argument("--examples-file", default="../data/examples_64.json")
     ap.add_argument("--num-examples", type=int, default=16)
     ap.add_argument("--samples", type=int, default=8)
     ap.add_argument("--max-model-len", type=int, default=8192)

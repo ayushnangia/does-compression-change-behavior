@@ -8,7 +8,7 @@ summarizer != executor, a win here is already evidence of portability (E-C).
 Held-out examples: indices >= --train-cutoff of the examples file (exp11
 built pairs from the first --train-cutoff examples).
 
-    python evaluate_compressor.py --examples-file ../examples_64.json \
+    python evaluate_compressor.py --examples-file ../data/examples_64.json \
         --adapter results/dpo_compressor
 """
 

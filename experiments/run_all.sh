@@ -21,20 +21,20 @@ CPU_EXPS=(
 
 # name : script : data file (all data files are tracked in the repo root)
 GPU_EXPS=(
-  "exp3:exp3_target_stability.py:../examples_64.json"
-  "exp4:exp4_block_ablation.py:../examples_64.json"          # THE BLOCK LAW
-  "exp5:exp5_format_vs_content.py:../examples_64.json"
-  "exp6:exp6_rate_distortion.py:../examples_64.json"
-  "exp7:exp7_compaction_chain.py:../examples_64.json"
-  "exp8:exp8_grounded_agreement.py:../examples_onpolicy.json" # grounding
-  "exp9:exp9_summary_policies.py:../examples_16k.json"
-  "exp10:exp10_propagation.py:../examples_16k.json"
-  "exp11:exp11_best_of_n.py:../examples_16k.json"             # SELECTION WORKS
-  "exp12:exp12_portability.py:../examples_64.json"
-  "exp14:exp14_interface_fragility.py:../examples_16k.json"   # FORMAT CLIFFS
-  "exp17:exp17_minimal_core.py:../examples_16k_large.json"    # MINIMAL CORE
-  "exp20:exp20_ood_bridge.py:../examples_64.json"             # CONTAINMENT LAW
-  "exp21:exp21_canonical_skeleton.py:../examples_16k_large.json" # ONE-LINERS
+  "exp3:exp3_target_stability.py:../data/examples_64.json"
+  "exp4:exp4_block_ablation.py:../data/examples_64.json"          # THE BLOCK LAW
+  "exp5:exp5_format_vs_content.py:../data/examples_64.json"
+  "exp6:exp6_rate_distortion.py:../data/examples_64.json"
+  "exp7:exp7_compaction_chain.py:../data/examples_64.json"
+  "exp8:exp8_grounded_agreement.py:../data/examples_onpolicy.json" # grounding
+  "exp9:exp9_summary_policies.py:../data/examples_16k.json"
+  "exp10:exp10_propagation.py:../data/examples_16k.json"
+  "exp11:exp11_best_of_n.py:../data/examples_16k.json"             # SELECTION WORKS
+  "exp12:exp12_portability.py:../data/examples_64.json"
+  "exp14:exp14_interface_fragility.py:../data/examples_16k.json"   # FORMAT CLIFFS
+  "exp17:exp17_minimal_core.py:../data/examples_16k_large.json"    # MINIMAL CORE
+  "exp20:exp20_ood_bridge.py:../data/examples_64.json"             # CONTAINMENT LAW
+  "exp21:exp21_canonical_skeleton.py:../data/examples_16k_large.json" # ONE-LINERS
 )
 
 case $MODE in

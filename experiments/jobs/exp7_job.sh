@@ -14,7 +14,7 @@ source ~/ENV-compress/bin/activate
 export HF_HOME=$SCRATCH/hf HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 
 cd ~/does-compression-change-behavior/experiments
-EX=../examples_prefetched.json
+EX=../data/examples_prefetched.json
 
 # guard: prefetched examples are 9B-tokenized; only reuse them for the 4B if
 # the tokenizers are actually identical (Qwen family usually shares vocab).

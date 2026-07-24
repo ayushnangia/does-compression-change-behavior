@@ -16,7 +16,7 @@ echo "===== phase 1: pair generation (ENV-vllm, 1 GPU) ====="
 module load cuda/12.9 opencv python/3.12 2>/dev/null
 source ~/ENV-vllm/bin/activate
 CUDA_VISIBLE_DEVICES=0 python exp16_pairs_at_scale.py \
-    --examples-file ../examples_16k_large.json --num-examples 280
+    --examples-file ../data/examples_16k_large.json --num-examples 280
 deactivate; module purge 2>/dev/null
 
 echo "===== phase 2: DPO round 2 (ENV-compress, 2 GPUs) ====="
@@ -26,7 +26,7 @@ python dpo_train.py --pairs results/summary_pairs_16k.jsonl \
     --out results/dpo_compressor_r2 --epochs 3
 
 echo "===== phase 3: powered task-split eval ====="
-python evaluate_compressor.py --examples-file ../examples_16k_large.json \
+python evaluate_compressor.py --examples-file ../data/examples_16k_large.json \
     --adapter results/dpo_compressor_r2 \
     --heldout-tasks results/heldout_tasks.json --num-eval 24 \
     --summary-samples 2

@@ -17,7 +17,7 @@ export HF_HOME=$SCRATCH/hf HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
 cd ~/does-compression-change-behavior/experiments
-EX=../examples_glm.json
+EX=../data/examples_glm.json
 
 python exp4_block_ablation.py --model zai-org/GLM-4.7-Flash --examples-file $EX --num-examples 24
 python exp7_compaction_chain.py --model zai-org/GLM-4.7-Flash --examples-file $EX --num-examples 16

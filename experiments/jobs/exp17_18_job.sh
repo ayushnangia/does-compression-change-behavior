@@ -17,8 +17,8 @@ export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
 cd /scratch/anangia/dccb/experiments
 
-python exp17_minimal_core.py --examples-file ../examples_16k_large.json --num-examples 24
-python exp8_grounded_agreement.py --examples-file ../examples_32k.json --num-examples 20
-python exp4_block_ablation.py     --examples-file ../examples_32k.json --num-examples 16
+python exp17_minimal_core.py --examples-file ../data/examples_16k_large.json --num-examples 24
+python exp8_grounded_agreement.py --examples-file ../data/examples_32k.json --num-examples 20
+python exp4_block_ablation.py     --examples-file ../data/examples_32k.json --num-examples 16
 # 64k: reduced samples to fit HF-generate KV on one A100 (linear-attention arch)
-python exp8_grounded_agreement.py --examples-file ../examples_64k.json --num-examples 12 --samples 4
+python exp8_grounded_agreement.py --examples-file ../data/examples_64k.json --num-examples 12 --samples 4

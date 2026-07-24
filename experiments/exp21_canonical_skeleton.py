@@ -19,7 +19,7 @@ Pre-registered predictions (stated before running):
      calls in the raw form)
   P3 wrapped >= bare (format familiarity)
 
-    python exp21_canonical_skeleton.py --examples-file ../examples_16k_large.json
+    python exp21_canonical_skeleton.py --examples-file ../data/examples_16k_large.json
 """
 
 from __future__ import annotations

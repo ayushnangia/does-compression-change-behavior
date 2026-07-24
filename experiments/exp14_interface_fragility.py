@@ -15,7 +15,7 @@ Readings:
       amplified a marginal effect (honesty caveat for exp5/exp7 numbers).
 
     python exp14_interface_fragility.py --model zai-org/GLM-4.7-Flash \
-        --examples-file ../examples_glm.json
+        --examples-file ../data/examples_glm.json
 """
 
 from __future__ import annotations

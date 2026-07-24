@@ -13,7 +13,7 @@ source ~/ENV-compress/bin/activate
 export HF_HOME=$SCRATCH/hf HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 
 cd ~/does-compression-change-behavior/experiments
-EX=../examples_64.json
+EX=../data/examples_64.json
 
 python exp4_block_ablation.py   --examples-file $EX --num-examples 48 --seed 0
 python exp4_block_ablation.py   --examples-file $EX --num-examples 48 --seed 1

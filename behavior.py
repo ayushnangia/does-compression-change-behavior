@@ -77,6 +77,16 @@ def parse_action(text: str) -> "str | None":
                 except Exception:
                     args = str(raw)
     if name is None:
+        # Qwen3.5 NATIVE format (chat-template spec; vLLM parses this with
+        # its qwen3_engine parser): <function=name><parameter=k>v</parameter>...
+        fx = re.search(r"<function=([\w.-]+)>", body)
+        if fx:
+            params = re.findall(r"<parameter=([\w.-]+)>\s*(.*?)\s*</parameter>",
+                                body, re.DOTALL)
+            args = json.dumps({k: v for k, v in params}, sort_keys=True,
+                              default=str) if params else ""
+            name = fx.group(1)
+            return f"{name}::{args[:60]}" if args else name
         nm = re.search(r'["\'](?:function_)?name["\']\s*:\s*["\']([^"\']+)["\']', body)
         if not nm:
             return None

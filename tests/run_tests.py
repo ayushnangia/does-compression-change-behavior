@@ -37,6 +37,9 @@ check("parse singular", (parse_action(
 check("parse python-repr", (parse_action(
     "<tool_calls>\n[{'function': {'arguments': '{\"command\": \"ls\"}', 'name': 'execute_bash'}}]\n</tool_calls>"
 ) or "").startswith("execute_bash::"))
+check("parse qwen-native-xml", (parse_action(
+    "<tool_call>\n<function=execute_bash>\n<parameter=command>\nls -la\n</parameter>\n</function>\n</tool_call>")
+    or "").startswith("execute_bash::"))
 check("parse think-strip", parse_action("<think>call <tool_call>{\"name\":\"x\"}</tool_call></think>done") is None)
 check("parse think-then-act", (parse_action(
     '<think>hm</think><tool_call>{"name": "run_tests"}</tool_call>') or "") == "run_tests")

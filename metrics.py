@@ -12,6 +12,7 @@ All three are simple and reported honestly:
 
 from __future__ import annotations
 
+import json
 import math
 from collections import Counter
 
@@ -69,6 +70,35 @@ def action_change_verbs(actions_a, actions_b) -> float:
     """action_change at verb granularity (see _verb)."""
     return action_change([_verb(a) for a in actions_a],
                          [_verb(b) for b in actions_b])
+
+
+def ast_label(a):
+    """Normalize an action label per the BFCL convention (Berkeley
+    Function-Calling Leaderboard, Yan et al. 2024): a call is identified by
+    function name + argument STRUCTURE (parsed, key-sorted), not by the
+    surface string. 'edit::{"path": "a.py", "n": 1}' and
+    'edit::{"n":1,"path":"a.py"}' are the same call; whitespace, key order
+    and quoting style do not count as behavior change."""
+    if a is None:
+        return None
+    name, _, args = a.partition("::")
+    if not args:
+        return name
+    for loader in (json.loads,):
+        try:
+            obj = loader(args)
+            if isinstance(obj, dict):
+                canon = json.dumps(obj, sort_keys=True, separators=(",", ":"))
+                return f"{name}::{canon}"
+        except Exception:
+            pass
+    return f"{name}::{' '.join(args.split())}"  # non-JSON args: whitespace-normalized
+
+
+def action_change_ast(actions_a, actions_b) -> float:
+    """action_change at exact granularity under BFCL AST-equality."""
+    return action_change([ast_label(a) for a in actions_a],
+                         [ast_label(b) for b in actions_b])
 
 
 def action_change_all(actions_a, actions_b) -> dict:

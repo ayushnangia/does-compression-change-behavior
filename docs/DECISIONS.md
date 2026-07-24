@@ -29,13 +29,18 @@ where it is homegrown it is marked HOMEGROWN with its replacement path.
 
 ## The externalization plan (ordered by value)
 
-1. **Parsing -> vLLM.** Serve with `--enable-auto-tool-choice` and the
-   model's tool parser; read the structured `tool_calls` field from the
-   OpenAI-compatible response instead of regexing raw text. Our regex
-   parser then becomes a fallback for offline trace re-parsing only.
-   Validation arm: one job comparing our parser's labels to vLLM's
-   structured output on approx 200 continuations; disagreement rate is the
-   headline number. If <2%, historical results stand as-is.
+1. **Parsing -> vLLM, PER-MODEL parsers.** Serve with
+   `--enable-auto-tool-choice --tool-call-parser <model's own>`:
+   `qwen3_engine` for Qwen3.5 (its native format is XML-parameter,
+   `<function=name><parameter=k>v</parameter>`, NOT hermes JSON - verified
+   against the model's chat template), `glm47_moe` for GLM-4.7. Never a
+   generic parser for a specific model.
+   HISTORY NOTE (2026-07-24): our regex parser did not accept Qwen3.5's
+   native XML format until today - it parsed as halt. Fixed (parser now
+   total over 5 formats, tested), and a quantification job measures how
+   often models actually emitted that format in our regime; verdict in
+   AUDIT.md when it lands. This incident is the argument for this entire
+   document.
 2. **Call comparison -> BFCL AST matching.** Their matcher is the de facto
    standard for "is this the same function call". Adopt for the exact
    granularity; keep tool-level as the coarse view.

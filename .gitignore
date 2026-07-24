@@ -13,3 +13,4 @@ logs/
 __pycache__/
 *.out
 *.log
+tb2_trajectories/

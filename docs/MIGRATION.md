@@ -67,7 +67,9 @@ nodes**. Our offline discipline ports unchanged (prefetch on login node,
 HF_HUB_OFFLINE=1, --examples-file, sifs baked on login). Differences:
 
 1. Login: `trillium.alliancecan.ca` (CPU) / `trillium-gpu.alliancecan.ca` (GPU side)
-2. **Whole-node scheduling**: no `--mem` needed (you get the node's 749GB);
+2. **Whole-node scheduling**: `--mem`/`--cpus` directives are REJECTED at
+   submission ("--mem... options are not allowed on Trillium"); per-gpu jobs
+   always get 186 GiB host memory, whole-node jobs the full 745 GiB.
    GPU request is `--gpus-per-node=h100:N` (N=1-4). Drop `--mem` and
    `--cpus-per-task` lines from job headers.
 3. **venv goes in $HOME on the login node** (SciNet recommendation), NOT

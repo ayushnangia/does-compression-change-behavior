@@ -36,7 +36,9 @@ COMMIT_WORDS = re.compile(r"\b(str_replace|create|write|insert|edit|patch|pytest
 
 def parse_action(text: str) -> "str | None":
     """Return a normalized action like 'edit::path=foo.py', or the menu form
-    'read_file::foo.py', or None if the continuation contains no tool call."""
+    'read_file::foo.py', or None if the continuation contains no tool call. Arguments are kept
+    IN FULL (truncation is display-only, at reporting): labels feed the
+    BFCL AST matcher in metrics.py, which needs parseable JSON."""
     text = THINK_RE.sub("", text)
     m = TOOLCALL_RE.search(text)
     if not m:
@@ -49,7 +51,7 @@ def parse_action(text: str) -> "str | None":
             if not HEDGE_RE.search(line_prefix):
                 name = mm.group(1).lower()
                 argm = re.search(re.escape(mm.group(1)) + r"\s*\(([^)]*)\)", text)
-                return f"{name}::{(argm.group(1)[:60] if argm else '')}"
+                return f"{name}::{(argm.group(1) if argm else '')}"
         return None
     body = m.group(1)
     # trace rows store tool calls as PYTHON-repr dicts (single quotes), the
@@ -94,7 +96,7 @@ def parse_action(text: str) -> "str | None":
             args = json.dumps({k: v for k, v in params}, sort_keys=True,
                               default=str) if params else ""
             name = fx.group(1)
-            return f"{name}::{args[:60]}" if args else name
+            return f"{name}::{args}" if args else name
         # GLM-4.7 NATIVE format (chat-template spec; vLLM's glm47_moe parser):
         # <tool_call>name<arg_key>k</arg_key><arg_value>v</arg_value></tool_call>
         gx = re.match(r"\s*([\w.-]+)\s*<arg_key>", body)
@@ -103,7 +105,7 @@ def parse_action(text: str) -> "str | None":
                                body, re.DOTALL)
             args = json.dumps({k: v for k, v in pairs}, sort_keys=True,
                               default=str) if pairs else ""
-            return f"{gx.group(1)}::{args[:60]}" if args else gx.group(1)
+            return f"{gx.group(1)}::{args}" if args else gx.group(1)
         nm = re.search(r'["\'](?:function_)?name["\']\s*:\s*["\']([^"\']+)["\']', body)
         if not nm:
             return None
@@ -113,7 +115,7 @@ def parse_action(text: str) -> "str | None":
     # include (truncated) arguments: with agentic traces most calls share one
     # tool name (execute_bash), so name-only labels would make every action
     # look identical and flatten action_change to zero.
-    return f"{name}::{args[:60]}" if args else name
+    return f"{name}::{args}" if args else name
 
 
 def parse_diagnosis(text: str) -> str:

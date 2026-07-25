@@ -67,6 +67,11 @@ nodes**. Our offline discipline ports unchanged (prefetch on login node,
 HF_HUB_OFFLINE=1, --examples-file, sifs baked on login). Differences:
 
 1. Login: `trillium.alliancecan.ca` (CPU) / `trillium-gpu.alliancecan.ca` (GPU side)
+1b. **`--export=NONE` is forced by Trillium's sbatch wrapper**: environment
+   variables set at submit time DO NOT reach the job (smoke 665628 failed
+   rediscovering this - its VLLM_EXTRA_ARGS/GPU_UTIL evaporated). Anything a
+   job needs must be baked into the script; tb2/ scripts carry per-model
+   defaults in a case block on $MODEL.
 2. **Whole-node scheduling**: `--mem`/`--cpus` directives are REJECTED at
    submission ("--mem... options are not allowed on Trillium"); per-gpu jobs
    always get 186 GiB host memory, whole-node jobs the full 745 GiB.

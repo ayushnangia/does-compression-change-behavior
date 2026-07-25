@@ -41,10 +41,14 @@ else
     HARBOR_ENV=${HARBOR_ENV:-$SCRATCH/ENV-harbor2}
 fi
 TB2_DIR=${TB2_DIR:-$SCRATCH/tb2}
+# Trillium's sbatch wrapper forces --export=NONE: env vars DO NOT reach the
+# job. Per-model serving requirements are therefore baked in here.
+case "$MODEL" in
+  *Qwen3.5-35B*)  # Mamba cache: one block per decode seq; ~135 fit at util .92
+    GPU_UTIL=${GPU_UTIL:-0.92}
+    VLLM_EXTRA_ARGS=${VLLM_EXTRA_ARGS:---max-num-seqs 128 --max-num-batched-tokens 1024} ;;
+esac
 GPU_UTIL=${GPU_UTIL:-0.90}
-# VLLM_EXTRA_ARGS: e.g. Qwen3.5-35B on one H100 needs
-#   "--max-num-seqs 128 --max-num-batched-tokens 1024"
-# (one Mamba cache block per decode seq; only ~135 fit beside 66GB weights)
 VLLM_EXTRA_ARGS=${VLLM_EXTRA_ARGS:-}
 
 # ---- offline etiquette: nothing here may touch the internet ----

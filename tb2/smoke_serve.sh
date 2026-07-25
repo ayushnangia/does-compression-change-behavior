@@ -27,6 +27,13 @@ else
     VLLM_ENV=${VLLM_ENV:-$SCRATCH/ENV-vllm2}
     module load cuda/12.9 opencv python/3.12 2>/dev/null
 fi
+# Trillium's sbatch wrapper forces --export=NONE: env vars DO NOT reach the
+# job (smoke 665628 died rediscovering this). Model requirements live HERE.
+case "$MODEL" in
+  *Qwen3.5-35B*)  # Mamba cache: one block per decode seq; ~135 fit at util .92
+    GPU_UTIL=${GPU_UTIL:-0.92}
+    VLLM_EXTRA_ARGS=${VLLM_EXTRA_ARGS:---max-num-seqs 128 --max-num-batched-tokens 1024} ;;
+esac
 GPU_UTIL=${GPU_UTIL:-0.90}
 VLLM_EXTRA_ARGS=${VLLM_EXTRA_ARGS:-}
 

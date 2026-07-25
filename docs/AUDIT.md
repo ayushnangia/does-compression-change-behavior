@@ -266,6 +266,16 @@ at ceiling (floor 0.70) - halt/acting carries the finding, as before.
 Usable N 15/24 under the stricter conditions; temp still 0.7 (X.1 open).
 QUOTE THE NEW NUMBERS from here on: 0.31 vs 0.10.
 
+## GLM requant verdict (July 24): the format cliff is 100% real
+
+With the fixed parser (GLM native arg_key format now parsed) and both
+top_p arms: native 0.75 acting, wrapper 0.00 acting, N=24 - identical to
+the original numbers. Under wrapper delivery GLM narrates the task in
+prose instead of acting; the collapse is behavioral, not parser blindness.
+Threat 3.1 closed. Remaining on this claim: a temperature-1.0 arm (3.2).
+Job note: GLM degenerate generations at deployment budget consumed the
+12h wall; exp21 requant resubmitted separately; exp20b split per-rate at N=32.
+
 ## Still open (known, accepted, scheduled)
 
 - Repo-level train/held-out split for E-B (before any writeup).

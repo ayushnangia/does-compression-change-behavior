@@ -26,7 +26,7 @@ Status codes: DEFENDED (evidence exists) / IN-FLIGHT (job running or queued)
 
 | # | attack | status |
 |---|---|---|
-| 3.1 | "GLM's 0.00 was your parser not knowing GLM's native format" - the arg_key bug is REAL and directly on this number | IN-FLIGHT: requant 66357033. Genuinely at risk. Early log shows real degenerate generation too, so likely partial survival - but the magnitude WILL change |
+| 3.1 | "GLM's 0.00 was your parser not knowing GLM's native format" | DEFENDED (requant Jul 24): 0.00 wrapper / 0.75 native reproduced EXACTLY under the fixed parser, both top_p arms, N=24. GLM narrates in prose instead of acting - behavioral collapse confirmed |
 | 3.2 | "You ran GLM at temperature 0.7; GLM ships 1.0 - the collapse is off-distribution sampling" | UNDEFENDED. The requant also runs at 0.7 (sequencing). A GLM arm at 1.0 is REQUIRED before this claim is published |
 | 3.3 | "N=6 examples, 4 samples" (exp14) | UNDEFENDED beyond disclosure; powered rerun needed |
 | 3.4 | exp21-P3 (wrapper +19pts, p=0.013): "one model, one domain, N=19" | DEFENDED at BH level; replication on a second model cheap and not yet run |

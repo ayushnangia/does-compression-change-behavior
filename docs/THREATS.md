@@ -18,7 +18,7 @@ Status codes: DEFENDED (evidence exists) / IN-FLIGHT (job running or queued)
 
 | # | attack | status |
 |---|---|---|
-| 2.1 | "N=17, one rate, correlation driven by 6 condition clusters - this is a rank correlation over 6 points wearing 17 points' clothes" | IN-FLIGHT: exp20b (3 rates x N=48, continuous variation) |
+| 2.1 | "N=17, one rate, cluster-driven correlation" | DEFENDED (exp20b Jul 25): replicates at 3 rates x N=23, rho -0.38/-0.44/-0.45; original -0.55 retired as cluster-inflated; NLL claim honestly revised (weakly predictive, ~half of containment) |
 | 2.2 | "Containment is confounded with format familiarity: extractive policies preserve BOTH content and surface form - you cannot separate them" | PARTIALLY DEFENDED: exp21 separates them (canonical = information kept, surface form changed) and finds both terms real (format 19pts, canonicalization ~5pts). But that is one model, one domain |
 | 2.3 | "Correlation, not causation" | UNDEFENDED as causation; claim must stay predictive ("useful pre-flight check"), never mechanistic |
 

@@ -276,6 +276,16 @@ Threat 3.1 closed. Remaining on this claim: a temperature-1.0 arm (3.2).
 Job note: GLM degenerate generations at deployment budget consumed the
 12h wall; exp21 requant resubmitted separately; exp20b split per-rate at N=32.
 
+## exp20b verdict (July 25): containment law replicates at every rate; magnitudes re-quoted
+
+Three independent rates (5%/12.5%/50%), N=23 usable each, on-policy 16k,
+fixed parser, deployment budget: Spearman(containment, coarse-D) = -0.38 /
+-0.44 / -0.45. The original -0.55 was cluster-inflated as suspected; the
+durable number is ~-0.4 at every rate. HONEST REVISION on NLL: +0.22..+0.30
+(right direction, consistent) - "NLL predicts nothing" is retired; the claim
+is now "containment is the consistently stronger predictor (~1.5-2x |rho|)".
+Threat 2.1 closed.
+
 ## Still open (known, accepted, scheduled)
 
 - Repo-level train/held-out split for E-B (before any writeup).

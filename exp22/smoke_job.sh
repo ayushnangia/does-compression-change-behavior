@@ -24,7 +24,7 @@ export APPTAINER_CACHEDIR=$SCRATCH/apptainer_cache APPTAINER_TMPDIR=$SLURM_TMPDI
 export PYTHONPATH=/scratch/anangia/exp22wt:${PYTHONPATH:-}
 source /scratch/anangia/ENV-harbor2/bin/activate
 CFG=$SLURM_TMPDIR/smoke_config.yaml
-sed "s|http://127.0.0.1:8000|http://127.0.0.1:$PORT|" /scratch/anangia/exp22wt/exp22/smoke_config.yaml > $CFG
+sed -e "s|http://127.0.0.1:8000|http://127.0.0.1:$PORT|" -e "s|job_name: exp22-smoke|job_name: exp22-smoke-$SLURM_JOB_ID|" /scratch/anangia/exp22wt/exp22/smoke_config.yaml > $CFG
 harbor run -c $CFG -y
 S=$?
 kill $VPID 2>/dev/null

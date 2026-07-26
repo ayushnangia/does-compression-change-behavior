@@ -41,6 +41,13 @@ export HF_HOME=$SCRATCH/hf HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 export VLLM_NO_USAGE_STATS=1 PYTHONUNBUFFERED=1
 cd $SCRATCH
 
+# Trillium compute nodes mount $HOME READ-ONLY (smoke 667173 died writing
+# torch.compile's inductor cache). Venv paths above already resolved from the
+# real home; now point HOME at a writable scratch home for all ~/.cache users
+# (vllm torch.compile, flashinfer JIT, triton). Pre-seeded from the login node.
+export HOME=$SCRATCH/compute_home
+mkdir -p $HOME/.cache
+
 echo "[smoke] node=$(hostname) model=$MODEL tp=$TP util=$GPU_UTIL extra='$VLLM_EXTRA_ARGS'"
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
 

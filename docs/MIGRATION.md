@@ -72,6 +72,10 @@ HF_HUB_OFFLINE=1, --examples-file, sifs baked on login). Differences:
    rediscovering this - its VLLM_EXTRA_ARGS/GPU_UTIL evaporated). Anything a
    job needs must be baked into the script; tb2/ scripts carry per-model
    defaults in a case block on $MODEL.
+1c. **$HOME is READ-ONLY on compute nodes** (all jobs, not just debugjob;
+   smoke 667173 died writing torch.compile's inductor cache to ~/.cache).
+   tb2/ scripts repoint HOME to $SCRATCH/compute_home after resolving venv
+   paths; pre-seed its .cache with flashinfer/vllm caches from the login node.
 2. **Whole-node scheduling**: `--mem`/`--cpus` directives are REJECTED at
    submission ("--mem... options are not allowed on Trillium"); per-gpu jobs
    always get 186 GiB host memory, whole-node jobs the full 745 GiB.

@@ -52,6 +52,10 @@ GPU_UTIL=${GPU_UTIL:-0.90}
 VLLM_EXTRA_ARGS=${VLLM_EXTRA_ARGS:-}
 
 # ---- offline etiquette: nothing here may touch the internet ----
+# Trillium compute nodes mount $HOME READ-ONLY: redirect HOME to a writable
+# scratch home for ~/.cache writers (torch.compile, flashinfer, triton, harbor).
+# Venv paths above already resolved against the real home.
+if $ON_TRILLIUM; then export HOME=$SCRATCH/compute_home; mkdir -p $HOME/.cache; fi
 export HF_HOME=$SCRATCH/hf HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 export VLLM_NO_USAGE_STATS=1
 export LITELLM_LOCAL_MODEL_COST_MAP=True   # stop litellm fetching pricing json

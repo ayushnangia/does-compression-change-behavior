@@ -286,6 +286,16 @@ durable number is ~-0.4 at every rate. HONEST REVISION on NLL: +0.22..+0.30
 is now "containment is the consistently stronger predictor (~1.5-2x |rho|)".
 Threat 2.1 closed.
 
+## exp21 requant verdict (July 26): wrapper effect survives - AUDIT PHASE COMPLETE
+
+Under fixed parser + deployment budget: wrapped 0.61 vs bare 0.43 agreement
+at 2% budget (+18pts, p=0.023; was +19, p=0.013). Extreme-rate edge over raw
+skeleton stays directional-only (p=0.278). Canonical saturation intact
+(~481/869 tokens for the full history). With this, ALL FOUR headline claims
+have survived hostile requantification: freeze law (re-quoted 0.31/0.10),
+GLM cliff (reproduced exactly 0.00/0.75), containment law (re-quoted ~-0.4
+x3 rates), wrapper effect (+18pts). None died; three were honestly re-quoted.
+
 ## Still open (known, accepted, scheduled)
 
 - Repo-level train/held-out split for E-B (before any writeup).

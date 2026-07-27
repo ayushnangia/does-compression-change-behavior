@@ -14,9 +14,9 @@ agent traces from 4k to 64k tokens. Every result JSON is in
 
 | # | finding | numbers | experiment |
 |---|---|---|---|
-| 1 | **Agents freeze when you delete their own past actions.** Tool calls are 25% of tokens but carry the behavior; tool outputs are 36% and nearly free to delete. | halt rate 47% vs 19% control; observations = random control (D 0.50 vs 0.51). Replicated on GLM. | exp4 |
-| 2 | **Copying beats rewriting, predictably.** Verbatim n-gram overlap between compressed and original predicts behavior preservation; fluency (NLL) predicts nothing. | Spearman rho = -0.55 (containment) vs +0.11 (NLL) | exp20 |
-| 3 | **Models react to the format of memory, not just content.** Same content, wrong wrapper: one model drops from 75% acting to 0%. One-liner shorthand loses 19 points bare vs inside native `<tool_calls>` tags. | +19 pts, p=0.013 (content held constant) | exp21, exp14 |
+| 1 | **Agents freeze when you delete their own past actions.** Tool calls are 25% of tokens but carry the behavior; tool outputs are 36% and nearly free to delete. | halts 0.31 vs 0.10 control (3.1x; requantified under certified parser + deployment budget); observations = control (0.09 vs 0.10). Replicated on GLM. | exp4 |
+| 2 | **Copying beats rewriting, predictably.** Verbatim n-gram overlap between compressed and original predicts behavior preservation; NLL is a consistently weaker predictor. | Spearman rho = -0.38/-0.44/-0.45 across 3 rates (N=23 each) vs +0.22..+0.30 for NLL | exp20, exp20b |
+| 3 | **Models react to the format of memory, not just content.** Same content, wrong wrapper: GLM drops from 0.75 acting to 0.00 (reproduced exactly under the fixed parser - it narrates in prose instead of acting). One-liner shorthand loses 18 points bare vs inside native tags. | +18 pts, p=0.023 (content held constant; requantified) | exp21, exp14 |
 | 4 | **The useful memory is tiny.** The action skeleton at approx 2% of a 16k context keeps most behavior; canonical one-liners fit the entire history in approx 870 tokens. | 0.59 agreement at 330 tokens; extractive-2% beats abstractive summaries by approx 30 pts | exp17, exp21 |
 | 5 | **Select, don't train.** Generating N compressions and picking by measured behavior change works; DPO-training a compressor on those pairs gave a clean null. | selection p=0.0004 (+16k replication); DPO D 0.73 vs base 0.75, p=0.35 | exp11, expB |
 | 6 | **Summaries are the worst compressor tested**, at every budget, in every head-to-head. Plain keep-recent is the boring champion at normal budgets. | e.g. exp21: keep-recent 0.68 vs summary approx 0.44-class results throughout | exp6, exp9, exp15 |
@@ -25,6 +25,12 @@ agent traces from 4k to 64k tokens. Every result JSON is in
 Plus two analyses of the CompactionRL training scheme (arXiv:2607.05378):
 credit decays to 13.5% by chain depth 4 (exp1) and segments-as-samples
 inflates GRPO gradient mass 3.2x (exp2).
+
+**Audit**: every headline number above was requantified after we found and
+fixed 3 parser format bugs and an invented generation cap - all four claims
+survived with honestly adjusted magnitudes; the parser is certified against
+vLLM's per-model authority parsers. Ledger: [docs/AUDIT.md](docs/AUDIT.md),
+attack surface: [docs/THREATS.md](docs/THREATS.md).
 
 **Honest limits**: grounding is agreement-with-logged-actions (0.67-0.73),
 not task success - quantized models score 0% on Terminal-Bench (see

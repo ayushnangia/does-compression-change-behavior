@@ -35,7 +35,7 @@ class VLLMScorer:
                        enforce_eager=False)
 
     def sample_texts_batch(self, contexts, *, samples=8, max_new=10240,
-                           temperature=0.7, top_p=1.0, seed=0):
+                           temperature=1.0, top_p=1.0, seed=0):
         """contexts: list[list[int]] -> list[list[str]] (one engine pass)."""
         from vllm import SamplingParams, TokensPrompt
         # stop at first closed tool call (see behavior.STOP_STRINGS rationale)
@@ -55,7 +55,7 @@ class VLLMScorer:
 
     # drop-in single-context forms (match behavior.py signatures loosely)
     def sample_texts(self, context_ids, *, samples=8, max_new=10240,
-                     temperature=0.7, top_p=1.0, seed=0):
+                     temperature=1.0, top_p=1.0, seed=0):
         return self.sample_texts_batch([context_ids], samples=samples,
                                        max_new=max_new, temperature=temperature,
                                        top_p=top_p, seed=seed)[0]

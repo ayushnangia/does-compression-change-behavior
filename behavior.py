@@ -166,10 +166,13 @@ STOP_STRINGS = ["</tool_call>", "</tool_calls>"]
 
 
 def sample_texts(model, tokenizer, context_ids, device, *,
-                 samples=8, max_new=10240, temperature=0.7, top_p=1.0, seed=0):
+                 samples=8, max_new=10240, temperature=1.0, top_p=1.0, seed=0):
     """Sample `samples` raw continuations (decoded text) from `context_ids`.
     top_p=1.0 (full distribution) measures true behavior; pass e.g. 0.9 to
-    emulate production sampling. max_new=10240 is deployment-parity (Terminus
+    emulate production sampling. temperature=1.0 is the cited standard
+    (CompactionRL eval spec, harbor pass-nothing default, GLM generation
+    config - three sources agree; docs/DECISIONS.md); it was 0.7 (invented)
+    until 2026-07-26, AFTER all requants isolated the parser fixes at 0.7. max_new=10240 is deployment-parity (Terminus
     allows 10240; thinking models may deliberate at length before acting) -
     it was 768 until 2026-07-24, which could truncate long deliberation into
     a false halt; see docs/DECISIONS.md."""
@@ -190,7 +193,7 @@ def sample_texts(model, tokenizer, context_ids, device, *,
 
 
 def sample_actions(model, tokenizer, context_ids, device, *,
-                   samples=8, max_new=10240, temperature=0.7, seed=0):
+                   samples=8, max_new=10240, temperature=1.0, seed=0):
     """Sample `samples` next-actions. Returns the list of parsed action labels
     (None where the model produced no tool call)."""
     texts = sample_texts(model, tokenizer, context_ids, device, samples=samples,

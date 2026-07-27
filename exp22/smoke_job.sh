@@ -10,15 +10,22 @@ export VLLM_NO_USAGE_STATS=1 LITELLM_LOCAL_MODEL_COST_MAP=True PYTHONUNBUFFERED=
 PORT=$((10000 + SLURM_JOB_ID % 20000))   # unique per job: nodes are SHARED, :8000 collides
 module load cuda/12.9 opencv python/3.12 2>/dev/null
 source /scratch/anangia/ENV-vllm2/bin/activate
-vllm serve Qwen/Qwen3.5-9B --port $PORT --served-model-name qwen35-9b \
+stdbuf -oL -eL vllm serve Qwen/Qwen3.5-9B --port $PORT --served-model-name qwen35-9b \
   --max-model-len 32768 --gpu-memory-utilization 0.90 > vllm_exp22_$SLURM_JOB_ID.log 2>&1 &
 VPID=$!
 deactivate
 for i in $(seq 1 120); do
   curl -s http://127.0.0.1:$PORT/health >/dev/null && { echo "vllm up ${i}0s"; break; }
   kill -0 $VPID 2>/dev/null || { echo "vllm died"; exit 1; }
+  [ $((i % 12)) -eq 0 ] && echo "waiting for vllm... ${i}0s (log: $(wc -c < vllm_exp22_$SLURM_JOB_ID.log) bytes)"
   sleep 10
 done
+# HARD GUARD (dropped in the first version - attempts 3 and 5 ran harbor
+# against a dead port because the loop fell through silently):
+if ! curl -s http://127.0.0.1:$PORT/health >/dev/null; then
+  echo "vllm never came up; last log lines:"; tail -20 vllm_exp22_$SLURM_JOB_ID.log
+  kill $VPID 2>/dev/null; exit 1
+fi
 module load apptainer gcc arrow 2>/dev/null
 export APPTAINER_CACHEDIR=$SCRATCH/apptainer_cache APPTAINER_TMPDIR=$SLURM_TMPDIR
 export PYTHONPATH=/scratch/anangia/exp22wt:${PYTHONPATH:-}

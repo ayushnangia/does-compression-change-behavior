@@ -296,6 +296,19 @@ have survived hostile requantification: freeze law (re-quoted 0.31/0.10),
 GLM cliff (reproduced exactly 0.00/0.75), containment law (re-quoted ~-0.4
 x3 rates), wrapper effect (+18pts). None died; three were honestly re-quoted.
 
+## Standard-runs verdict (July 27): X.1 closed for the core findings
+
+exp4 at the FULL cited standard (certified parser, 10240 budget, temp 1.0):
+freeze law HOLDS - halts 0.42 (drop tool calls) vs 0.21 (control), 2.0x;
+observations still free (0.17 <= control). New at temp 1.0: drop_reasoning
+halts 0.38 (was smallest effect at 0.7) - a temperature interaction worth a
+powered look. exp21 at the standard: wrapper effect directionally intact at
+every rate (+12pts at 2%, 0.45 vs 0.33) but p=0.121 at N=18 - temp 1.0 adds
+noise everywhere (~10pts lower agreement across all conditions; 12h for 18
+examples). STATUS: wrapper effect = significant at 0.7 (2x), directional at
+1.0; the powered temp-1.0 run (N~64) is H200 material. Reporting standard:
+quote requant numbers as primary, temp-1.0 as robustness, both on the table.
+
 ## Still open (known, accepted, scheduled)
 
 - Repo-level train/held-out split for E-B (before any writeup).

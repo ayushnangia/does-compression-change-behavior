@@ -57,7 +57,7 @@ Status codes: DEFENDED (evidence exists) / IN-FLIGHT (job running or queued)
 
 | # | attack | status |
 |---|---|---|
-| X.1 | "Everything measured at temperature 0.7; the ecosystem standard you yourselves cite is 1.0. Do ANY effects survive deployment sampling?" | UNDEFENDED. The single biggest open technical risk. Sequenced: temp flips after requants; headline reruns at 1.0 are mandatory before submission |
+| X.1 | "Do effects survive deployment sampling (temp 1.0)?" | LARGELY DEFENDED (Jul 27): freeze law holds at 1.0 (halts 0.42 vs 0.21, 2.0x), observation-asymmetry holds (0.17). Wrapper effect directional at 1.0 (+12pts, p=0.12 at N=18) - powered run needed before quoting it at the standard; significant at 0.7 in two independent runs |
 | X.2 | "All results from <=35B models that cannot solve the benchmark" | IN-FLIGHT: Trillium bf16 chain + H200 plan |
 | X.3 | "One trace domain (terminal/SWE)" | UNDEFENDED; second domain (e.g. web/tool-API agents) not scheduled. Must be scoped in the title/claims ("coding agents") |
 | X.4 | "TV over 8 samples has resolution 1/8; your D values are coarse-grained" | DEFENDED: floors reported, exact-logprob estimator validated (exp19), effects >> resolution |

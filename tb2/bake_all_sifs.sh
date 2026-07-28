@@ -13,9 +13,12 @@
 set -u
 
 TB2=$SCRATCH/tb2
-TEMPLATE=$TB2/defs/bake.def.tpl
+HERE=$(cd "$(dirname "$0")" && pwd)
+TEMPLATE=${TEMPLATE:-$HERE/bake.def.tpl}   # tracked in repo now (was only on Narval scratch)
 CACHE=$TB2/sif_cache
 mkdir -p "$CACHE" "$TB2/defs"
+# ONLY=easy25.txt limits baking to a task subset (bake these first)
+ONLY=${ONLY:-}
 
 module load apptainer 2>/dev/null
 export APPTAINER_CACHEDIR=$SCRATCH/apptainer_cache
@@ -24,6 +27,10 @@ mkdir -p "$APPTAINER_TMPDIR"
 
 ok=0; fail=0; skip=0
 for toml in "$TB2"/terminal-bench/*/task.toml; do
+    if [ -n "$ONLY" ]; then
+        t=$(basename "$(dirname "$toml")")
+        grep -qx "$t" "$ONLY" || continue
+    fi
     img=$(grep -oP 'docker_image = "\K[^"]+' "$toml")
     [ -z "$img" ] && continue
     safe=$(echo "$img" | tr '/:' '__')

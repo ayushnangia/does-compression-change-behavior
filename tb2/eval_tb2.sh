@@ -28,7 +28,16 @@ SERVED=${2:?served-model-name (exactly one / rule: hosted_vllm/<served-name>)}
 TP=${3:-1}
 SUBSET=${4:-}
 PORT=8000
+# Under sbatch, $0 is Slurm's spooled COPY in /var/spool/slurm/... - the
+# sidecar files (config_template.yaml, easy25.txt) are not next to it.
+# Resolve the real tb2/ dir via fallbacks (job 679008 died on this).
 HERE=$(cd "$(dirname "$0")" && pwd)
+if [ ! -f "$HERE/config_template.yaml" ]; then
+    for c in "${SLURM_SUBMIT_DIR:-.}/tb2" "${SLURM_SUBMIT_DIR:-.}" "$SCRATCH/dccb/tb2"; do
+        [ -f "$c/config_template.yaml" ] && HERE=$(cd "$c" && pwd) && break
+    done
+fi
+[ -f "$HERE/config_template.yaml" ] || { echo "cannot locate tb2/ sidecar files"; exit 1; }
 
 # ---- cluster detection (Trillium vs Narval; see docs/MIGRATION.md) ----
 if [[ $(hostname) == trig* ]]; then
@@ -88,7 +97,10 @@ CONFIG=$SLURM_TMPDIR/job_config.yaml
 sed -e "s|@SERVED@|$SERVED|g" -e "s|@TB2@|$TB2_DIR|g" -e "s|@PORT@|$PORT|g" \
     "$HERE/config_template.yaml" > "$CONFIG"
 if [ "$SUBSET" = "easy25" ]; then
-    { echo "tasks:"; sed 's/^/  - /' "$HERE/easy25.txt"; } >> "$CONFIG"
+    # harbor 0.20 wants dict entries (- path: ...), not bare names, and the
+    # datasets: block must go or the full 89 run alongside the subset
+    sed -i '/^datasets:/,+1d' "$CONFIG"
+    { echo "tasks:"; sed "s|^|  - path: $TB2_DIR/terminal-bench/|" "$HERE/easy25.txt"; } >> "$CONFIG"
 fi
 
 # ---- 3. harbor (terminus-2, apptainer from the sif cache) ----

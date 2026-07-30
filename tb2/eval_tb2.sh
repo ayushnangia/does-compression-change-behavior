@@ -79,8 +79,19 @@ else
     module load cuda/12.9 opencv python/3.12 2>/dev/null
 fi
 source "$VLLM_ENV/bin/activate"
+# WINDOW: the model's NATIVE context minus 20% (group directive), read from
+# its own config.json - override with WINDOW=<n> arg6 if KV won't fit at this TP.
+WINDOW=${6:-$(python3 - <<PY
+import json, glob, os
+p = glob.glob(os.environ['HF_HOME'] + '/hub/models--' + '$MODEL'.replace('/','--') + '/snapshots/*/config.json')[0]
+c = json.load(open(p))
+m = c.get('max_position_embeddings') or c.get('text_config',{}).get('max_position_embeddings')
+print(int(m*0.8))
+PY
+)}
+echo "serving window: $WINDOW (0.8 x native unless overridden)"
 vllm serve "$MODEL" --port $PORT --served-model-name "$SERVED" \
-    --tensor-parallel-size "$TP" --max-model-len 32768 \
+    --tensor-parallel-size "$TP" --max-model-len $WINDOW \
     --gpu-memory-utilization "$GPU_UTIL" $VLLM_EXTRA_ARGS > "vllm_$SLURM_JOB_ID.log" 2>&1 &
 VLLM_PID=$!
 deactivate
@@ -95,6 +106,7 @@ curl -s "http://127.0.0.1:$PORT/health" >/dev/null || { echo "vLLM never came up
 # ---- 2. write the harbor config for this model ----
 CONFIG=$SLURM_TMPDIR/job_config.yaml
 sed -e "s|@SERVED@|$SERVED|g" -e "s|@TB2@|$TB2_DIR|g" -e "s|@PORT@|$PORT|g" \
+    -e "s|max_input_tokens: .*|max_input_tokens: $WINDOW|" \
     "$HERE/config_template.yaml" > "$CONFIG"
 # SUBSET: 'easy25' or a path to any task-list file (one task name per line)
 SUBSET_FILE=""

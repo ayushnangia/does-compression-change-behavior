@@ -42,30 +42,26 @@ GPU_EXPS=(
 # prefetch_onpolicy.py (no nvidia/Open-SWE-Traces). 4k exps -> onpolicy_4k,
 # 16k exps -> onpolicy_16k.
 if [ "$MODE" = "queue-onpolicy" ]; then
-  GPU_EXPS=()
-  for e in \
-    "exp3:exp3_target_stability.py:../data/examples_onpolicy_4k.json" \
-    "exp4:exp4_block_ablation.py:../data/examples_onpolicy_4k.json" \
-    "exp5:exp5_format_vs_content.py:../data/examples_onpolicy_4k.json" \
-    "exp6:exp6_rate_distortion.py:../data/examples_onpolicy_4k.json" \
-    "exp7:exp7_compaction_chain.py:../data/examples_onpolicy_4k.json" \
-    "exp8:exp8_grounded_agreement.py:../data/examples_onpolicy_4k.json" \
-    "exp9:exp9_summary_policies.py:../data/examples_onpolicy_16k.json" \
-    "exp10:exp10_propagation.py:../data/examples_onpolicy_16k.json" \
-    "exp11:exp11_best_of_n.py:../data/examples_onpolicy_16k.json" \
-    "exp12:exp12_portability.py:../data/examples_onpolicy_4k.json" \
-    "exp14:exp14_interface_fragility.py:../data/examples_onpolicy_16k.json" \
-    "exp17:exp17_minimal_core.py:../data/examples_onpolicy_16k.json" \
-    "exp20:exp20_ood_bridge.py:../data/examples_onpolicy_4k.json" \
-    "exp21:exp21_canonical_skeleton.py:../data/examples_onpolicy_16k.json" \
-    "exp4-32k:exp4_block_ablation.py:../data/examples_onpolicy_32k.json" \
-    "exp9-32k:exp9_summary_policies.py:../data/examples_onpolicy_32k.json" \
-    "exp14-32k:exp14_interface_fragility.py:../data/examples_onpolicy_32k.json" \
-    "exp17-32k:exp17_minimal_core.py:../data/examples_onpolicy_32k.json" \
-    "exp21-32k:exp21_canonical_skeleton.py:../data/examples_onpolicy_32k.json"; do
-    IFS=: read -r _n _s _d <<< "$e"
-    [ -f "$_d" ] && GPU_EXPS+=("$e") || echo "SKIP $_n: $_d not built (not enough long on-policy trajectories yet)"
-  done
+  # ONE dataset (group directive): full-context on-policy examples, capped at
+  # 0.8 x native window. Fixed-size tiers are gone - do not reintroduce them.
+  D=../data/examples_onpolicy.json
+  [ -f "$D" ] || { echo "FATAL: $D not built yet"; exit 1; }
+  GPU_EXPS=(
+    "exp3:exp3_target_stability.py:$D"
+    "exp4:exp4_block_ablation.py:$D"
+    "exp5:exp5_format_vs_content.py:$D"
+    "exp6:exp6_rate_distortion.py:$D"
+    "exp7:exp7_compaction_chain.py:$D"
+    "exp8:exp8_grounded_agreement.py:$D"
+    "exp9:exp9_summary_policies.py:$D"
+    "exp10:exp10_propagation.py:$D"
+    "exp11:exp11_best_of_n.py:$D"
+    "exp12:exp12_portability.py:$D"
+    "exp14:exp14_interface_fragility.py:$D"
+    "exp17:exp17_minimal_core.py:$D"
+    "exp20:exp20_ood_bridge.py:$D"
+    "exp21:exp21_canonical_skeleton.py:$D"
+  )
   MODE=queue
 fi
 

@@ -8,8 +8,8 @@ set -u
 export HF_HOME=$SCRATCH/hf HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 export VLLM_NO_USAGE_STATS=1 LITELLM_LOCAL_MODEL_COST_MAP=True PYTHONUNBUFFERED=1
 PORT=$((10000 + SLURM_JOB_ID % 20000))   # unique per job: nodes are SHARED, :8000 collides
-module load cuda/12.9 opencv python/3.12 2>/dev/null
-source /scratch/anangia/ENV-vllm2/bin/activate
+module load python/3.11 gcc arrow cuda/12.9 opencv 2>/dev/null
+source /scratch/anangia/ENV-vllm3/bin/activate
 stdbuf -oL -eL vllm serve Qwen/Qwen3.5-9B --port $PORT --served-model-name qwen35-9b \
   --max-model-len 32768 --gpu-memory-utilization 0.90 > vllm_exp22_$SLURM_JOB_ID.log 2>&1 &
 VPID=$!

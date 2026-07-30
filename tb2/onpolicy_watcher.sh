@@ -22,7 +22,10 @@ module load gcc cuda python/3.11 arrow/19.0.1 2>/dev/null
 source $HOME/ENV-compress2/bin/activate
 export HF_HOME=$SCRATCH/hf HF_HUB_OFFLINE=1
 
-GLOB="$SCRATCH/tb2/jobs/tb2-qwen35-35b-bf16*/*/agent/trajectory.json"
+# NOTE the hyphen: matches ONLY the new subset-named runs (easy25/shard_*),
+# NOT the archived tb2-qwen35-35b-bf16.nodefail-683764 or the -dbg run
+# (group directive: only the new runs feed the experiments)
+GLOB="$SCRATCH/tb2/jobs/tb2-qwen35-35b-bf16-*/*/agent/trajectory.json"
 ls $GLOB >/dev/null 2>&1 || { echo "FATAL: no trajectories matched $GLOB"; exit 1; }
 echo "trajectories: $(ls $GLOB | wc -l)"
 

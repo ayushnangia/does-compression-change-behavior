@@ -105,8 +105,11 @@ curl -s "http://127.0.0.1:$PORT/health" >/dev/null || { echo "vLLM never came up
 
 # ---- 2. write the harbor config for this model ----
 CONFIG=$SLURM_TMPDIR/job_config.yaml
+# input cap must leave room for max_output inside max-model-len, or requests
+# near the window get rejected by vLLM (input + 10240 out > window)
+INPUT_CAP=$((WINDOW - 12288))
 sed -e "s|@SERVED@|$SERVED|g" -e "s|@TB2@|$TB2_DIR|g" -e "s|@PORT@|$PORT|g" \
-    -e "s|max_input_tokens: .*|max_input_tokens: $WINDOW|" \
+    -e "s|max_input_tokens: .*|max_input_tokens: $INPUT_CAP|" \
     "$HERE/config_template.yaml" > "$CONFIG"
 # SUBSET: 'easy25' or a path to any task-list file (one task name per line)
 SUBSET_FILE=""

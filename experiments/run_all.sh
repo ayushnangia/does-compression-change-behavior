@@ -49,15 +49,23 @@ gpu)
   done
   ;;
 queue)
+  # Trillium: no --mem/--cpus (rejected), gcc BEFORE cuda, venv in $HOME,
+  # HOME read-only on compute -> repoint caches (docs/MIGRATION.md gotchas)
+  if [[ $(hostname) == trig* ]]; then
+    GRES="--gpus-per-node=h100:1"; RES=""
+    ENVLINE='module load gcc cuda python/3.11 arrow/19.0.1 2>/dev/null; source $HOME/ENV-compress2/bin/activate; export HOME=$SCRATCH/compute_home; mkdir -p $HOME/.cache;'
+  else
+    GRES="--gpus-per-node=1"; RES="--cpus-per-task=8 --mem=64G"
+    ENVLINE='module load cuda python gcc arrow 2>/dev/null; source $SCRATCH/ENV-compress2/bin/activate;'
+  fi
   for e in "${GPU_EXPS[@]}"; do
     IFS=: read -r name script data <<< "$e"
-    sbatch --job-name "$name" --gpus-per-node=1 --cpus-per-task=8 --mem=64G \
+    sbatch --job-name "$name" $GRES $RES \
         --time=0-12:00 --output="${name}_%j.out" \
-        --wrap "module load cuda python gcc arrow 2>/dev/null;
-                source \$SCRATCH/ENV-compress2/bin/activate;
+        --wrap "$ENVLINE
                 export HF_HOME=\$SCRATCH/hf HF_HUB_OFFLINE=1 PYTHONUNBUFFERED=1;
                 export PYTORCH_ALLOC_CONF=expandable_segments:True PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True;
-                python $script --examples-file $data"
+                cd $PWD; python $script --examples-file $data"
   done
   ;;
 esac

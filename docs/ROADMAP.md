@@ -32,7 +32,7 @@ compute, sifs must be BUILT with bake.def.tpl (harbor server inside).
 | run | model | job | status |
 |---|---|---|---|
 | easy-25, 4x timeouts | Qwen3.5-35B-A3B bf16, 1xH100 | 694202 | RUNNING |
-| easy-25 | Qwen3.5-9B bf16 (scale-contrast row) | 694247 | RUNNING |
+| easy-25 | Qwen3.5-9B bf16 (scale-contrast row) | 694247 | CANCELLED by group (Narval already showed robust 0s for 9B; not worth a GPU here) |
 | easy-25 | GLM-4.7-Flash 30B-A3B (lineage 2) | waiter -> smoke -> eval | download |
 | easy-25 | GLM-4.5-Air 106B TP=4 (oracle scale) | DEFERRED by group | - |
 

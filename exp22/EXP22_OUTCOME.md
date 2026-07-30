@@ -38,9 +38,17 @@ both).
    delta - the D->outcome bridge (the paper's practical payoff)
 3. Post-compaction halt/derail rates from trajectories (ties to finding 1)
 
-## Still to verify before H200 window (each free, login node)
-- [ ] harbor job-config syntax for import-path agents (factory supports it;
-      confirm the YAML field name on a one-task smoke)
-- [ ] cap-at-3-compactions kwarg (or add counter guard in subclasses)
-- [ ] n_max_turns=250 config field
-- [ ] one-task smoke on Narval A100 (9B model) end-to-end before any H200 time
+## Smoke verdict (July 30, job 66693784): GREEN - fully de-risked
+
+One-task episode on Narval A100 (9B): vLLM up (ENV-vllm3), custom agent
+loaded via import_path, 18 live turns, OUR COMPACTION POLICY FIRED 15 TIMES
+(3 policy + capped fallback), verifier ran, trajectory recorded. Reward 0.0
+as expected for the 9B - capability was never the smoke's question.
+Eight attempts; every failure was infrastructure, each fixed and documented
+in the job script itself. Two knobs for the real run:
+- raise the per-episode agent timeout (AgentTimeoutError at ~20 min here)
+- compaction fires frequently at threshold 8000 on a 32k window - real runs
+  on bigger windows will be closer to CompactionRL's <=3 ops regime
+
+All previously-open config questions verified in the smoke: import_path
+syntax, max_turns kwarg, TaskConfig dicts, unique ports and job names.

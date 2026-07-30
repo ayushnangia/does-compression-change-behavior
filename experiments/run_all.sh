@@ -57,7 +57,12 @@ if [ "$MODE" = "queue-onpolicy" ]; then
     "exp14:exp14_interface_fragility.py:../data/examples_onpolicy_16k.json" \
     "exp17:exp17_minimal_core.py:../data/examples_onpolicy_16k.json" \
     "exp20:exp20_ood_bridge.py:../data/examples_onpolicy_4k.json" \
-    "exp21:exp21_canonical_skeleton.py:../data/examples_onpolicy_16k.json"; do
+    "exp21:exp21_canonical_skeleton.py:../data/examples_onpolicy_16k.json" \
+    "exp4-32k:exp4_block_ablation.py:../data/examples_onpolicy_32k.json" \
+    "exp9-32k:exp9_summary_policies.py:../data/examples_onpolicy_32k.json" \
+    "exp14-32k:exp14_interface_fragility.py:../data/examples_onpolicy_32k.json" \
+    "exp17-32k:exp17_minimal_core.py:../data/examples_onpolicy_32k.json" \
+    "exp21-32k:exp21_canonical_skeleton.py:../data/examples_onpolicy_32k.json"; do
     IFS=: read -r _n _s _d <<< "$e"
     [ -f "$_d" ] && GPU_EXPS+=("$e") || echo "SKIP $_n: $_d not built (not enough long on-policy trajectories yet)"
   done

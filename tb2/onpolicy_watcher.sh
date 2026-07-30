@@ -32,12 +32,20 @@ python prefetch_onpolicy.py --model Qwen/Qwen3.5-35B-A3B \
 python prefetch_onpolicy.py --model Qwen/Qwen3.5-35B-A3B \
     --traj-glob "$GLOB" --context-tokens 16384 --recent-tokens 1024 \
     --num-examples 64 --max-per-task 2 --out data/examples_onpolicy_16k.json
+# 32k: full-window contexts (model supports 262144 positions; trajectories
+# with compaction serialize past 32k). Fewer examples by design (n=32).
+python prefetch_onpolicy.py --model Qwen/Qwen3.5-35B-A3B \
+    --traj-glob "$GLOB" --context-tokens 32768 --recent-tokens 2048 \
+    --num-examples 32 --max-per-task 2 --out data/examples_onpolicy_32k.json
 
 for f in data/examples_onpolicy_4k.json data/examples_onpolicy_16k.json; do
     n=$(python -c "import json;print(len(json.load(open('$f'))))" 2>/dev/null || echo 0)
     echo "$f: $n examples"
     [ "$n" -lt 16 ] && { echo "  too few - removing so run_all skips its exps"; rm -f "$f"; }
 done
+n=$(python -c "import json;print(len(json.load(open('data/examples_onpolicy_32k.json'))))" 2>/dev/null || echo 0)
+echo "data/examples_onpolicy_32k.json: $n examples"
+[ "$n" -lt 8 ] && { echo "  too few 32k-deep trajectories - removing"; rm -f data/examples_onpolicy_32k.json; }
 
 ( cd experiments && SBATCH_ACCOUNT=def-rgrosse bash run_all.sh queue-onpolicy )
 echo "[$(date +%m-%d\ %H:%M)] on-policy suite submitted"

@@ -46,7 +46,7 @@ if [[ $(hostname) == trig* ]]; then
     HARBOR_ENV=${HARBOR_ENV:-$HOME/ENV-harbor2}
 else
     ON_TRILLIUM=false
-    VLLM_ENV=${VLLM_ENV:-$SCRATCH/ENV-vllm2}
+    VLLM_ENV=${VLLM_ENV:-$SCRATCH/ENV-vllm3}
     HARBOR_ENV=${HARBOR_ENV:-$SCRATCH/ENV-harbor2}
 fi
 TB2_DIR=${TB2_DIR:-$SCRATCH/tb2}

@@ -96,11 +96,16 @@ curl -s "http://127.0.0.1:$PORT/health" >/dev/null || { echo "vLLM never came up
 CONFIG=$SLURM_TMPDIR/job_config.yaml
 sed -e "s|@SERVED@|$SERVED|g" -e "s|@TB2@|$TB2_DIR|g" -e "s|@PORT@|$PORT|g" \
     "$HERE/config_template.yaml" > "$CONFIG"
-if [ "$SUBSET" = "easy25" ]; then
+# SUBSET: 'easy25' or a path to any task-list file (one task name per line)
+SUBSET_FILE=""
+[ "$SUBSET" = "easy25" ] && SUBSET_FILE="$HERE/easy25.txt"
+[ -n "$SUBSET" ] && [ -f "$SUBSET" ] && SUBSET_FILE="$SUBSET"
+if [ -n "$SUBSET_FILE" ]; then
     # harbor 0.20 wants dict entries (- path: ...), not bare names, and the
     # datasets: block must go or the full 89 run alongside the subset
     sed -i '/^datasets:/,+1d' "$CONFIG"
-    { echo "tasks:"; sed "s|^|  - path: $TB2_DIR/terminal-bench/|" "$HERE/easy25.txt"; } >> "$CONFIG"
+    sed -i "s/^job_name: .*/job_name: tb2-$SERVED-$(basename $SUBSET_FILE .txt)/" "$CONFIG"
+    { echo "tasks:"; sed "s|^|  - path: $TB2_DIR/terminal-bench/|" "$SUBSET_FILE"; } >> "$CONFIG"
 fi
 
 # ---- 3. harbor (terminus-2, apptainer from the sif cache) ----

@@ -9,7 +9,7 @@
 # summary table. Verdicts and caveats for each: ../AUDIT.md.
 set -eu
 cd "$(dirname "$0")"
-MODE=${1:?usage: run_all.sh cpu|gpu|queue}
+MODE=${1:?usage: run_all.sh cpu|gpu|queue|queue-onpolicy}
 
 # gate: nothing runs if the test suite fails
 ( cd .. && python tests/run_tests.py )
@@ -36,6 +36,33 @@ GPU_EXPS=(
   "exp20:exp20_ood_bridge.py:../data/examples_64.json"             # CONTAINMENT LAW
   "exp21:exp21_canonical_skeleton.py:../data/examples_16k_large.json" # ONE-LINERS
 )
+
+# queue-onpolicy: ON-POLICY ONLY (group decision 2026-07-30) - same suite but
+# every data file is built from OUR OWN TB2 trajectories via
+# prefetch_onpolicy.py (no nvidia/Open-SWE-Traces). 4k exps -> onpolicy_4k,
+# 16k exps -> onpolicy_16k.
+if [ "$MODE" = "queue-onpolicy" ]; then
+  GPU_EXPS=()
+  for e in \
+    "exp3:exp3_target_stability.py:../data/examples_onpolicy_4k.json" \
+    "exp4:exp4_block_ablation.py:../data/examples_onpolicy_4k.json" \
+    "exp5:exp5_format_vs_content.py:../data/examples_onpolicy_4k.json" \
+    "exp6:exp6_rate_distortion.py:../data/examples_onpolicy_4k.json" \
+    "exp7:exp7_compaction_chain.py:../data/examples_onpolicy_4k.json" \
+    "exp8:exp8_grounded_agreement.py:../data/examples_onpolicy_4k.json" \
+    "exp9:exp9_summary_policies.py:../data/examples_onpolicy_16k.json" \
+    "exp10:exp10_propagation.py:../data/examples_onpolicy_16k.json" \
+    "exp11:exp11_best_of_n.py:../data/examples_onpolicy_16k.json" \
+    "exp12:exp12_portability.py:../data/examples_onpolicy_4k.json" \
+    "exp14:exp14_interface_fragility.py:../data/examples_onpolicy_16k.json" \
+    "exp17:exp17_minimal_core.py:../data/examples_onpolicy_16k.json" \
+    "exp20:exp20_ood_bridge.py:../data/examples_onpolicy_4k.json" \
+    "exp21:exp21_canonical_skeleton.py:../data/examples_onpolicy_16k.json"; do
+    IFS=: read -r _n _s _d <<< "$e"
+    [ -f "$_d" ] && GPU_EXPS+=("$e") || echo "SKIP $_n: $_d not built (not enough long on-policy trajectories yet)"
+  done
+  MODE=queue
+fi
 
 case $MODE in
 cpu)

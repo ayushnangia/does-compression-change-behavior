@@ -107,7 +107,9 @@ fi
 module load apptainer gcc arrow 2>/dev/null
 export APPTAINER_CACHEDIR=$SCRATCH/apptainer_cache APPTAINER_TMPDIR=$SLURM_TMPDIR
 source "$HARBOR_ENV/bin/activate"
-harbor run -c "$CONFIG" -y
+# --agent-timeout-multiplier: thinking models burn wall-clock; the Narval
+# runs used 4x and dropping it produced a wall of AgentTimeoutError (683764)
+harbor run -c "$CONFIG" --agent-timeout-multiplier "${5:-4}" -y
 STATUS=$?
 
 kill $VLLM_PID 2>/dev/null

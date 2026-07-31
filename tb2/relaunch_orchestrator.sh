@@ -25,17 +25,24 @@ done
 echo "sif sweep: $ok ok, $bad bad"
 [ $bad -gt 0 ] && echo "WARNING: rebake the BAD ones before their tasks run"
 
-echo "===== 2. serve gate: TP sweep @ window=$WINDOW (debugjob) ====="
-GATE_LOG=$SCRATCH/debug_sweep_gate.log
-SKIP_ENV_SWEEP=1 timeout 6500 debugjob -g 4 --account=def-rgrosse srun -n1 \
-    bash tb2/debug_sweep.sh 2,4 $WINDOW > $GATE_LOG 2>&1
-TP=$(grep -oP "PART 2 PASS at TP=\K\d+" $GATE_LOG || true)
-if [ -z "$TP" ]; then
-    echo "FATAL: no TP served window=$WINDOW - human decision needed (see $GATE_LOG)"
-    tail -5 $GATE_LOG
-    exit 1
+echo "===== 2. serve gate ====="
+if [ -s $SCRATCH/gate_verdict.txt ]; then
+    # window search already ran (gate_window_search.sh) - use its verdict
+    read -r TPKV WINKV < $SCRATCH/gate_verdict.txt
+    TP=${TPKV#TP=}; WINDOW=${WINKV#WINDOW=}
+    echo "using searched verdict: TP=$TP WINDOW=$WINDOW"
+else
+    GATE_LOG=$SCRATCH/debug_sweep_gate.log
+    SKIP_ENV_SWEEP=1 timeout 6500 debugjob -g 4 --account=def-rgrosse srun -n1 \
+        bash tb2/debug_sweep.sh 2,4 $WINDOW > $GATE_LOG 2>&1
+    TP=$(grep -oP "PART 2 PASS at TP=\K\d+" $GATE_LOG || true)
+    if [ -z "$TP" ]; then
+        echo "FATAL: no TP served window=$WINDOW - human decision needed (see $GATE_LOG)"
+        tail -5 $GATE_LOG
+        exit 1
+    fi
 fi
-echo "serve gate PASSED at TP=$TP"
+echo "serve gate PASSED at TP=$TP WINDOW=$WINDOW"
 
 echo "===== 3. relaunch TB2 at TP=$TP window=$WINDOW ====="
 export SBATCH_ACCOUNT=def-rgrosse

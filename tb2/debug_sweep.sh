@@ -12,7 +12,9 @@
 # source Lmod init BEFORE set -u (profile scripts use unbound vars)
 source /etc/profile.d/*lmod*.sh 2>/dev/null || source /etc/profile
 set -u
-TPS=${1:-"2 4"}
+# COMMA-separated TP list: the debugjob wrapper expands args UNQUOTED ($@),
+# so "2 4" splits and the window arg shifts (the window=4 disaster, Jul 30)
+TPS=${1:-2,4}; TPS=${TPS//,/ }
 WINDOW=${2:-209715}
 cd $SCRATCH/dccb
 

@@ -8,7 +8,9 @@
 #   setsid nohup bash tb2/relaunch_orchestrator.sh > $SCRATCH/orchestrator.log 2>&1 &
 set -u
 cd $SCRATCH/dccb
-WINDOW=209715
+# serving requirement is now BUDGET-driven (paper budgets; eval_tb2.sh derives
+# window = C + 12288 itself). Gate only needs to prove the Qwen window serves.
+WINDOW=77824
 
 echo "===== 1. sif import sweep (all 89, login node) ====="
 module load apptainer 2>/dev/null
@@ -50,7 +52,7 @@ JOBS=""
 for SUB in easy25 tb2/shard_00.txt tb2/shard_01.txt tb2/shard_02.txt; do
     [ -f "$SUB" ] && SUBARG=$SCRATCH/dccb/$SUB || SUBARG=$SUB
     J=$(sbatch --parsable --gpus-per-node=h100:$TP --time=1-00:00 \
-        tb2/eval_tb2.sh Qwen/Qwen3.5-35B-A3B qwen35-35b-bf16 $TP "$SUBARG" 4 $WINDOW) \
+        tb2/eval_tb2.sh Qwen/Qwen3.5-35B-A3B qwen35-35b-bf16 $TP "$SUBARG" 4) \
         && JOBS="$JOBS $J" && echo "  $SUB -> $J"
 done
 echo "$JOBS" | xargs > $SCRATCH/tb2_jobs.txt

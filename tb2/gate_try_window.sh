@@ -5,7 +5,8 @@
 source /etc/profile.d/*lmod*.sh 2>/dev/null || source /etc/profile
 set -u
 WINDOW=${1:?window}
-TP=4
+TPARG=${2:-4}
+TP=$TPARG
 export HF_HOME=$SCRATCH/hf HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 export VLLM_NO_USAGE_STATS=1 PYTHONUNBUFFERED=1
 module load gcc cuda python/3.12 arrow/19.0.1 opencv/4.13.0 2>/dev/null

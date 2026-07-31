@@ -23,13 +23,17 @@ ROADMAP.md (execution).
 
 ## Known limitations to STATE in the paper (not fix silently)
 
-1. **Window ceiling**: 0.8 x native (209,715) faults in vllm 0.25 kernels
-   (CUDA illegal access + cublas GemmEx fail on verified-clean GPUs - the
-   int32-indexing wall). Runs use the largest servable window (search in
-   flight; 163,840 candidate). State the ceiling and the stack version.
-2. **Pass@1 comparability**: CompactionRL's ~27% class was measured at a 32k
-   window (compaction pressure). Our larger-window numbers are an easier
-   condition; report both conditions or annotate clearly.
+1. **Budget is the paper-comparable parameter, not the window.** CompactionRL:
+   compaction fires when C - |history| < 10,240 (max 3/rollout); budgets are
+   64k (GLM-4.7-Flash) and 80k (GLM-4.5-Air). TB2 runs now hand the agent
+   exactly C (max_input_tokens) and serve at C + 12288. Giant serving windows
+   were doubly wrong: no compaction pressure (loses the studied phenomenon)
+   AND vllm 0.25's int32 kernel wall at ~209k (illegal access + cublas fail,
+   confirmed on clean GPUs).
+2. **The accidental budget ablation**: the first GLM easy-25 run + its retry
+   executed at ~92k input cap (no compaction pressure). Kept and labeled as
+   the no-pressure condition; the paper-comparable C=64k rerun is job 696621
+   (glm47-flash-c64k). Report conditions separately, never mixed.
 3. **Halt semantics**: our halt is one-shot; deployed agents retry. Freeze
    law manifests as wasted turns, not literal stops.
 4. **Single-model suite** until the H200 window (18-model coverage plan);

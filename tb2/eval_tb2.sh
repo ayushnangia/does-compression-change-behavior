@@ -88,17 +88,21 @@ else
     module load cuda/12.9 opencv python/3.12 2>/dev/null
 fi
 source "$VLLM_ENV/bin/activate"
-# WINDOW: the model's NATIVE context minus 20% (group directive), read from
-# its own config.json - override with WINDOW=<n> arg6 if KV won't fit at this TP.
-WINDOW=${6:-$(python3 - <<PY
-import json, glob, os
-p = glob.glob(os.environ['HF_HOME'] + '/hub/models--' + '$MODEL'.replace('/','--') + '/snapshots/*/config.json')[0]
-c = json.load(open(p))
-m = c.get('max_position_embeddings') or c.get('text_config',{}).get('max_position_embeddings')
-print(int(m*0.8))
-PY
-)}
-echo "serving window: $WINDOW (0.8 x native unless overridden)"
+# BUDGET: the agent's context budget C - the PAPER-COMPARABLE parameter.
+# Compaction fires when C - |history| < 10,240 (CompactionRL trigger), so C
+# sets the compaction pressure. Paper budgets: GLM-4.7-Flash 64k, GLM-4.5-Air
+# 80k; Qwen3.5-35B uses 64k (disclosed choice, matches the Flash scale class).
+# The vLLM window only needs C + output headroom - NOT 0.8 x native (giant
+# windows remove compaction pressure entirely and lose the studied phenomenon;
+# they also hit the vllm 0.25 int32 kernel wall at ~209k).
+case "$MODEL" in
+  *GLM-4.5-Air*)   BUDGET=${BUDGET:-81920} ;;
+  *GLM-4.7*)       BUDGET=${BUDGET:-65536} ;;
+  *)               BUDGET=${BUDGET:-65536} ;;
+esac
+BUDGET=${6:-$BUDGET}
+WINDOW=$((BUDGET + 12288))
+echo "context budget C=$BUDGET (compaction pressure at $((BUDGET-10240))), serving window=$WINDOW"
 vllm serve "$MODEL" --port $PORT --served-model-name "$SERVED" \
     --tensor-parallel-size "$TP" --max-model-len $WINDOW \
     --gpu-memory-utilization "$GPU_UTIL" $VLLM_EXTRA_ARGS > "vllm_$SLURM_JOB_ID.log" 2>&1 &
@@ -114,9 +118,8 @@ curl -s "http://127.0.0.1:$PORT/health" >/dev/null || { echo "vLLM never came up
 
 # ---- 2. write the harbor config for this model ----
 CONFIG=$SLURM_TMPDIR/job_config.yaml
-# input cap must leave room for max_output inside max-model-len, or requests
-# near the window get rejected by vLLM (input + 10240 out > window)
-INPUT_CAP=$((WINDOW - 12288))
+# the agent sees exactly the budget C; window has the output headroom
+INPUT_CAP=$BUDGET
 sed -e "s|@SERVED@|$SERVED|g" -e "s|@TB2@|$TB2_DIR|g" -e "s|@PORT@|$PORT|g" \
     -e "s|max_input_tokens: .*|max_input_tokens: $INPUT_CAP|" \
     "$HERE/config_template.yaml" > "$CONFIG"

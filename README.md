@@ -39,15 +39,19 @@ not task success - quantized models score 0% on Terminal-Bench (see
 ## Repo layout
 
 ```
+STATUS.md                 the one living done/running/open board
 behavior.py compressors.py data.py metrics.py scaffold.py    core library
+prefetch.py / prefetch_onpolicy.py    example builders (off- and on-policy)
 experiments/exp*.py       one experiment each, self-documenting headers
 experiments/run_all.sh    reproduce everything: cpu | gpu | queue
 experiments/results/      every result JSON ever produced
 data/                     all measurement datasets (4k-64k) + raw trajectories
+exp22/                    compaction policies in LIVE harbor episodes (outcome bridge)
 tb2/                      offline Terminal-Bench 2.0 harness (vLLM+harbor+Apptainer)
+paper/                    ICLR layer: RQ, RELATED, OUTLINE, LITERATURE
 docs/                     AUDIT (claims ledger), COAUTHOR (full briefing),
                           MIGRATION (cluster runbook), slides
-tests/run_tests.py        68 checks; gate for every job submission
+tests/run_tests.py        73 checks; gate for every job submission
 ```
 
 **Current state**: [STATUS.md](STATUS.md) the one living done/not-done board -

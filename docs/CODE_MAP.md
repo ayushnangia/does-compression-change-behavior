@@ -29,7 +29,7 @@ is homegrown vs external: docs/DECISIONS.md.
 | `experiments/exp*.py` | one experiment each; the docstring at the top of each file states design, conditions, and (from exp11 on) pre-registered predictions | - |
 | `experiments/common.py` | model loading, result saving | - |
 | `experiments/vllm_scorer.py` | same sampling via vLLM (6x faster), equivalence-tested against the HF path | - |
-| `exp22/` (branch `exp22-outcome`) | compaction policies inside LIVE harbor episodes | actions parsed by HARBOR'S OWN parser, imported as-is; agents subclass Terminus-2 overriding one method |
+| `exp22/` | compaction policies inside LIVE harbor episodes (smoke GREEN; Wave-2 pilot next - see STATUS.md) | actions parsed by HARBOR'S OWN parser, imported as-is; agents subclass Terminus-2 overriding one method |
 | `tb2/` | offline Terminal-Bench harness | harbor + vLLM, config-only |
 | `tests/run_tests.py` | 73 checks, run before every job | - |
 
@@ -52,6 +52,7 @@ Three different situations, often confused:
 
 ## Reading order for a new contributor
 
-`README.md` -> this file -> `behavior.py` (150 lines, the heart) ->
+`README.md` -> `STATUS.md` (what is done/running/open) -> `paper/OUTLINE.md`
+(the narrative) -> this file -> `behavior.py` (150 lines, the heart) ->
 `experiments/exp4_block_ablation.py` (the strongest finding, typical
 experiment shape) -> `docs/DECISIONS.md` -> `docs/AUDIT.md`.

@@ -8,8 +8,8 @@ the login node instead:
         --num-examples 32 --context-tokens 4096 --recent-tokens 512
 
 It (1) snapshots the model into the HF cache ($HF_HOME) and (2) builds the
-decision-point examples and saves them to a JSON the job loads with
-`run_experiment.py --examples-file`.
+decision-point examples and saves them to a JSON the experiment scripts
+load with `--examples-file`.
 """
 
 from __future__ import annotations

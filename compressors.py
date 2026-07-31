@@ -102,7 +102,7 @@ def hallucinator(old_ids, tokenizer, model, device):
     return _ids(tokenizer, note)
 
 
-# `full` is handled specially in run_experiment.py: it keeps the old history
+# `full` is handled specially by the experiment scripts: it keeps the old history
 # unchanged and is the baseline every compressor is compared against.
 
 TEXT_COMPRESSORS = {

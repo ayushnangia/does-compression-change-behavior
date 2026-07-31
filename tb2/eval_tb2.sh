@@ -60,6 +60,15 @@ esac
 GPU_UTIL=${GPU_UTIL:-0.90}
 VLLM_EXTRA_ARGS=${VLLM_EXTRA_ARGS:-}
 
+# ---- wedged-GPU guard: a prior CUDA illegal-access can leave GPU memory
+# pinned with no owning process (trig0013, Jul 31 - 21GB ghost); any work on
+# such a node is garbage. Fail loud and fast instead. ----
+GHOST=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits | sort -rn | head -1)
+if [ "${GHOST:-0}" -gt 2000 ] && ! nvidia-smi --query-compute-apps=pid --format=csv,noheader | grep -q .; then
+    echo "FATAL WEDGED_GPU: ${GHOST}MB pinned with no process on $(hostname) - needs driver reset; resubmit with --exclude=$(hostname -s)"
+    exit 99
+fi
+
 # ---- offline etiquette: nothing here may touch the internet ----
 # Trillium compute nodes mount $HOME READ-ONLY: redirect HOME to a writable
 # scratch home for ~/.cache writers (torch.compile, flashinfer, triton, harbor).
@@ -129,7 +138,11 @@ export APPTAINER_CACHEDIR=$SCRATCH/apptainer_cache APPTAINER_TMPDIR=$SLURM_TMPDI
 source "$HARBOR_ENV/bin/activate"
 # --agent-timeout-multiplier: thinking models burn wall-clock; the Narval
 # runs used 4x and dropping it produced a wall of AgentTimeoutError (683764)
-harbor run -c "$CONFIG" --agent-timeout-multiplier "${5:-4}" -y
+# env-build multiplier 4: with vLLM + 2 concurrent container builds on one
+# node, servers start fine but blow harbor's default handshake budget
+# (9/25 GLM trials died as EnvironmentStartTimeout while uvicorn was up)
+harbor run -c "$CONFIG" --agent-timeout-multiplier "${5:-4}" \
+    --environment-build-timeout-multiplier 4 -y
 STATUS=$?
 
 kill $VLLM_PID 2>/dev/null

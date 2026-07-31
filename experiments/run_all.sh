@@ -9,7 +9,7 @@
 # summary table. Verdicts and caveats for each: ../AUDIT.md.
 set -eu
 cd "$(dirname "$0")"
-MODE=${1:?usage: run_all.sh cpu|gpu|queue}
+MODE=${1:?usage: run_all.sh cpu|gpu|queue|queue-onpolicy}
 
 # gate: nothing runs if the test suite fails
 ( cd .. && python tests/run_tests.py )
@@ -37,6 +37,34 @@ GPU_EXPS=(
   "exp21:exp21_canonical_skeleton.py:../data/examples_16k_large.json" # ONE-LINERS
 )
 
+# queue-onpolicy: ON-POLICY ONLY (group decision 2026-07-30) - same suite but
+# every data file is built from OUR OWN TB2 trajectories via
+# prefetch_onpolicy.py (no nvidia/Open-SWE-Traces). 4k exps -> onpolicy_4k,
+# 16k exps -> onpolicy_16k.
+if [ "$MODE" = "queue-onpolicy" ]; then
+  # ONE dataset (group directive): full-context on-policy examples, capped at
+  # 0.8 x native window. Fixed-size tiers are gone - do not reintroduce them.
+  D=../data/examples_onpolicy.json
+  [ -f "$D" ] || { echo "FATAL: $D not built yet"; exit 1; }
+  GPU_EXPS=(
+    "exp3:exp3_target_stability.py:$D"
+    "exp4:exp4_block_ablation.py:$D"
+    "exp5:exp5_format_vs_content.py:$D"
+    "exp6:exp6_rate_distortion.py:$D"
+    "exp7:exp7_compaction_chain.py:$D"
+    "exp8:exp8_grounded_agreement.py:$D"
+    "exp9:exp9_summary_policies.py:$D"
+    "exp10:exp10_propagation.py:$D"
+    "exp11:exp11_best_of_n.py:$D"
+    "exp12:exp12_portability.py:$D"
+    "exp14:exp14_interface_fragility.py:$D"
+    "exp17:exp17_minimal_core.py:$D"
+    "exp20:exp20_ood_bridge.py:$D"
+    "exp21:exp21_canonical_skeleton.py:$D"
+  )
+  MODE=queue
+fi
+
 case $MODE in
 cpu)
   for s in "${CPU_EXPS[@]}"; do echo "== $s =="; python "$s"; done
@@ -49,15 +77,23 @@ gpu)
   done
   ;;
 queue)
+  # Trillium: no --mem/--cpus (rejected), gcc BEFORE cuda, venv in $HOME,
+  # HOME read-only on compute -> repoint caches (docs/MIGRATION.md gotchas)
+  if [[ $(hostname) == trig* ]]; then
+    GRES="--gpus-per-node=h100:1"; RES=""
+    ENVLINE='module load gcc cuda python/3.11 arrow/19.0.1 2>/dev/null; source $HOME/ENV-compress2/bin/activate; export HOME=$SCRATCH/compute_home; mkdir -p $HOME/.cache;'
+  else
+    GRES="--gpus-per-node=1"; RES="--cpus-per-task=8 --mem=64G"
+    ENVLINE='module load cuda python gcc arrow 2>/dev/null; source $SCRATCH/ENV-compress2/bin/activate;'
+  fi
   for e in "${GPU_EXPS[@]}"; do
     IFS=: read -r name script data <<< "$e"
-    sbatch --job-name "$name" --gpus-per-node=1 --cpus-per-task=8 --mem=64G \
+    sbatch --job-name "$name" $GRES $RES \
         --time=0-12:00 --output="${name}_%j.out" \
-        --wrap "module load cuda python gcc arrow 2>/dev/null;
-                source \$SCRATCH/ENV-compress2/bin/activate;
+        --wrap "$ENVLINE
                 export HF_HOME=\$SCRATCH/hf HF_HUB_OFFLINE=1 PYTHONUNBUFFERED=1;
                 export PYTORCH_ALLOC_CONF=expandable_segments:True PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True;
-                python $script --examples-file $data"
+                cd $PWD; python $script --examples-file $data"
   done
   ;;
 esac

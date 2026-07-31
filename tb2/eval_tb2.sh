@@ -60,6 +60,15 @@ esac
 GPU_UTIL=${GPU_UTIL:-0.90}
 VLLM_EXTRA_ARGS=${VLLM_EXTRA_ARGS:-}
 
+# ---- wedged-GPU guard: a prior CUDA illegal-access can leave GPU memory
+# pinned with no owning process (trig0013, Jul 31 - 21GB ghost); any work on
+# such a node is garbage. Fail loud and fast instead. ----
+GHOST=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits | sort -rn | head -1)
+if [ "${GHOST:-0}" -gt 2000 ] && ! nvidia-smi --query-compute-apps=pid --format=csv,noheader | grep -q .; then
+    echo "FATAL WEDGED_GPU: ${GHOST}MB pinned with no process on $(hostname) - needs driver reset; resubmit with --exclude=$(hostname -s)"
+    exit 99
+fi
+
 # ---- offline etiquette: nothing here may touch the internet ----
 # Trillium compute nodes mount $HOME READ-ONLY: redirect HOME to a writable
 # scratch home for ~/.cache writers (torch.compile, flashinfer, triton, harbor).
@@ -79,8 +88,23 @@ else
     module load cuda/12.9 opencv python/3.12 2>/dev/null
 fi
 source "$VLLM_ENV/bin/activate"
+# BUDGET: the agent's context budget C - the PAPER-COMPARABLE parameter.
+# Compaction fires when C - |history| < 10,240 (CompactionRL trigger), so C
+# sets the compaction pressure. Paper budgets: GLM-4.7-Flash 64k, GLM-4.5-Air
+# 80k; Qwen3.5-35B uses 64k (disclosed choice, matches the Flash scale class).
+# The vLLM window only needs C + output headroom - NOT 0.8 x native (giant
+# windows remove compaction pressure entirely and lose the studied phenomenon;
+# they also hit the vllm 0.25 int32 kernel wall at ~209k).
+case "$MODEL" in
+  *GLM-4.5-Air*)   BUDGET=${BUDGET:-81920} ;;
+  *GLM-4.7*)       BUDGET=${BUDGET:-65536} ;;
+  *)               BUDGET=${BUDGET:-65536} ;;
+esac
+BUDGET=${6:-$BUDGET}
+WINDOW=$((BUDGET + 12288))
+echo "context budget C=$BUDGET (compaction pressure at $((BUDGET-10240))), serving window=$WINDOW"
 vllm serve "$MODEL" --port $PORT --served-model-name "$SERVED" \
-    --tensor-parallel-size "$TP" --max-model-len 32768 \
+    --tensor-parallel-size "$TP" --max-model-len $WINDOW \
     --gpu-memory-utilization "$GPU_UTIL" $VLLM_EXTRA_ARGS > "vllm_$SLURM_JOB_ID.log" 2>&1 &
 VLLM_PID=$!
 deactivate
@@ -94,13 +118,21 @@ curl -s "http://127.0.0.1:$PORT/health" >/dev/null || { echo "vLLM never came up
 
 # ---- 2. write the harbor config for this model ----
 CONFIG=$SLURM_TMPDIR/job_config.yaml
+# the agent sees exactly the budget C; window has the output headroom
+INPUT_CAP=$BUDGET
 sed -e "s|@SERVED@|$SERVED|g" -e "s|@TB2@|$TB2_DIR|g" -e "s|@PORT@|$PORT|g" \
+    -e "s|max_input_tokens: .*|max_input_tokens: $INPUT_CAP|" \
     "$HERE/config_template.yaml" > "$CONFIG"
-if [ "$SUBSET" = "easy25" ]; then
+# SUBSET: 'easy25' or a path to any task-list file (one task name per line)
+SUBSET_FILE=""
+[ "$SUBSET" = "easy25" ] && SUBSET_FILE="$HERE/easy25.txt"
+[ -n "$SUBSET" ] && [ -f "$SUBSET" ] && SUBSET_FILE="$SUBSET"
+if [ -n "$SUBSET_FILE" ]; then
     # harbor 0.20 wants dict entries (- path: ...), not bare names, and the
     # datasets: block must go or the full 89 run alongside the subset
     sed -i '/^datasets:/,+1d' "$CONFIG"
-    { echo "tasks:"; sed "s|^|  - path: $TB2_DIR/terminal-bench/|" "$HERE/easy25.txt"; } >> "$CONFIG"
+    sed -i "s/^job_name: .*/job_name: tb2-$SERVED-$(basename $SUBSET_FILE .txt)/" "$CONFIG"
+    { echo "tasks:"; sed "s|^|  - path: $TB2_DIR/terminal-bench/|" "$SUBSET_FILE"; } >> "$CONFIG"
 fi
 
 # ---- 3. harbor (terminus-2, apptainer from the sif cache) ----
@@ -109,7 +141,11 @@ export APPTAINER_CACHEDIR=$SCRATCH/apptainer_cache APPTAINER_TMPDIR=$SLURM_TMPDI
 source "$HARBOR_ENV/bin/activate"
 # --agent-timeout-multiplier: thinking models burn wall-clock; the Narval
 # runs used 4x and dropping it produced a wall of AgentTimeoutError (683764)
-harbor run -c "$CONFIG" --agent-timeout-multiplier "${5:-4}" -y
+# env-build multiplier 4: with vLLM + 2 concurrent container builds on one
+# node, servers start fine but blow harbor's default handshake budget
+# (9/25 GLM trials died as EnvironmentStartTimeout while uvicorn was up)
+harbor run -c "$CONFIG" --agent-timeout-multiplier "${5:-4}" \
+    --environment-build-timeout-multiplier 4 -y
 STATUS=$?
 
 kill $VLLM_PID 2>/dev/null

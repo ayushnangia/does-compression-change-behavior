@@ -48,6 +48,10 @@ cd $SCRATCH
 export HOME=$SCRATCH/compute_home
 mkdir -p $HOME/.cache
 
+GHOST=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits | sort -rn | head -1)
+if [ "${GHOST:-0}" -gt 2000 ] && ! nvidia-smi --query-compute-apps=pid --format=csv,noheader | grep -q .; then
+    echo "FATAL WEDGED_GPU: ${GHOST}MB pinned, no process, on $(hostname)"; exit 99
+fi
 echo "[smoke] node=$(hostname) model=$MODEL tp=$TP util=$GPU_UTIL extra='$VLLM_EXTRA_ARGS'"
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
 

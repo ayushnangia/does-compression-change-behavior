@@ -40,7 +40,12 @@ def main():
     ap.add_argument("--model", default="Qwen/Qwen3.5-9B")
     ap.add_argument("--traj-glob",
                     default="/scratch/anangia/tb2/jobs/tb2-qwen35-9b/*/agent/trajectory.json")
-    ap.add_argument("--context-tokens", type=int, default=4096)
+    ap.add_argument("--context-tokens", type=int, default=4096,
+                    help="CAP on context length (group directive: 0.8 x native "
+                         "window). Each example keeps its FULL real history up "
+                         "to this cap - no fixed-size windows.")
+    ap.add_argument("--min-context-tokens", type=int, default=2048,
+                    help="skip decision points with less history than this")
     ap.add_argument("--recent-tokens", type=int, default=512)
     ap.add_argument("--num-examples", type=int, default=64)
     ap.add_argument("--max-per-task", type=int, default=2)
@@ -72,9 +77,9 @@ def main():
             if len(out) >= args.num_examples or per_task.get(repo, 0) >= args.max_per_task:
                 break
             ids = tokenizer(text[:a], add_special_tokens=False)["input_ids"]
-            if len(ids) < args.context_tokens:
+            if len(ids) < args.min_context_tokens:
                 continue
-            window = ids[-args.context_tokens:]
+            window = ids[-args.context_tokens:]   # full history, capped at 0.8 x native
             logged = parse_action(text[a:a + 2000])
             futures = []
             later = sorted(x for x in anchors if x > a)[:3]

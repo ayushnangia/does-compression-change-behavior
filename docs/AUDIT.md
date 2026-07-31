@@ -309,10 +309,11 @@ examples). STATUS: wrapper effect = significant at 0.7 (2x), directional at
 1.0; the powered temp-1.0 run (N~64) is H200 material. Reporting standard:
 quote requant numbers as primary, temp-1.0 as robustness, both on the table.
 
-## Still open (known, accepted, scheduled)
+## Still open
 
-- Repo-level train/held-out split for E-B (before any writeup).
-- On-policy trace replication.
-- Multi-seed everything (only exp4 has 2 seeds so far).
-- Second family (GLM) results pending.
-- PYTHONUNBUFFERED in job scripts (cosmetic: live progress in .out files).
+Superseded (2026-07-31): the live open-items list moved to /STATUS.md
+(single source of current state; this file stays append-only history).
+Of the old list: on-policy replication DONE (16k on-policy requants,
+Jul 24-26), GLM second-family results DONE (cliff requant Jul 24);
+repo-level E-B split, multi-seed pass, PYTHONUNBUFFERED remain open -
+tracked in STATUS.md.

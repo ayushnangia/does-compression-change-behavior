@@ -50,7 +50,10 @@ docs/                     AUDIT (claims ledger), COAUTHOR (full briefing),
 tests/run_tests.py        68 checks; gate for every job submission
 ```
 
-Docs: [AUDIT.md](docs/AUDIT.md) claims and confounds ledger -
+**Current state**: [STATUS.md](STATUS.md) the one living done/not-done board -
+[paper/OUTLINE.md](paper/OUTLINE.md) the ICLR narrative (sections, figures, quotable numbers).
+
+Docs: [AUDIT.md](docs/AUDIT.md) claims and confounds ledger (append-only) -
 [COAUTHOR.md](docs/COAUTHOR.md) complete technical briefing -
 [MIGRATION.md](docs/MIGRATION.md) H100 cluster runbook -
 [CODE_MAP.md](docs/CODE_MAP.md) what each file does, in plain language -

@@ -356,20 +356,14 @@ reconstructed reference); exp7's GLM arm (measured the format effect);
 anything at label granularity in floor>0.5 regimes; all in-flight
 experiments until their JSONs exist.
 
-## 12. Priorities (costs in queue-days)
+## 12. Priorities
 
-1. Harvest in-flight: exp17, 32k/64k arms, exp19, exp20, bf16 TB2 (0).
-2. Power the two deciders: exp6-coarse at N=48; exp15 redo with
-   summary_native format-matching (1 each).
-3. E-B round 3 decision: SFT-on-best arm first (cheap), then either a
-   1k-pair round via the vLLM pipeline (2-3) or publish selection-only.
-4. exp10-free (free-running propagation) to complete the healing claim (1).
-5. Rerun the headline table under the new estimator standard (1).
-6. Multi-seed pass on exp4/exp6/exp9 (2).
-7. Second trace domain for the block law, the highest-value generalization
-   check (2-3 including plumbing).
-8. Citation-graph walk, then the paper. RQ.md + this document's sections 5
-   and 6 are the results-section outline.
+Superseded (2026-07-31): live priorities moved to /STATUS.md (Wave 0/1/2 +
+H200-deferred). Of the old list: exp17/exp19/exp20/exp20b harvested; requant
+phase complete; exp10-free, exp6-coarse@N=48, exp15 redo, multi-seed, E-B
+decision, citation walk all remain open and are tracked there. The paper
+narrative moved to paper/OUTLINE.md (supersedes "sections 5 and 6 as the
+outline").
 
 ## 13. File map
 

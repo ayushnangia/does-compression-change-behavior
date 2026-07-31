@@ -11,7 +11,13 @@ agent's own actions, the wrapper format, a 2% core).
 Rules for this file: every claim cites its experiment + the AUDIT-approved
 number. STATUS says what blocks it. Nothing goes in the paper that is
 BLOCKED here. Quotable numbers come from docs/AUDIT.md requant sections
-only.
+only. Rigor bar per claim: docs/ICLR_READINESS.md.
+
+NOTE (2026-07-31): the ON-POLICY ONLY policy means every number in the
+table below will be superseded by the auto-queued on-policy suite
+(ROADMAP Phase 2). Treat current numbers as the off-policy record;
+refresh this table from the suite's provenance-stamped results before
+drafting §4.
 
 ## Section skeleton -> experiments -> figures
 

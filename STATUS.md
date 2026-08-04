@@ -17,14 +17,27 @@ paper/OUTLINE.md = narrative. State changes go HERE + verdict to AUDIT.
   phenomenon + hitting vllm's ~209k int32 kernel wall. Budget is the
   first-class per-model parameter.
 
-## RUNNING (Trillium H100, check `sq` / ROADMAP Phase 1)
+## RUNNING (Trillium H100 — the on-policy suite, resubmitted 2026-08-04)
 
-- 696621 — GLM-4.7-Flash easy-25 at C=64k (paper-comparable rerun; the
-  earlier ~92k run is kept+labeled as the no-pressure condition)
-- 696661–664 — Qwen3.5-35B bf16 full-89 relaunch (easy25 + 3 shards) under
-  the budget regime, 24h walls
-- onpolicy_watcher.sh (login) — on completion builds examples_onpolicy
-  and AUTO-QUEUES the 14-exp on-policy suite (run_all.sh queue-onpolicy)
+- **711526–711540 + 711586** — the full 15-exp on-policy suite (exp3–21 +
+  exp23) on examples_onpolicy.json (64 full-context examples), 12h walls,
+  from the execution clone $SCRATCH/dccb @ fc1d2c4
+- History of this suite: Aug-1 submission (700347–60) died in 20s/job —
+  Trillium sbatch wrapper word-split the --wrap string (9afb268 gotcha;
+  run_all.sh queue now generates script files, NEVER --wrap). Aug-4 first
+  resubmit (711507–21) died on missing `triton` in ENV-compress2@Trillium
+  (env had never loaded a model on this cluster; triton 3.6.0+computecanada
+  installed, fla import verified). Third submission is loading weights
+  cleanly. exp6's first try was CANCELLED-by-0 at 6s (node-side); resubmitted.
+
+## TB2 harvest (Phase 1, done 2026-08-01)
+
+- GLM c64k easy-25: COMPLETED (15 trajectories). Qwen 35B: easy25 +
+  shard_00 COMPLETED, shard_01/02 OOM-killed late (host RAM) — 59 Qwen
+  trajectories total, 13/19 + 13/23 on the OOM shards. Watcher fired,
+  built examples_onpolicy.json (64 examples), auto-queued the suite.
+  Pass@1 rows for shard_01/02 are PARTIAL — rerun of missing tasks is an
+  open item if full-89 coverage is needed for the paper table.
 
 ## DONE (recent; full history in AUDIT)
 

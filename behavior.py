@@ -165,6 +165,21 @@ def action_kind(action: "str | None") -> str:
 STOP_STRINGS = ["</tool_call>", "</tool_calls>"]
 
 
+def sample_chunk_size(context_len: int, samples: int = 8) -> int:
+    """How many sequences to generate per batch. Full-context on-policy
+    examples reach 209k tokens (0.8 x native window); prefill at
+    samples x context blows H100-80 (the Aug-4 suite OOM). Chunking
+    changes ONLY peak memory, never the sampling distribution (each
+    chunk gets its own deterministic seed)."""
+    if context_len <= 16384:
+        return samples
+    if context_len <= 32768:
+        return max(1, samples // 2)
+    if context_len <= 98304:
+        return max(1, samples // 4)
+    return 1
+
+
 def sample_texts(model, tokenizer, context_ids, device, *,
                  samples=8, max_new=10240, temperature=1.0, top_p=1.0, seed=0):
     """Sample `samples` raw continuations (decoded text) from `context_ids`.
@@ -178,18 +193,29 @@ def sample_texts(model, tokenizer, context_ids, device, *,
     a false halt; see docs/DECISIONS.md."""
     import torch
 
-    torch.manual_seed(seed)
-    with torch.no_grad():
-        out = model.generate(
-            torch.tensor([context_ids], device=device),
-            attention_mask=torch.ones(1, len(context_ids), device=device),
-            max_new_tokens=max_new, do_sample=True, temperature=temperature,
-            top_p=top_p, top_k=0, num_return_sequences=samples,
-            pad_token_id=tokenizer.pad_token_id or tokenizer.eos_token_id,
-            stop_strings=STOP_STRINGS, tokenizer=tokenizer,
-        )
-    return [tokenizer.decode(out[i, len(context_ids):], skip_special_tokens=True)
-            for i in range(out.shape[0])]
+    chunk = sample_chunk_size(len(context_ids), samples)
+    texts = []
+    done = 0
+    while done < samples:
+        n = min(chunk, samples - done)
+        torch.manual_seed(seed + done)   # deterministic per (seed, offset)
+        with torch.no_grad():
+            out = model.generate(
+                torch.tensor([context_ids], device=device),
+                attention_mask=torch.ones(1, len(context_ids), device=device),
+                max_new_tokens=max_new, do_sample=True, temperature=temperature,
+                top_p=top_p, top_k=0, num_return_sequences=n,
+                pad_token_id=tokenizer.pad_token_id or tokenizer.eos_token_id,
+                stop_strings=STOP_STRINGS, tokenizer=tokenizer,
+            )
+        texts.extend(tokenizer.decode(out[i, len(context_ids):],
+                                      skip_special_tokens=True)
+                     for i in range(out.shape[0]))
+        del out
+        done += n
+        if chunk < samples:
+            torch.cuda.empty_cache()   # long-context runs live near the edge
+    return texts
 
 
 def sample_actions(model, tokenizer, context_ids, device, *,

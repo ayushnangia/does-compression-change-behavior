@@ -247,6 +247,15 @@ check("harm ignores beneficial divergence", _h["halt_increase"] == 0.0 and _h["a
 from compressors import TEXT_COMPRESSORS as _TC
 check("summary_native registered", "summary_native" in _TC)
 
+# ---------------- adaptive sampling chunks (Aug-4 OOM fix) ----------------
+from behavior import sample_chunk_size
+
+check("chunk small ctx = full batch", sample_chunk_size(4096, 8) == 8)
+check("chunk 32k = half", sample_chunk_size(32768, 8) == 4)
+check("chunk 64k = quarter", sample_chunk_size(65536, 8) == 2)
+check("chunk 209k = singles", sample_chunk_size(209715, 8) == 1)
+check("chunk never zero", sample_chunk_size(300000, 1) == 1)
+
 # ---------------- exp23 hybrid budget accounting ----------------
 # The exp22 lesson encoded as a gate: policies decide WHAT fills the budget,
 # never HOW MUCH. fit_hybrid must never exceed the budget, must cap the

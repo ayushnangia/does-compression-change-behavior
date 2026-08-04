@@ -100,6 +100,10 @@ queue)
       printf '%s\n' "$ENVLINE"                     # runtime vars expand IN the job
       printf 'export HF_HOME=$SCRATCH/hf HF_HUB_OFFLINE=1 PYTHONUNBUFFERED=1\n'
       printf 'export PYTORCH_ALLOC_CONF=expandable_segments:True PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True\n'
+      # all jobs share HOME=$SCRATCH/compute_home; concurrent triton JIT
+      # writes to one cache dir race on the parallel FS (stale file handle
+      # killed exp4/exp11, Aug 4). Node-local cache per job:
+      printf 'export TRITON_CACHE_DIR=$SLURM_TMPDIR/triton; mkdir -p $TRITON_CACHE_DIR\n'
       printf 'cd %s\n' "$PWD"
       printf 'python %s --examples-file %s %s\n' "$script" "$data" "$extra"
     } > "$JS"

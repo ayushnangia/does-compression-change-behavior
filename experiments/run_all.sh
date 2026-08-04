@@ -31,7 +31,7 @@ GPU_EXPS=(
   "exp10:exp10_propagation.py:../data/examples_16k.json"
   "exp11:exp11_best_of_n.py:../data/examples_16k.json"             # SELECTION WORKS
   "exp12:exp12_portability.py:../data/examples_64.json"
-  "exp14:exp14_interface_fragility.py:../data/examples_16k.json"   # FORMAT CLIFFS
+  "exp14:exp14_interface_fragility.py:../data/examples_16k.json:--model Qwen/Qwen3.5-9B"   # FORMAT CLIFFS (--model has no default)
   "exp17:exp17_minimal_core.py:../data/examples_16k_large.json"    # MINIMAL CORE
   "exp20:exp20_ood_bridge.py:../data/examples_64.json"             # CONTAINMENT LAW
   "exp21:exp21_canonical_skeleton.py:../data/examples_16k_large.json" # ONE-LINERS
@@ -57,7 +57,7 @@ if [ "$MODE" = "queue-onpolicy" ]; then
     "exp10:exp10_propagation.py:$D"
     "exp11:exp11_best_of_n.py:$D"
     "exp12:exp12_portability.py:$D"
-    "exp14:exp14_interface_fragility.py:$D"
+    "exp14:exp14_interface_fragility.py:$D:--model Qwen/Qwen3.5-9B"
     "exp17:exp17_minimal_core.py:$D"
     "exp20:exp20_ood_bridge.py:$D"
     "exp21:exp21_canonical_skeleton.py:$D"
@@ -72,9 +72,9 @@ cpu)
   ;;
 gpu)
   for e in "${GPU_EXPS[@]}"; do
-    IFS=: read -r name script data <<< "$e"
+    IFS=: read -r name script data extra <<< "$e"
     echo "== $name: $script =="
-    python "$script" --examples-file "$data"
+    python "$script" --examples-file "$data" $extra
   done
   ;;
 queue)
@@ -93,7 +93,7 @@ queue)
   fi
   mkdir -p .jobscripts
   for e in "${GPU_EXPS[@]}"; do
-    IFS=: read -r name script data <<< "$e"
+    IFS=: read -r name script data extra <<< "$e"
     JS=".jobscripts/${name}_$(date +%s).sh"
     {
       printf '#!/bin/bash\n'
@@ -101,7 +101,7 @@ queue)
       printf 'export HF_HOME=$SCRATCH/hf HF_HUB_OFFLINE=1 PYTHONUNBUFFERED=1\n'
       printf 'export PYTORCH_ALLOC_CONF=expandable_segments:True PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True\n'
       printf 'cd %s\n' "$PWD"
-      printf 'python %s --examples-file %s\n' "$script" "$data"
+      printf 'python %s --examples-file %s %s\n' "$script" "$data" "$extra"
     } > "$JS"
     chmod +x "$JS"
     sbatch --job-name "$name" $GRES $RES \

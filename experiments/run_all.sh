@@ -61,6 +61,7 @@ if [ "$MODE" = "queue-onpolicy" ]; then
     "exp17:exp17_minimal_core.py:$D"
     "exp20:exp20_ood_bridge.py:$D"
     "exp21:exp21_canonical_skeleton.py:$D"
+    "exp23:exp23_oneliner_tail.py:$D"    # ONE-LINER + TAIL HYBRID (exp22 arm-B twin; on-policy only, no off-policy row by design)
   )
   MODE=queue
 fi

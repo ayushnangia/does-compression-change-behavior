@@ -247,6 +247,40 @@ check("harm ignores beneficial divergence", _h["halt_increase"] == 0.0 and _h["a
 from compressors import TEXT_COMPRESSORS as _TC
 check("summary_native registered", "summary_native" in _TC)
 
+# ---------------- exp23 hybrid budget accounting ----------------
+# The exp22 lesson encoded as a gate: policies decide WHAT fills the budget,
+# never HOW MUCH. fit_hybrid must never exceed the budget, must cap the
+# skeleton at half, must fill the rest with a verbatim suffix of old_ids.
+from exp23_oneliner_tail import build_units, fit_hybrid
+
+
+class _StubTok:
+    def __call__(self, text, add_special_tokens=False):
+        return {"input_ids": [ord(c) % 251 for c in text]}
+
+
+_old_text = ("turn one <tool_calls>[{\"function\": {\"name\": \"execute_bash\", "
+             "\"arguments\": \"{\\\"command\\\": \\\"grep -n foo bar.py\\\"}\"}}]</tool_calls> "
+             "obs <tool_calls>[{\"function\": {\"name\": \"read_file\", "
+             "\"arguments\": \"{\\\"path\\\": \\\"a.py\\\"}\"}}]</tool_calls> more")
+_old_ids = list(range(1000))
+_units = build_units(_old_text, _StubTok(), canonical=True)
+check("exp23 units extracted", len(_units) == 2,
+      f"got {len(_units)}")
+check("exp23 units wrapped", all(chr(u[0] % 251) == "<" for u in _units))
+_comp, _sk, _tl = fit_hybrid(_old_ids, _units, budget=100)
+check("exp23 budget respected", len(_comp) <= 100, f"len={len(_comp)}")
+check("exp23 skeleton capped at half", _sk <= 50, f"skel={_sk}")
+check("exp23 tail fills remainder exactly", _sk + _tl == len(_comp) and _tl == 100 - _sk)
+check("exp23 tail is verbatim suffix", _comp[_sk:] == _old_ids[-_tl:])
+_c2, _s2, _t2 = fit_hybrid(_old_ids, _units, budget=10_000)
+check("exp23 big budget keeps full skeleton", _s2 == sum(len(u) for u in _units))
+_c3, _s3, _t3 = fit_hybrid(_old_ids, _units, budget=16)
+check("exp23 tiny budget degrades to pure tail", _s3 == 0 and _c3 == _old_ids[-16:])
+_units_raw = build_units(_old_text, _StubTok(), canonical=False)
+check("exp23 raw blocks longer than canonical",
+      sum(len(u) for u in _units_raw) > sum(len(u) for u in _units))
+
 print(f"\n{PASS} checks passed, {len(FAIL)} failed")
 if FAIL:
     for f in FAIL:

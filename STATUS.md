@@ -56,10 +56,12 @@ paper/OUTLINE.md = narrative. State changes go HERE + verdict to AUDIT.
 
 ## AUTO (in the chain, do not duplicate — ROADMAP Phases 1–3)
 
-Watcher → on-policy 14-exp suite at deployment parity (temp 1.0, 10240,
+Watcher → on-policy suite at deployment parity (temp 1.0, 10240,
 certified parser) including powered exp14 (format cliffs), exp17/exp21 at
 320×16k, exp6, exp20 — these supersede my earlier "Wave 1" powered-rerun
-items. Then Phase 3: competent-trace regeneration + exp8 with task
+items. **exp23 (one-liner history + verbatim tail @25/50/75%, exp22
+arm-B's offline twin; P1 pre-registered = hybrid > keep_recent @25%)
+added to the queue-onpolicy list — rides the same auto chain.** Then Phase 3: competent-trace regeneration + exp8 with task
 success + 64k arms (H100-80 clears the old OOM).
 
 ## DEFERRED — H200 window (docs/H200_PLAN.md)

@@ -51,7 +51,7 @@ tb2/                      offline Terminal-Bench 2.0 harness (vLLM+harbor+Apptai
 paper/                    ICLR layer: RQ, RELATED, OUTLINE, LITERATURE
 docs/                     AUDIT (claims ledger), COAUTHOR (full briefing),
                           MIGRATION (cluster runbook), slides
-tests/run_tests.py        82 checks; gate for every job submission
+tests/run_tests.py        87 checks; gate for every job submission
 ```
 
 **Current state**: [STATUS.md](STATUS.md) the one living done/not-done board -

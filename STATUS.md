@@ -19,16 +19,20 @@ paper/OUTLINE.md = narrative. State changes go HERE + verdict to AUDIT.
 
 ## RUNNING (Trillium H100 — the on-policy suite, resubmitted 2026-08-04)
 
-- **711526–711540 + 711586** — the full 15-exp on-policy suite (exp3–21 +
-  exp23) on examples_onpolicy.json (64 full-context examples), 12h walls,
-  from the execution clone $SCRATCH/dccb @ fc1d2c4
-- History of this suite: Aug-1 submission (700347–60) died in 20s/job —
-  Trillium sbatch wrapper word-split the --wrap string (9afb268 gotcha;
-  run_all.sh queue now generates script files, NEVER --wrap). Aug-4 first
-  resubmit (711507–21) died on missing `triton` in ENV-compress2@Trillium
-  (env had never loaded a model on this cluster; triton 3.6.0+computecanada
-  installed, fla import verified). Third submission is loading weights
-  cleanly. exp6's first try was CANCELLED-by-0 at 6s (node-side); resubmitted.
+- **Round 3: 711982–711994** (13 exps) @ c5cfb81 — exp3 + exp14 already
+  COMPLETED with results (exp3_target_stability_20260804, 
+  exp14_fragility_Qwen35-9B_20260804).
+- Suite failure ledger (all fixed, each encoded in code or tests):
+  (1) Aug-1 700347–60: sbatch wrapper word-split --wrap (9afb268 gotcha) —
+  run_all.sh generates script files now, NEVER --wrap. (2) Aug-4 711507–21:
+  missing triton in ENV-compress2@Trillium — installed+verified. (3) Aug-4
+  711526–40: exp14 missing required --model (extra-args field added; 4B
+  cached for exp12); exp4/exp11 stale-file-handle from shared triton JIT
+  cache (node-local TRITON_CACHE_DIR now). (4) Aug-4 second wave: 13/15
+  CUDA OOM — full-context on-policy examples reach 209k tokens (p90=127k),
+  8-seq batched prefill blows H100-80; behavior.py now chunks sampling
+  adaptively by context length (deterministic per-chunk seeds, distribution
+  unchanged; 5 gate checks). Gate at 87/87.
 
 ## TB2 harvest (Phase 1, done 2026-08-01)
 

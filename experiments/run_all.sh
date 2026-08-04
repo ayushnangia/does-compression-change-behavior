@@ -78,23 +78,35 @@ gpu)
   done
   ;;
 queue)
-  # Trillium: no --mem/--cpus (rejected), gcc BEFORE cuda, venv in $HOME,
-  # HOME read-only on compute -> repoint caches (docs/MIGRATION.md gotchas)
+  # NEVER --wrap: Trillium's sbatch wrapper word-splits it unquoted (the
+  # 9afb268 gotcha killed the whole Aug-1 suite in 20s/job: $SCRATCH
+  # evaporated and the sbatch line was appended to the python args).
+  # Generate a real script per job - the pattern every working tb2/ script
+  # uses. Trillium: no --mem/--cpus (rejected), gcc BEFORE cuda, venv in
+  # $HOME, HOME read-only on compute -> repoint caches (MIGRATION gotchas).
   if [[ $(hostname) == trig* ]]; then
     GRES="--gpus-per-node=h100:1"; RES=""
-    ENVLINE='module load gcc cuda python/3.11 arrow/19.0.1 2>/dev/null; source $HOME/ENV-compress2/bin/activate; export HOME=$SCRATCH/compute_home; mkdir -p $HOME/.cache;'
+    ENVLINE='module load gcc cuda python/3.11 arrow/19.0.1 2>/dev/null; source $HOME/ENV-compress2/bin/activate; export HOME=$SCRATCH/compute_home; mkdir -p $HOME/.cache'
   else
     GRES="--gpus-per-node=1"; RES="--cpus-per-task=8 --mem=64G"
-    ENVLINE='module load cuda python gcc arrow 2>/dev/null; source $SCRATCH/ENV-compress2/bin/activate;'
+    ENVLINE='module load cuda python gcc arrow 2>/dev/null; source $SCRATCH/ENV-compress2/bin/activate'
   fi
+  mkdir -p .jobscripts
   for e in "${GPU_EXPS[@]}"; do
     IFS=: read -r name script data <<< "$e"
+    JS=".jobscripts/${name}_$(date +%s).sh"
+    {
+      printf '#!/bin/bash\n'
+      printf '%s\n' "$ENVLINE"                     # runtime vars expand IN the job
+      printf 'export HF_HOME=$SCRATCH/hf HF_HUB_OFFLINE=1 PYTHONUNBUFFERED=1\n'
+      printf 'export PYTORCH_ALLOC_CONF=expandable_segments:True PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True\n'
+      printf 'cd %s\n' "$PWD"
+      printf 'python %s --examples-file %s\n' "$script" "$data"
+    } > "$JS"
+    chmod +x "$JS"
     sbatch --job-name "$name" $GRES $RES \
-        --time=0-12:00 --output="${name}_%j.out" \
-        --wrap "$ENVLINE
-                export HF_HOME=\$SCRATCH/hf HF_HUB_OFFLINE=1 PYTHONUNBUFFERED=1;
-                export PYTORCH_ALLOC_CONF=expandable_segments:True PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True;
-                cd $PWD; python $script --examples-file $data"
+        --time=0-12:00 --output="${name}_%j.out" "$JS"
   done
   ;;
+
 esac

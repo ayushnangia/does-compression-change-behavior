@@ -317,3 +317,26 @@ Of the old list: on-policy replication DONE (16k on-policy requants,
 Jul 24-26), GLM second-family results DONE (cliff requant Jul 24);
 repo-level E-B split, multi-seed pass, PYTHONUNBUFFERED remain open -
 tracked in STATUS.md.
+
+## On-policy suite round 1 (2026-08-04): infrastructure complete, statistically PRELIMINARY — do not quote
+
+First full 15-exp suite on on-policy data (examples_onpolicy.json, 64
+full-context examples, certified parser, temp 1.0, chunked sampling).
+All 15 completed; 4 infra failure modes fixed en route (STATUS ledger).
+CRITICAL CAVEAT: the acting>=0.5 filter passes only ~25-30% of on-policy
+examples (usable N=5-7 per exp; not a pure length effect — a 107k example
+passed while 20k examples failed). NOTHING from this round is quotable;
+powered N=64 reruns submitted (715808-15). Preliminary reads to verify:
+- exp23 P1 NULL at N=6 (p=1.0): oneliner_tail 0.40 vs keep_recent 0.42
+  @R=0.25. skeleton_tail (raw blocks + tail) directionally BEST at every
+  rate (0.54/0.65/0.52 agreement) — consistent with the containment law
+  (verbatim > canonical), would flip the exp22 arm-B design toward raw
+  skeletons if it powers up.
+- exp4 on-policy at N=5, floor 0.50 (weak regime): NO differential halting
+  visible (drop_tool_calls none=0.30 vs control 0.28; drop_observations
+  0.45 highest). If this survives the powered rerun it is a MAJOR revision
+  to the freeze law's on-policy validity — treat as the single most
+  important number in the 715808 harvest.
+- Low full-context acting on long on-policy contexts is itself a
+  finding-candidate (ties to C3/freeze): schedule a length-binned acting
+  analysis from exp3's result.

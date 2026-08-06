@@ -340,3 +340,42 @@ powered N=64 reruns submitted (715808-15). Preliminary reads to verify:
 - Low full-context acting on long on-policy contexts is itself a
   finding-candidate (ties to C3/freeze): schedule a length-binned acting
   analysis from exp3's result.
+
+## On-policy POWERED verdicts (2026-08-06, N=25 usable, jobs 715808-15): two headline laws do NOT replicate on-policy; the extractive-beats-abstractive family does
+
+Regime: our own Terminus-2 trajectories (full real contexts 2k-209k,
+compaction pressure restored), 9B measuring model, certified parser,
+temp 1.0, chunked sampling, 25/64 examples pass the acting filter.
+
+- **exp4 (freeze law): CLEAN NULL on-policy.** Halts 0.35 (drop tool
+  calls) vs 0.28 (control), CIs overlap everywhere, paired p=0.78;
+  observation-asymmetry also gone (0.33 vs 0.35). The 3.1x off-policy
+  effect (and 2.0x @temp 1.0) does NOT transfer to this trace
+  distribution. Freeze law must be re-scoped: established on off-policy
+  fixed-16k <agent_trace> serializations; absent on on-policy full-context
+  native-format traces at N=25.
+- **exp21 (wrapper effect): NULL/REVERSED on-policy.** Wrapped 0.49 vs
+  bare 0.55 @2% (p=0.36). The +18pts off-policy effect does not transfer.
+  Canonical shorthand LOSES to raw skeleton at every rate on-policy.
+- **exp23 (pre-registered): P1 NULL confirmed at power.** oneliner_tail
+  0.61 vs keep_recent 0.68 @25% (p=0.43). skeleton_tail (raw blocks +
+  verbatim tail) is directionally best at ALL rates (0.71/0.74/0.68 vs
+  keep_recent 0.68/0.66/0.69; P3 p=0.11). Canonicalizing costs ~13pts vs
+  raw skeleton+tail. Deployable-rule revision: keep it verbatim.
+- **exp20 (containment): direction holds, magnitude drops.** Spearman
+  -0.23 (was ~-0.4 off-policy); still ~2x NLL (-0.12). Summaries still
+  cost acting (0.56-0.60 vs keep_recent 0.79).
+- **exp8 (grounding): replicates.** keep_recent@25% agrees with logged
+  actions 0.66 = full-context 0.65; summary 0.46 (-19pts). The
+  extractive-free/abstractive-costly asymmetry is the robust cross-regime
+  finding.
+- Consistent picture across exp8/20/21/23: VERBATIM-EXTRACTIVE >>
+  ABSTRACTIVE/CANONICAL on-policy; block-identity and wrapper-format
+  effects were regime-specific.
+- Pending: exp6p (running), exp14p (queued). Full-context acting collapse
+  (25/64 pass) remains a finding-candidate needing length-binned analysis.
+
+Paper consequence: Findings #1 (freeze) and #3-wrapper must be re-scoped
+as off-policy/format-specific or dropped from headlines; Finding #6
+(summaries worst) and the containment family are now the lead results,
+with skeleton_tail as the deployable rule. OUTLINE updated.

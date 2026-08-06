@@ -26,11 +26,11 @@ drafting §4.
 | 1 | Intro (freeze law as Fig 1) | exp4 | halts 0.31 vs 0.10 (3.1x) @0.7; 0.42 vs 0.21 (2.0x) @1.0 | READY; structure-preserving ablation strengthens (Wave 1) |
 | 2 | Related work | — | — | BLOCKED: citation-graph walk (paper/LITERATURE.md) |
 | 3 | The instrument: D, floors, theory | exp19, exp8, stats.py | exact 0.029 vs sampled 0.275; grounding 0.67–0.73 | READY; add PDL/AIS framing paragraph |
-| 4.1 | Law 1: freeze (block value) | exp4 requant + std | as §1; observations free (0.09 vs 0.10; 0.17 @1.0) | READY (with 1.3 ablation caveat until run) |
+| 4.1 | Freeze law | exp4 requant + std | off-policy 3.1x/2.0x; **ON-POLICY NULL (p=0.78, N=25, Aug-6)** | RE-SCOPE: off-policy/format-specific, no longer a headline |
 | 4.2 | Law 2: containment | exp20, exp20b | rho −0.38/−0.44/−0.45 (N=23 x3); NLL +0.22..+0.30 | READY (predictive-only phrasing, threat 2.3) |
 | 4.3 | Law 3: format cliff + wrapper | exp14, exp21, GLM requant | GLM 0.00 vs 0.75 (N=24); wrapper +18pts p=0.023 @0.7; +12 p=0.121 @1.0 | BLOCKED: GLM temp-1.0 arm (threat 3.2); powered wrapper N~64 @1.0 (Wave 1) |
 | 4.4 | Law 4: tiny core | exp17, exp21 | 0.59 agreement @330 tokens (2%); ~870-token canonical history 0.53–0.61 vs 0.68 raw | READY (one model caveat, threat 4.3) |
-| 4.5 | Deployable-rule test: one-liner history + verbatim tail (exp22 arm-B twin) | exp23 @25/50/75% | pending — P1 pre-registered: hybrid > keep_recent @25% | BLOCKED: rides the on-policy auto chain |
+| 4.5 | Deployable rule | exp23 powered (N=25) | P1 NULL (one-liners don't help, p=0.43); **skeleton_tail (raw blocks+tail) best at all rates** (0.71/0.74/0.68, P3 p=0.11) | READY as directional; suggests exp22 arm-B should use raw skeletons |
 | 5 | Selection vs training | exp11, T4/expB | selection p=0.0004; fresh 0.612 vs 0.790; 16k: 0.67 vs 0.72 non-overlap CIs; DPO null 0.73 vs 0.75 p=0.345 | READY as scoped null ("at this dose"); E-B repo-split fix owed (Wave 0) |
 | 6 | The outcome bridge | exp22 (+ TB2 bf16 traces) | — | BLOCKED: H100 pilot (Wave 2), full matrix H200 |
 | 7 | Limitations | — | one domain (scoped in title); ≤35B local; D@0 with exp10 context | READY |

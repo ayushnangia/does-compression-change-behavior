@@ -421,3 +421,15 @@ R=0.25/0.5/0.75, pooled +0.037, paired p=0.39 (n=25). QUOTABLE CLAIM:
 verbatim policies tie at the top; rewriting policies lose (canonical
 -13pts, summary -20pts). "Skeleton+tail beats keep-recent" is NOT
 established - do not claim a winner among verbatim policies.
+
+## Verifier fix VALIDATED offline (2026-08-06): the Pass@1 axis is measurable for the first time
+
+Round 1 of the fix failed its own smoke: apptainer fakeroot mounts the
+HOST home over /root at runtime, shadowing everything baked there. Round 2
+relocates uv to /usr/local/bin and caches to /opt (both PATH'd and
+UV_OFFLINE'd in %environment). OFFLINE SMOKE GREEN on a rebaked sif with
+network disabled: pytest executed a real assertion ("/app/out.html does
+not exist", 1 failed in 0.70s) and wrote reward.txt. Reward 0 now means
+UNSOLVED, not unmeasured. Gate for quoting Pass@1 hereafter: this offline
+verifier smoke + an oracle-class run on rebaked sifs. easy25 rebaked
+(25/25); full-89 rebake chained; first valid TB2 eval to follow.

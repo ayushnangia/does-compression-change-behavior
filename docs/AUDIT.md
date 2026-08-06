@@ -412,3 +412,12 @@ fresh episodes on rebaked sifs.
 Residual known limitation: tasks whose AGENT (not verifier) needs internet
 remain unsolvable offline; the offline-solvable subset must be classified
 before quoting rates.
+
+## exp23 post-hoc contrast (2026-08-06, from saved raw arrays): skeleton_tail vs keep_recent is a TIE
+
+Not pre-registered (P1/P3 were); computed from the powered run's raw
+arrays before any slide/paper claim: +0.035/+0.085/-0.010 agreement at
+R=0.25/0.5/0.75, pooled +0.037, paired p=0.39 (n=25). QUOTABLE CLAIM:
+verbatim policies tie at the top; rewriting policies lose (canonical
+-13pts, summary -20pts). "Skeleton+tail beats keep-recent" is NOT
+established - do not claim a winner among verbatim policies.

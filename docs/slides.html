@@ -195,8 +195,10 @@
      <b>On-policy revision (Aug 6, N=25 powered):</b> on our own full-context
      Terminus trajectories the asymmetry <b>disappears</b> — delete tool calls:
      acting 0.65 vs control 0.72, paired p = 0.78; observations no longer special.
-     The deletion asymmetry is a property of the off-policy fixed-16k regime,
-     not a universal law. Scope it accordingly.</p>
+     Per the data policy we quote on-policy numbers only; the off-policy bars
+     above stay in the deck as a <b>methods warning</b> — evaluating compaction
+     on other-model traces (the field's default) produces laws that do not
+     survive contact with real trajectories.</p>
 </section>
 
 <!-- 6 RD CURVES -->
@@ -442,11 +444,13 @@
      format suppressed the executor's actions entirely (the Finding 4 effect, on our
      own measuring model). That motivates the first item below.</p>
   <ul>
-    <li><b>New deployable rule from the powered on-policy runs (exp23):</b> raw
-        tool-call skeleton + verbatim recent tail beats keep-recent at every
-        budget (agreement 0.71/0.74/0.68 vs 0.68/0.66/0.69); canonical one-liner
-        rewriting costs ~13pts. <i>Copy exactly; never paraphrase the action
-        history.</i> This redesigns the live-episode experiment's arms.</li>
+    <li><b>Deployable rule from the powered on-policy runs (exp23):</b> the two
+        verbatim policies tie at the top (skeleton+tail 0.71/0.74/0.68 vs
+        keep-recent 0.68/0.66/0.69; paired p = 0.39 — no winner between them),
+        while every REWRITING policy loses: canonical one-liners −13pts,
+        summaries −20pts. <i>The rule is not which verbatim policy — it is:
+        copy exactly, never paraphrase.</i> Adding the raw action skeleton to
+        the tail is free and directionally positive; the live-episode arms use it.</li>
     <li><b>Measure compression against task success directly</b> (exp22) —
         unblocked by the verifier fix; first valid Pass@1 run is the gate.</li>
     <li><b>Train a compressor with D</b>: first attempt completed cleanly

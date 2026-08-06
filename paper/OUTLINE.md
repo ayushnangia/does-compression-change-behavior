@@ -4,9 +4,14 @@ Title: **Does Compression Change Behavior? Measuring What Context
 Compaction Does to Coding Agents**
 
 Thesis (one sentence): context compression for agents is not text
-compression — what matters is not the information you keep but the
-behavior you preserve, and behavior lives in surprising places (the
-agent's own actions, the wrapper format, a 2% core).
+compression — behavior, not information, is what must be preserved, and
+only verbatim-extractive compression preserves it; every form of
+rewriting (summaries, canonical shorthand) destroys it.
+
+DATA POLICY (group, 2026-07-30 + powered verdicts 2026-08-06): the paper
+quotes ON-POLICY numbers only. Off-policy results appear in exactly one
+place — the regime-dependence section — as evidence that off-policy
+evaluation (the field's default) produces laws that do not transfer.
 
 Rules for this file: every claim cites its experiment + the AUDIT-approved
 number. STATUS says what blocks it. Nothing goes in the paper that is
@@ -26,7 +31,7 @@ drafting §4.
 | 1 | Intro (freeze law as Fig 1) | exp4 | halts 0.31 vs 0.10 (3.1x) @0.7; 0.42 vs 0.21 (2.0x) @1.0 | READY; structure-preserving ablation strengthens (Wave 1) |
 | 2 | Related work | — | — | BLOCKED: citation-graph walk (paper/LITERATURE.md) |
 | 3 | The instrument: D, floors, theory | exp19, exp8, stats.py | exact 0.029 vs sampled 0.275; grounding 0.67–0.73 | READY; add PDL/AIS framing paragraph |
-| 4.1 | Freeze law | exp4 requant + std | off-policy 3.1x/2.0x; **ON-POLICY NULL (p=0.78, N=25, Aug-6)** | RE-SCOPE: off-policy/format-specific, no longer a headline |
+| 4.1 | Regime dependence (methods finding): off-policy laws don't transfer | exp4 + exp21, both regimes | freeze law 3.1x off-policy -> p=0.78 on-policy; wrapper +18pts -> p=0.36 reversed | READY — the cautionary tale that justifies on-policy-only |
 | 4.2 | Law 2: containment | exp20, exp20b | rho −0.38/−0.44/−0.45 (N=23 x3); NLL +0.22..+0.30 | READY (predictive-only phrasing, threat 2.3) |
 | 4.3 | Law 3: format cliff + wrapper | exp14, exp21, GLM requant | GLM 0.00 vs 0.75 (N=24); wrapper +18pts p=0.023 @0.7; +12 p=0.121 @1.0 | BLOCKED: GLM temp-1.0 arm (threat 3.2); powered wrapper N~64 @1.0 (Wave 1) |
 | 4.4 | Law 4: tiny core | exp17, exp21 | 0.59 agreement @330 tokens (2%); ~870-token canonical history 0.53–0.61 vs 0.68 raw | READY (one model caveat, threat 4.3) |

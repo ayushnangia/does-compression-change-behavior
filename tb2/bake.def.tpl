@@ -51,12 +51,21 @@ From: {{IMAGE}}
     # tasks sharing this image) at bake time; at runtime test.sh's curl
     # fails harmlessly, `source /root/.local/bin/env` finds the baked file,
     # and uvx hits the warm cache offline. ---
-    curl -LsSf https://astral.sh/uv/0.9.5/install.sh | sh || true
-    export PATH=/root/.local/bin:$PATH
+    # CRITICAL: nothing may live under /root - at runtime apptainer
+    # fakeroot mounts the HOST home over /root and shadows baked files
+    # (offline smoke, Aug 6). uv binary -> /usr/local/bin; caches -> /opt.
+    curl -LsSf https://astral.sh/uv/0.9.5/install.sh | \
+        env UV_INSTALL_DIR=/usr/local/bin INSTALLER_NO_MODIFY_PATH=1 sh || true
+    # fallback if the installer ignored UV_INSTALL_DIR
+    [ -x /usr/local/bin/uvx ] || cp /root/.local/bin/uv /root/.local/bin/uvx /usr/local/bin/ 2>/dev/null || true
+    test -x /usr/local/bin/uvx || { echo "FATAL: uvx not in /usr/local/bin"; exit 1; }
+    export UV_CACHE_DIR=/opt/uv-cache UV_PYTHON_INSTALL_DIR=/opt/uv-python
+    mkdir -p $UV_CACHE_DIR $UV_PYTHON_INSTALL_DIR
+    export PATH=/usr/local/bin:$PATH
 {{TEST_PREWARM}}
 
 %environment
     # uvx on PATH even though test.sh's curl-install fails offline; force
-    # uv to its baked cache instead of a doomed 300s network timeout
-    export PATH=/root/.local/bin:$PATH
-    export UV_OFFLINE=1
+    # uv to its baked /opt caches instead of a doomed network timeout
+    export PATH=/usr/local/bin:$PATH
+    export UV_OFFLINE=1 UV_CACHE_DIR=/opt/uv-cache UV_PYTHON_INSTALL_DIR=/opt/uv-python

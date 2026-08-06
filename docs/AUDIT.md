@@ -379,3 +379,36 @@ Paper consequence: Findings #1 (freeze) and #3-wrapper must be re-scoped
 as off-policy/format-specific or dropped from headlines; Finding #6
 (summaries worst) and the containment family are now the lead results,
 with skeleton_tail as the deployable rule. OUTLINE updated.
+
+## RETRACTION (2026-08-06): every TB2 Pass@1 = 0 on this infrastructure was a VERIFIER ARTIFACT, not a measurement
+
+Root cause found by trajectory inspection: 82/89 TB2 tasks' tests/test.sh
+curl-installs uv from astral.sh and uvx-downloads python3.13+pytest AT
+VERIFY TIME. Compute nodes are air-gapped: curl times out (300s),
+`uvx: command not found`, tests never execute, reward=0 unconditionally.
+Verified across ALL runs: 0 verifier-clean trials out of 119 (bf16 Qwen
+easy25+3 shards, GLM c64k). The agents themselves ran coherently (e.g.
+118-turn trajectories with real analysis).
+
+CONSEQUENCES:
+- "TB2 Pass@1 = 0 is a robust negative" (July 21) is RETRACTED. The int4
+  bf16 comparison built on it is unsupported. Honest statement: Pass@1
+  has NEVER been validly measured on this cluster; model capability on
+  TB2 is UNKNOWN here.
+- The behavioral suite is UNAFFECTED (it never uses rewards); trajectories
+  remain valid on-policy behavioral data - agents behaved identically,
+  only scoring was broken.
+- exp22's D->Pass@1 bridge is BLOCKED until verifiers run offline.
+
+FIX (committed): bake.def.tpl now installs uv at bake time and pre-warms
+the exact per-image union of uvx environments; %environment exports
+PATH=/root/.local/bin and UV_OFFLINE=1 (cache-only instead of doomed
+timeouts). NEW GATE before any Pass@1 is ever quoted: an offline verifier
+smoke (apptainer --network none, run test.sh, require pytest to EXECUTE)
+plus an oracle/solution run scoring ~1.0 on easy tasks. Old trials cannot
+be re-verified (container filesystems were ephemeral); Pass@1 requires
+fresh episodes on rebaked sifs.
+
+Residual known limitation: tasks whose AGENT (not verifier) needs internet
+remain unsolvable offline; the offline-solvable subset must be classified
+before quoting rates.

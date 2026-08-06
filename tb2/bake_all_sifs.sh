@@ -34,11 +34,23 @@ for toml in "$TB2"/terminal-bench/*/task.toml; do
     img=$(grep -oP 'docker_image = "\K[^"]+' "$toml")
     [ -z "$img" ] && continue
     safe=$(echo "$img" | tr '/:' '__')
+    [ -n "${FORCE:-}" ] && rm -f "$CACHE/$safe.sif"   # FORCE=1: rebake (e.g. template change)
     if [ -f "$CACHE/$safe.sif" ]; then
         skip=$((skip+1)); continue
     fi
     echo "[$(date +%H:%M:%S)] baking $img"
-    sed "s|{{IMAGE}}|$img|" "$TEMPLATE" > "$TB2/defs/$safe.def"
+    # union of verifier uvx environments over ALL tasks sharing this image
+    # (sifs are per-image; test deps are per-task). Extract each test.sh's
+    # uvx flag set (joining backslash continuations) and pre-resolve it.
+    prewarm=$(for tt in "$TB2"/terminal-bench/*/task.toml; do
+        grep -q "docker_image = \"$img\"" "$tt" || continue
+        ts=$(dirname "$tt")/tests/test.sh
+        [ -f "$ts" ] || continue
+        sed ':a;/\\$/{N;s/\\\n/ /;ba}' "$ts" | grep -oE 'uvx +((-p|-w|--with|--python) +[^ ]+ +)+' | head -1
+    done | sort -u | while read -r flags; do
+        [ -n "$flags" ] && printf '    %s pytest --version || echo "PREWARM-WARN: %s"\n' "$flags" "$flags"
+    done)
+    sed "s|{{IMAGE}}|$img|" "$TEMPLATE" | awk -v pw="$prewarm" '/\{\{TEST_PREWARM\}\}/{print pw; next} 1' > "$TB2/defs/$safe.def"
     if apptainer build --force "$CACHE/$safe.sif" "$TB2/defs/$safe.def" \
             > "$TB2/defs/$safe.build.log" 2>&1; then
         ok=$((ok+1))

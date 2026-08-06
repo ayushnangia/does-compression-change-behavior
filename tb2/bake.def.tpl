@@ -42,3 +42,21 @@ From: {{IMAGE}}
     # asciinema fallback via pip if apt/apk had none
     command -v asciinema >/dev/null 2>&1 || \
         /opt/harbor-server/bin/python3 -m pip install --quiet asciinema || true
+
+    # --- TB2 VERIFIER deps (the all-zeros bug, 2026-08-06): every task's
+    # tests/test.sh curl-installs uv from astral.sh and uvx-resolves
+    # python3.13+pytest AT VERIFY TIME. Compute nodes are air-gapped, so
+    # the verifier could never run and every reward was 0 regardless of
+    # the agent. Pre-warm uv + the EXACT uvx environments (union over all
+    # tasks sharing this image) at bake time; at runtime test.sh's curl
+    # fails harmlessly, `source /root/.local/bin/env` finds the baked file,
+    # and uvx hits the warm cache offline. ---
+    curl -LsSf https://astral.sh/uv/0.9.5/install.sh | sh || true
+    export PATH=/root/.local/bin:$PATH
+{{TEST_PREWARM}}
+
+%environment
+    # uvx on PATH even though test.sh's curl-install fails offline; force
+    # uv to its baked cache instead of a doomed 300s network timeout
+    export PATH=/root/.local/bin:$PATH
+    export UV_OFFLINE=1

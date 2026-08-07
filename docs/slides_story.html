@@ -126,6 +126,10 @@
     <text x="829" y="168" text-anchor="middle" font-size="13" fill="#3b6ef6">vs recorded action</text>
   </svg>
   <p>The original run already recorded the true answer. We count matches.</p>
+  <p class="soft">64 stopping points taken from our own agents' runs; at each one we sample the
+     next action 8 times per memory version. Sampling is random, so even full memory does
+     not always repeat itself. That natural wobble is our baseline, and we only trust
+     differences bigger than it.</p>
 </section>
 
 <!-- 5 SUMMARIES FAIL -->
@@ -133,12 +137,14 @@
   <h2>Summaries fail this test.</h2>
   <p>How often the agent repeats its real next action:</p>
   <div style="margin-top:.8em; max-width:820px">
-    <div class="bar" style="width:65%; background:var(--green)">full memory: 65%</div>
-    <div class="bar" style="width:66%; background:#57b98a">just keep recent tokens: 66%</div>
+    <div class="bar" style="width:65%; background:var(--green)">full memory (100% of tokens): 65%</div>
+    <div class="bar" style="width:66%; background:#57b98a">just keep recent tokens (25% of tokens): 66%</div>
     <div class="bar" style="width:46%; background:var(--red)">LLM-written summary: 46%</div>
   </div>
   <p class="big">The default in every product is the worst option we measured.</p>
-  <p class="soft">Doing almost nothing beats it. Survived every replication.</p>
+  <p class="soft">65% is the ceiling: sampling is random, so even full memory does not always
+     repeat itself. Keeping just the recent quarter of the tokens matches that ceiling;
+     the summary falls 19 points below it. Survived every replication.</p>
 </section>
 
 <!-- 6 COPY EXACTLY -->
@@ -159,20 +165,23 @@
       <div class="bar" style="width:55%; background:var(--red)">agreement 0.55</div>
     </div>
   </div>
-  <p class="soft" style="margin-top:.8em">The rewriting was our own idea. The experiment rejected it.</p>
+  <p class="soft" style="margin-top:.8em">Holds at every budget we tried (keep 25%, 50%, or 75%
+     of the history). The rewriting was our own idea. The experiment rejected it.</p>
 </section>
 
 <!-- 6b TINY CORE -->
 <section class="slide">
   <h2>A tiny core carries the behavior.</h2>
-  <p>How often the agent repeats its real next action:</p>
+  <p>How small can the memory get? We deleted <b>everything</b> except one thing:
+     the bare list of commands the agent itself had run, trimmed to 2% of the
+     original tokens.</p>
   <div style="margin-top:.8em; max-width:820px">
     <div class="bar" style="width:65%; background:var(--green)">full memory (100% of tokens): 65%</div>
-    <div class="bar" style="width:57%; background:#57b98a">the right 2% of tokens: 57%</div>
-    <div class="bar" style="width:46%; background:var(--red)">LLM summary (uses far more): 46%</div>
+    <div class="bar" style="width:57%; background:#57b98a">only its own past commands (2% of tokens): 57%</div>
+    <div class="bar" style="width:46%; background:var(--red)">LLM summary (uses 10x more tokens): 46%</div>
   </div>
-  <p class="big">2% of the context, chosen right,<br>keeps most of the behavior.</p>
-  <p class="soft">The right 2%: the agent's own past actions, copied exactly.</p>
+  <p class="big">A bare list of its own actions preserves most of the behavior.<br>
+     A fluent summary, using far more space, preserves less.</p>
 </section>
 
 <!-- 7 FORMAT CLIFFS -->

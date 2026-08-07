@@ -162,6 +162,19 @@
   <p class="soft" style="margin-top:.8em">The rewriting was our own idea. The experiment rejected it.</p>
 </section>
 
+<!-- 6b TINY CORE -->
+<section class="slide">
+  <h2>A tiny core carries the behavior.</h2>
+  <p>How often the agent repeats its real next action:</p>
+  <div style="margin-top:.8em; max-width:820px">
+    <div class="bar" style="width:65%; background:var(--green)">full memory (100% of tokens): 65%</div>
+    <div class="bar" style="width:57%; background:#57b98a">the right 2% of tokens: 57%</div>
+    <div class="bar" style="width:46%; background:var(--red)">LLM summary (uses far more): 46%</div>
+  </div>
+  <p class="big">2% of the context, chosen right,<br>keeps most of the behavior.</p>
+  <p class="soft">The right 2%: the agent's own past actions, copied exactly.</p>
+</section>
+
 <!-- 7 FORMAT CLIFFS -->
 <section class="slide">
   <h2>Format cliffs</h2>
@@ -239,6 +252,40 @@
           <text x="273" y="228">1st</text><text x="313" y="228">2nd</text>
           <text x="353" y="228">3rd</text><text x="393" y="228">4th</text></g>
         <text x="334" y="248" text-anchor="middle" font-size="12" fill="#5a6b8c">summary position in the task</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 8b SCORE IS ACTIONABLE -->
+<section class="slide">
+  <h2>The score is a tool, not just a diagnosis.</h2>
+  <div class="two">
+    <div>
+      <p>Write <b>8 candidate summaries</b> of the same history.</p>
+      <p>Score each one. Keep the best.</p>
+      <p class="big">That one pick recovers about half<br>of what compression lost.</p>
+      <p class="soft">No extra training, no reinforcement learning loop. Just measure and choose.</p>
+    </div>
+    <div>
+      <svg viewBox="0 0 380 260" width="100%">
+        <g font-size="13" fill="#5a6b8c">
+          <rect x="20" y="20" width="90" height="36" rx="8" fill="#fff" stroke="#c9d4ea"/>
+          <rect x="20" y="64" width="90" height="36" rx="8" fill="#fff" stroke="#c9d4ea"/>
+          <rect x="20" y="108" width="90" height="36" rx="8" fill="#e9f7f0" stroke="#2ea36b" stroke-width="2"/>
+          <rect x="20" y="152" width="90" height="36" rx="8" fill="#fff" stroke="#c9d4ea"/>
+          <rect x="20" y="196" width="90" height="36" rx="8" fill="#fff" stroke="#c9d4ea"/>
+          <text x="65" y="43" text-anchor="middle">summary 1</text>
+          <text x="65" y="87" text-anchor="middle">summary 2</text>
+          <text x="65" y="131" text-anchor="middle" fill="#1e6e49" font-weight="600">summary 3</text>
+          <text x="65" y="175" text-anchor="middle">summary 4</text>
+          <text x="65" y="219" text-anchor="middle">... 8 total</text>
+        </g>
+        <line x1="110" y1="126" x2="190" y2="126" stroke="#2ea36b" stroke-width="2.5"/>
+        <text x="150" y="116" text-anchor="middle" font-size="13" fill="#2ea36b" font-weight="600">best score</text>
+        <rect x="192" y="96" width="170" height="60" rx="10" fill="#e9f7f0" stroke="#2ea36b" stroke-width="2"/>
+        <text x="277" y="122" text-anchor="middle" font-size="14" fill="#1e6e49" font-weight="600">agent stays close to</text>
+        <text x="277" y="142" text-anchor="middle" font-size="14" fill="#1e6e49" font-weight="600">its original behavior</text>
       </svg>
     </div>
   </div>

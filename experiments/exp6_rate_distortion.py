@@ -123,6 +123,18 @@ def main():
                 stats[(c, r)]["change"].append(action_change(full_a, acts))
                 stats[(c, r)]["coarse"].append(action_change_tools(full_a, acts))
         print(f"example {ei}: done")
+        # checkpoint every 8 usable examples: a 24h TIMEOUT lost the whole
+        # 64-example on-policy run (job 715809). Partial results are real
+        # results; the final save supersedes.
+        if usable % 8 == 0:
+            save_result("exp6_rate_distortion_CHECKPOINT", {
+                "model": args.model, "usable": usable, "partial": True,
+                "floors_so_far": floors,
+                "raw": {f"{c}@{r:g}": {"change": stats[(c, r)]["change"],
+                        "coarse": stats[(c, r)]["coarse"],
+                        "acting": stats[(c, r)]["acting"]}
+                        for c in compressors for r in args.rates},
+            })
 
     if not usable:
         print("no usable examples")

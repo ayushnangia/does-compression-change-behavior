@@ -45,8 +45,10 @@
   <h1>Compress the Behavior,<br>Not the Information</h1>
   <p style="font-size:1.5em; margin-top:.7em">When an agent's memory gets compacted,
      does the agent still <b>do</b> the same things?</p>
-  <p class="soft" style="margin-top:2em">16 experiments. Qwen3.5 and GLM-4.7 model families.
-     Terminal-Bench 2.0 infrastructure.</p>
+  <p class="soft" style="margin-top:2em">17 experiments. Qwen3.5 and GLM-4.7 model families.
+     Terminal-Bench 2.0 infrastructure. Now measured twice: first on public
+     agent traces, then re-measured end to end on our own agents' trajectories —
+     this deck reports which findings survived their own replication.</p>
 </section>
 
 <!-- 2 THE PROBLEM -->
@@ -157,7 +159,13 @@
      identical but adding irrelevant filler text still changed the model's actions
      (drift 0.56 padded vs 0.60 truncated). Context length by itself shifts behavior,
      so training targets should be averaged over several context lengths.</p>
-  <p class="soft">exp8, exp3.</p>
+  <p style="margin-top:.5em; padding:.4em .6em; border-left:4px solid var(--green)">
+     <b>Re-measured on our own trajectories (N=25, matched budgets):</b> the
+     ordering is unchanged and sharper — full context <span class="num">0.65</span>,
+     keep recent at a quarter of the budget <span class="num">0.66</span>
+     (compression is free), LLM summary <span class="num">0.46</span>.
+     The metric's external anchor holds in both regimes.</p>
+  <p class="soft">exp8 (both regimes), exp3.</p>
 </section>
 
 <!-- 5 BLOCK LAW -->
@@ -221,11 +229,13 @@
          replicator.</b> Summary agreement with the agent's real logged action:
          0.46 vs keep-recent 0.66 (= full-context 0.65); acting 0.54 vs 0.79.
          Summaries lose in every regime we have ever measured.</p>
-      <p style="margin-top:.5em">Early re-measurement on our own models' trajectories
-         suggested the block-aware compressor might do better there; the powered run says otherwise,
-         a larger run is scheduled.</p>
-      <p class="soft">exp6, Qwen3.5. Consistent with recency results in KV-cache work
-         (StreamingLLM).</p>
+      <p style="margin-top:.5em">The block-aware compressor does <b>not</b> keep its
+         off-policy edge on our own trajectories: at small budgets it falls behind
+         plain keep-recent (0.42–0.50 vs 0.57–0.67 agreement, exp17 powered). The
+         full on-policy D(R) rerun hit its 24-hour wall and is resubmitted with
+         checkpointing; the curve on the right is the off-policy measurement.</p>
+      <p class="soft">exp6 (off-policy curve), exp17 + exp8 (on-policy, N=25), Qwen3.5.
+         Consistent with recency results in KV-cache work (StreamingLLM).</p>
     </div>
     <div>
       <svg viewBox="0 0 430 270" width="100%">
@@ -309,6 +319,30 @@
   <p class="soft">exp9, exp11. If the metric can rank summaries, it can also supply
      training data: keep the good-vs-bad summary pairs and train a compressor on them
      offline, with no reinforcement learning loop needed (unlike CompactionRL).</p>
+</section>
+
+<!-- 7b VERBATIM VS REWRITING -->
+<section class="slide">
+  <h2>Finding 6: the line that matters is verbatim vs rewritten</h2>
+  <p>New experiment on our own trajectories: give every policy the <b>same</b> token
+     budget and the same recent tail, and vary only what fills the rest — the agent's
+     past tool calls copied <b>byte-exactly</b>, or the same calls <b>rewritten</b> as
+     compact one-liners (<span class="num">GREP auth src/</span> style, 10x fewer
+     tokens, same information).</p>
+  <div style="margin-top:.7em; max-width:820px">
+    <div class="bar" style="width:74%; background:var(--green)">raw tool calls + recent tail: agreement 0.71 / 0.74 / 0.68</div>
+    <div class="bar" style="width:69%; background:#57b98a">keep recent alone: 0.68 / 0.66 / 0.69 — statistical tie (p 0.39)</div>
+    <div class="bar" style="width:56%; background:var(--amber)">same calls, rewritten as one-liners: 0.55 at every budget</div>
+    <div class="bar" style="width:46%; background:var(--red)">LLM summary (from exp8): 0.46</div>
+  </div>
+  <p class="soft">bar width = agreement with the agent's real next action; the three
+     numbers are budgets of 25% / 50% / 75%</p>
+  <p style="margin-top:.8em"><b>Identical information, identical budget: byte-exact
+     survives, rewritten does not.</b> Which verbatim policy you choose is a tie;
+     crossing the rewriting line costs 13–20 points. The deployable rule is one
+     sentence: <i>copy exactly, never paraphrase.</i></p>
+  <p class="soft">exp23 (pre-registered, N=25, matched budgets, paired tests).
+     The one-liner hybrid was OUR OWN proposal — the experiment rejected it.</p>
 </section>
 
 <!-- 8 FORMAT -->
@@ -412,6 +446,31 @@
 </section>
 
 <!-- 10 BENCHMARK -->
+<!-- 10b REPLICATION CAMPAIGN -->
+<section class="slide">
+  <h2>Replicating ourselves: what survived contact with real trajectories</h2>
+  <p>All findings were first measured on public agent traces (other models' runs,
+     fixed-size contexts). We then rebuilt the entire pipeline on trajectories our
+     own agents produced — full real contexts, real compaction pressure — and
+     re-ran every experiment at N=25. The scorecard:</p>
+  <div class="cards">
+    <div class="card"><span class="tag win">survived</span>
+      <p style="font-size:1.05em">summaries worst (sharper: −20pts) ·
+         keep-recent nearly free down to ~25% · the tiny behavioral core
+         (2% keeps 0.57) · metric grounding · verbatim-beats-rewriting (new)</p></div>
+    <div class="card"><span class="tag lose">did not survive</span>
+      <p style="font-size:1.05em">the deletion asymmetry of Finding 1
+         (p = 0.78 on-policy) · the within-model wrapper effect (p = 0.36) ·
+         block-aware's edge over keep-recent</p></div>
+  </div>
+  <p style="margin-top:.9em"><b>The methods lesson is itself a finding:</b> compaction
+     laws measured on other models' traces — the field's default evaluation — do not
+     reliably transfer to the agent's own trajectories. We quote on-policy numbers
+     only, and we recommend reviewers demand the same of compaction papers.</p>
+  <p class="soft">The off-policy results remain in the deck, marked, as the cautionary
+     comparison. Every revision here was found by our own audit, not by a reviewer.</p>
+</section>
+
 <section class="slide">
   <h2>Task-level evaluation: Terminal-Bench 2.0 — a retraction and a fix</h2>
   <p style="padding:.5em .7em; border-left:4px solid var(--red)">
@@ -426,9 +485,14 @@
     <li>The agents themselves ran coherently (e.g. 118-turn trajectories of real
         work) — the behavioral results in this deck never used rewards and are
         unaffected.</li>
-    <li><b>Fix shipped:</b> verifier dependencies are now baked into the offline
-        task images, with an offline-verifier smoke + oracle-run gate before any
-        Pass@1 is ever quoted. First valid task-success measurement is imminent.</li>
+    <li><b>Fix shipped and validated:</b> verifier dependencies are now baked into
+        the offline task images. The fix needed two rounds — the first was silently
+        shadowed by the container runtime's home-mount, caught by our own offline
+        smoke before any GPU was spent. The smoke now shows a real test executing
+        and writing a real reward, with networking disabled.</li>
+    <li><b>First valid task-success measurement is queued</b>: it auto-submits the
+        moment the last task images finish rebaking. Whatever number it returns will
+        be the first Pass@1 ever measured correctly on this cluster.</li>
   </ul>
   <p style="margin-top:.7em"><b>A valuable byproduct stands:</b> the runs produced
      100+ on-policy trajectories with real context-exhaustion compaction events —
@@ -444,15 +508,13 @@
      format suppressed the executor's actions entirely (the Finding 4 effect, on our
      own measuring model). That motivates the first item below.</p>
   <ul>
-    <li><b>Deployable rule from the powered on-policy runs (exp23):</b> the two
-        verbatim policies tie at the top (skeleton+tail 0.71/0.74/0.68 vs
-        keep-recent 0.68/0.66/0.69; paired p = 0.39 — no winner between them),
-        while every REWRITING policy loses: canonical one-liners −13pts,
-        summaries −20pts. <i>The rule is not which verbatim policy — it is:
-        copy exactly, never paraphrase.</i> Adding the raw action skeleton to
-        the tail is free and directionally positive; the live-episode arms use it.</li>
-    <li><b>Measure compression against task success directly</b> (exp22) —
-        unblocked by the verifier fix; first valid Pass@1 run is the gate.</li>
+    <li><b>Measure compression against task success directly</b> (exp22): live
+        episodes with compaction policies as arms — keep-recent, raw skeleton +
+        tail (per Finding 6), the stock production summarizer, and no-compaction.
+        Unblocked by the verifier fix; the first valid Pass@1 run is the gate.</li>
+    <li><b>Finish the on-policy set</b>: the D(R) curve rerun (checkpointed this
+        time), the format-phenotype rerun, and a GLM arm on our own trajectories —
+        the cross-model cliff is the one headline still resting on off-policy data.</li>
     <li><b>Train a compressor with D</b>: first attempt completed cleanly
         (86 preference pairs, task-level held-out split) and came back null:
         trained D 0.73 [0.67, 0.80] vs base 0.75 [0.68, 0.81], p = 0.345.

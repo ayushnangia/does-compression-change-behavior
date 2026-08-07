@@ -10,19 +10,26 @@
   * { box-sizing:border-box; margin:0; }
   body { font-family:'Segoe UI', system-ui, sans-serif; background:var(--bg);
          color:var(--ink); overflow:hidden; }
-  .slide { display:none; width:100vw; height:100vh; padding:8vh 12vw;
+  .slide { display:none; width:100vw; height:100vh; padding:6vh 9vw;
            flex-direction:column; justify-content:center; }
   .slide.on { display:flex; }
   h1 { font-size:3.2em; line-height:1.15; }
-  h2 { font-size:2.6em; margin-bottom:.5em; line-height:1.2; }
-  p { font-size:1.6em; line-height:1.5; margin-top:.6em; }
+  h2 { font-size:2.4em; margin-bottom:.4em; line-height:1.2; }
+  p { font-size:1.45em; line-height:1.45; margin-top:.5em; }
   .soft { color:var(--soft); font-size:.65em; }
-  .big { font-size:2em; font-weight:600; margin-top:.8em; }
+  .big { font-size:1.7em; font-weight:600; margin-top:.6em; }
   .red { color:var(--red); }
   .green { color:var(--green); }
-  .bar { height:34px; border-radius:8px; margin:.35em 0; color:#fff;
-         font-size:1.1em; display:flex; align-items:center; padding-left:.7em;
-         white-space:nowrap; }
+  .bar { height:40px; border-radius:8px; margin:.4em 0; color:#fff;
+         font-size:1.15em; font-weight:600; display:flex; align-items:center;
+         padding-left:.7em; white-space:nowrap; }
+  .two { display:flex; gap:4vw; align-items:center; }
+  .two > div { flex:1; }
+  .cards { display:flex; gap:1.5em; margin-top:1em; }
+  .card { background:var(--card); border-radius:14px; padding:1.2em 1.4em;
+          box-shadow:0 4px 14px rgba(30,50,90,.08); flex:1; }
+  .card p { font-size:1.15em; }
+  svg text { font-family:'Segoe UI',sans-serif; }
   footer { position:fixed; bottom:12px; right:20px; color:var(--soft); font-size:.9em; }
   .nav { position:fixed; bottom:12px; left:20px; color:var(--soft); font-size:.9em; }
 </style>
@@ -32,96 +39,238 @@
 <!-- 1 TITLE -->
 <section class="slide on">
   <h1>Does compression<br>change behavior?</h1>
-  <p>When an agent's memory gets compacted,<br>does it still <b>do</b> the same things?</p>
+  <p style="font-size:1.7em; margin-top:.8em">When an agent's memory gets compacted,<br>
+     does it still <b>do</b> the same things?</p>
 </section>
 
-<!-- 2 THE SETUP -->
+<!-- 2 AGENTS FORGET -->
 <section class="slide">
   <h2>Agents forget.</h2>
-  <p>Long tasks overflow the context window.</p>
-  <p>So every system does the same thing:<br>
-     <b>summarize the old history, keep going.</b></p>
-  <p>And everyone checks the summary the same way:<br>
-     <i>did the facts survive?</i></p>
+  <div class="two">
+    <div>
+      <p>Long tasks overflow the context window.</p>
+      <p>Every system does the same thing:<br><b>summarize, keep going.</b></p>
+      <p>And checks the same thing:<br><i>did the facts survive?</i></p>
+    </div>
+    <div>
+      <svg viewBox="0 0 440 260" width="100%">
+        <text x="70" y="30" text-anchor="middle" font-size="15" fill="#5a6b8c">full history</text>
+        <text x="70" y="48" text-anchor="middle" font-size="13" fill="#5a6b8c">(40k tokens)</text>
+        <rect x="15" y="60" width="110" height="170" rx="10" fill="#fff" stroke="#c9d4ea" stroke-width="2"/>
+        <g fill="none" stroke="#b9c6e0" stroke-width="4">
+          <line x1="30" y1="85" x2="110" y2="85"/><line x1="30" y1="110" x2="110" y2="110"/>
+          <line x1="30" y1="135" x2="90" y2="135"/><line x1="30" y1="160" x2="110" y2="160"/>
+          <line x1="30" y1="185" x2="110" y2="185"/><line x1="30" y1="210" x2="75" y2="210"/>
+        </g>
+        <text x="160" y="152" font-size="34" fill="#5a6b8c">→</text>
+        <text x="310" y="48" text-anchor="middle" font-size="15" fill="#5a6b8c">compacted</text>
+        <rect x="220" y="60" width="180" height="78" rx="10" fill="#fff3d6" stroke="#e8c26b" stroke-width="2"/>
+        <text x="310" y="94" text-anchor="middle" font-size="15" fill="#8c6a1e">LLM-written summary</text>
+        <text x="310" y="116" text-anchor="middle" font-size="13" fill="#8c6a1e">(2-5k tokens)</text>
+        <rect x="220" y="152" width="180" height="78" rx="10" fill="#fff" stroke="#c9d4ea" stroke-width="2"/>
+        <text x="310" y="186" text-anchor="middle" font-size="15" fill="#5a6b8c">recent turns</text>
+        <text x="310" y="208" text-anchor="middle" font-size="13" fill="#5a6b8c">(kept raw)</text>
+      </svg>
+    </div>
+  </div>
 </section>
 
 <!-- 3 THE QUESTION -->
 <section class="slide">
   <h2>We ask a different question.</h2>
-  <p>Not <i>"are the facts still there?"</i></p>
-  <p class="big">Would the agent still take the<br>same next action?</p>
-  <p>A perfect compaction is invisible:<br>the agent behaves as if nothing was removed.</p>
+  <div class="two">
+    <div>
+      <p class="big">Would the agent still take<br>the same next action?</p>
+      <p>A perfect compaction is invisible:<br>the agent acts as if nothing was removed.</p>
+    </div>
+    <div>
+      <svg viewBox="0 0 400 240" width="100%">
+        <rect x="20" y="20" width="360" height="90" rx="12" fill="#e9f7f0" stroke="#2ea36b" stroke-width="2"/>
+        <text x="200" y="55" text-anchor="middle" font-size="18" fill="#2ea36b" font-weight="600">✓ what everyone checks</text>
+        <text x="200" y="85" text-anchor="middle" font-size="16" fill="#1e6e49">"are the facts still there?"</text>
+        <rect x="20" y="130" width="360" height="90" rx="12" fill="#fdeeee" stroke="#e05252" stroke-width="2" stroke-dasharray="8 5"/>
+        <text x="200" y="165" text-anchor="middle" font-size="18" fill="#e05252" font-weight="600">? what we check</text>
+        <text x="200" y="195" text-anchor="middle" font-size="16" fill="#a13a3a">"same next action?"</text>
+      </svg>
+    </div>
+  </div>
 </section>
 
 <!-- 4 THE TEST -->
 <section class="slide">
   <h2>The test</h2>
-  <p>Freeze a real agent mid-task.<br>
-     Compress its memory.<br>
-     Ask it: <b>what do you do next?</b></p>
-  <p>The original run already recorded the true answer.<br>We count how often they match.</p>
+  <svg viewBox="0 0 900 300" width="100%" style="max-height:60vh">
+    <rect x="20" y="110" width="160" height="80" rx="12" fill="#fff" stroke="#c9d4ea" stroke-width="2"/>
+    <text x="100" y="145" text-anchor="middle" font-size="17" font-weight="600" fill="#1a2233">real agent,</text>
+    <text x="100" y="168" text-anchor="middle" font-size="17" font-weight="600" fill="#1a2233">frozen mid-task</text>
+    <line x1="180" y1="130" x2="270" y2="70" stroke="#8a97b5" stroke-width="2"/>
+    <line x1="180" y1="170" x2="270" y2="230" stroke="#8a97b5" stroke-width="2"/>
+    <rect x="272" y="35" width="180" height="70" rx="12" fill="#e9f7f0" stroke="#2ea36b" stroke-width="2"/>
+    <text x="362" y="65" text-anchor="middle" font-size="16" fill="#1e6e49">full memory</text>
+    <text x="362" y="88" text-anchor="middle" font-size="14" fill="#1e6e49">(nothing removed)</text>
+    <rect x="272" y="195" width="180" height="70" rx="12" fill="#fff3d6" stroke="#e8c26b" stroke-width="2"/>
+    <text x="362" y="225" text-anchor="middle" font-size="16" fill="#8c6a1e">compressed memory</text>
+    <text x="362" y="248" text-anchor="middle" font-size="14" fill="#8c6a1e">(summary / truncation / ...)</text>
+    <line x1="452" y1="70" x2="540" y2="70" stroke="#8a97b5" stroke-width="2"/>
+    <line x1="452" y1="230" x2="540" y2="230" stroke="#8a97b5" stroke-width="2"/>
+    <rect x="542" y="35" width="150" height="70" rx="12" fill="#fff" stroke="#c9d4ea" stroke-width="2"/>
+    <text x="617" y="75" text-anchor="middle" font-size="16" fill="#1a2233">"what do you</text>
+    <text x="617" y="95" text-anchor="middle" font-size="16" fill="#1a2233">do next?"</text>
+    <rect x="542" y="195" width="150" height="70" rx="12" fill="#fff" stroke="#c9d4ea" stroke-width="2"/>
+    <text x="617" y="235" text-anchor="middle" font-size="16" fill="#1a2233">"what do you</text>
+    <text x="617" y="255" text-anchor="middle" font-size="16" fill="#1a2233">do next?"</text>
+    <line x1="692" y1="70" x2="770" y2="135" stroke="#8a97b5" stroke-width="2"/>
+    <line x1="692" y1="230" x2="770" y2="165" stroke="#8a97b5" stroke-width="2"/>
+    <rect x="772" y="115" width="115" height="70" rx="12" fill="#eef2fb" stroke="#3b6ef6" stroke-width="2"/>
+    <text x="829" y="145" text-anchor="middle" font-size="16" fill="#3b6ef6" font-weight="600">compare</text>
+    <text x="829" y="168" text-anchor="middle" font-size="13" fill="#3b6ef6">vs recorded action</text>
+  </svg>
+  <p>The original run already recorded the true answer. We count matches.</p>
 </section>
 
-<!-- 5 RESULT 1 -->
+<!-- 5 SUMMARIES FAIL -->
 <section class="slide">
   <h2>Summaries fail this test.</h2>
   <p>How often the agent repeats its real next action:</p>
-  <div style="margin-top:.6em; max-width:780px">
+  <div style="margin-top:.8em; max-width:820px">
     <div class="bar" style="width:65%; background:var(--green)">full memory: 65%</div>
     <div class="bar" style="width:66%; background:#57b98a">just keep recent tokens: 66%</div>
     <div class="bar" style="width:46%; background:var(--red)">LLM-written summary: 46%</div>
   </div>
-  <p><b>The default in every product is the worst option we measured.</b><br>
-     <span class="soft">Doing almost nothing beats it. This survived every replication we threw at it.</span></p>
+  <p class="big">The default in every product is the worst option we measured.</p>
+  <p class="soft">Doing almost nothing beats it. Survived every replication.</p>
 </section>
 
-<!-- 6 RESULT 2 -->
+<!-- 6 COPY EXACTLY -->
 <section class="slide">
   <h2>Copy exactly. Never paraphrase.</h2>
   <p>Same information, same size budget:</p>
-  <p><span class="green"><b>Byte-exact copies</b></span> of the agent's past commands
-     keep its behavior.</p>
-  <p><span class="red"><b>The same commands rewritten</b></span> as tidy one-liners
-     lose 13 to 20 points.</p>
-  <p class="soft">The rewriting was our own idea. The experiment rejected it.</p>
+  <div class="two" style="margin-top:.6em">
+    <div class="card" style="border-top:6px solid var(--green)">
+      <p style="font-family:ui-monospace,monospace; font-size:1em; background:#f3f6fc; border-radius:8px; padding:.6em">
+        grep -rn "auth" src/utils/<br>cat src/utils/auth.py</p>
+      <p style="margin-top:.6em"><b>byte-exact copies</b></p>
+      <div class="bar" style="width:71%; background:var(--green)">agreement 0.71</div>
+    </div>
+    <div class="card" style="border-top:6px solid var(--red)">
+      <p style="font-family:ui-monospace,monospace; font-size:1em; background:#f3f6fc; border-radius:8px; padding:.6em">
+        GREP auth src/<br>READ auth.py</p>
+      <p style="margin-top:.6em"><b>same info, rewritten</b></p>
+      <div class="bar" style="width:55%; background:var(--red)">agreement 0.55</div>
+    </div>
+  </div>
+  <p class="soft" style="margin-top:.8em">The rewriting was our own idea. The experiment rejected it.</p>
 </section>
 
-<!-- 7 RESULT 3 -->
+<!-- 7 FORMAT CLIFFS -->
 <section class="slide">
   <h2>Format cliffs</h2>
-  <p>The same summary, delivered in a different wrapper:</p>
-  <p>one model works fine <span class="green"><b>(0.75)</b></span>,<br>
-     another outputs gibberish <span class="red"><b>(0.00)</b></span>.</p>
-  <p class="big">There is no universal compaction format.</p>
+  <div class="two">
+    <div>
+      <p>The <b>same summary text</b>, delivered two ways.</p>
+      <p>One model is fine. Another outputs gibberish.</p>
+      <p class="big">There is no universal<br>compaction format.</p>
+    </div>
+    <div>
+      <svg viewBox="0 0 440 280" width="100%">
+        <text x="220" y="18" text-anchor="middle" font-size="14" fill="#1a2233" font-weight="600">fraction of coherent replies, same content</text>
+        <!-- axis -->
+        <line x1="50" y1="230" x2="420" y2="230" stroke="#8a97b5"/>
+        <!-- GLM -->
+        <rect x="70" y="228" width="42" height="2" fill="#e05252"/>
+        <text x="91" y="222" text-anchor="middle" font-size="13" fill="#e05252" font-weight="600">0.00</text>
+        <rect x="118" y="98" width="42" height="132" fill="#2ea36b" rx="4"/>
+        <text x="139" y="90" text-anchor="middle" font-size="13" fill="#2ea36b" font-weight="600">0.75</text>
+        <text x="115" y="252" text-anchor="middle" font-size="14" fill="#5a6b8c">GLM-4.7</text>
+        <!-- Qwen 35B -->
+        <rect x="200" y="91" width="42" height="139" fill="#e0525200" stroke="none"/>
+        <rect x="200" y="91" width="42" height="139" fill="#2ea36b" rx="4"/>
+        <text x="221" y="83" text-anchor="middle" font-size="13" fill="#2ea36b" font-weight="600">0.79</text>
+        <rect x="248" y="149" width="42" height="81" fill="#e05252" rx="4"/>
+        <text x="269" y="141" text-anchor="middle" font-size="13" fill="#e05252" font-weight="600">0.46</text>
+        <text x="245" y="252" text-anchor="middle" font-size="14" fill="#5a6b8c">Qwen3.5-35B</text>
+        <!-- Qwen 27B -->
+        <rect x="330" y="84" width="42" height="146" fill="#2ea36b" rx="4"/>
+        <text x="351" y="76" text-anchor="middle" font-size="13" fill="#2ea36b" font-weight="600">0.83</text>
+        <rect x="378" y="98" width="42" height="132" fill="#57b98a" rx="4"/>
+        <text x="399" y="90" text-anchor="middle" font-size="13" fill="#2ea36b" font-weight="600">0.75</text>
+        <text x="375" y="252" text-anchor="middle" font-size="14" fill="#5a6b8c">Qwen3.5-27B</text>
+        <text x="220" y="274" text-anchor="middle" font-size="13" fill="#5a6b8c">two bars per model = the two delivery formats</text>
+      </svg>
+    </div>
+  </div>
 </section>
 
-<!-- 8 RESULT 4 -->
+<!-- 8 TRAINING MISMATCH -->
 <section class="slide">
   <h2>The training mismatch</h2>
-  <p>In a long task, memory is compressed many times.<br>
-     <b>The first compression does nearly all the damage.</b></p>
-  <p>But RL training schemes give that first summary<br>
-     the <span class="red"><b>least</b></span> learning signal (13.5% of the last one's).</p>
-  <p class="big">The one that hurts most learns least.</p>
+  <div class="two">
+    <div>
+      <p><b>The first compression does<br>nearly all the damage.</b></p>
+      <p>But RL schemes give that first summary the <span class="red"><b>least</b></span> learning signal.</p>
+      <p class="big">The one that hurts most<br>learns least.</p>
+    </div>
+    <div>
+      <svg viewBox="0 0 430 280" width="100%">
+        <text x="115" y="16" text-anchor="middle" font-size="13" fill="#1a2233" font-weight="600">damage after one compaction</text>
+        <line x1="38" y1="210" x2="200" y2="210" stroke="#8a97b5"/>
+        <line x1="38" y1="210" x2="38" y2="45" stroke="#8a97b5"/>
+        <polyline points="55,72 100,117 145,135 190,132" fill="none" stroke="#e05252" stroke-width="4"/>
+        <g fill="#e05252"><circle cx="55" cy="72" r="5"/><circle cx="100" cy="117" r="5"/>
+          <circle cx="145" cy="135" r="5"/><circle cx="190" cy="132" r="5"/></g>
+        <g font-size="12" fill="#e05252" font-weight="600" text-anchor="middle">
+          <text x="66" y="60">0.86</text><text x="106" y="105">0.58</text>
+          <text x="145" y="158">0.47</text><text x="188" y="120">0.49</text></g>
+        <g font-size="12" fill="#5a6b8c" text-anchor="middle">
+          <text x="55" y="228">0</text><text x="100" y="228">1</text>
+          <text x="145" y="228">2</text><text x="190" y="228">3</text></g>
+        <text x="119" y="248" text-anchor="middle" font-size="12" fill="#5a6b8c">steps after the compaction</text>
+        <text x="330" y="16" text-anchor="middle" font-size="13" fill="#1a2233" font-weight="600">training signal per summary</text>
+        <line x1="248" y1="210" x2="420" y2="210" stroke="#8a97b5"/>
+        <line x1="248" y1="210" x2="248" y2="45" stroke="#8a97b5"/>
+        <rect x="258" y="188" width="30" height="22" fill="#a9c2f7" rx="4"/>
+        <rect x="298" y="168" width="30" height="42" fill="#7fa3f4" rx="4"/>
+        <rect x="338" y="128" width="30" height="82" fill="#5c88f2" rx="4"/>
+        <rect x="378" y="50" width="30" height="160" fill="#3b6ef6" rx="4"/>
+        <g font-size="12" fill="#3b6ef6" font-weight="600" text-anchor="middle">
+          <text x="273" y="180">13.5%</text><text x="313" y="160">26%</text>
+          <text x="353" y="120">51%</text><text x="393" y="42">100%</text></g>
+        <g font-size="12" fill="#5a6b8c" text-anchor="middle">
+          <text x="273" y="228">1st</text><text x="313" y="228">2nd</text>
+          <text x="353" y="228">3rd</text><text x="393" y="228">4th</text></g>
+        <text x="334" y="248" text-anchor="middle" font-size="12" fill="#5a6b8c">summary position in the task</text>
+      </svg>
+    </div>
+  </div>
 </section>
 
 <!-- 9 REPLICATION -->
 <section class="slide">
   <h2>We replicated ourselves.</h2>
-  <p>Everything was first measured on public traces of other models.<br>
+  <p>First measured on public traces of other models.<br>
      Then re-measured on our own agents' real trajectories.</p>
-  <p><span class="green"><b>Survived:</b></span> summaries worst, copy-exactly, the metric itself.</p>
-  <p><span class="red"><b>Did not survive:</b></span> two of our early laws.</p>
-  <p class="big">Measure compaction on your own agent,<br>not on borrowed traces.</p>
+  <div class="cards" style="margin-top:.8em">
+    <div class="card" style="border-top:6px solid var(--green)">
+      <p style="font-size:1.3em"><b class="green">✓ survived</b></p>
+      <p>summaries worst<br>copy-exactly<br>the metric itself</p></div>
+    <div class="card" style="border-top:6px solid var(--red)">
+      <p style="font-size:1.3em"><b class="red">✗ did not survive</b></p>
+      <p>two of our early laws,<br>measured on borrowed traces</p></div>
+  </div>
+  <p class="big" style="margin-top:.8em">Measure compaction on your own agent,<br>not on borrowed traces.</p>
 </section>
 
 <!-- 10 NEXT -->
 <section class="slide">
   <h2>What's next</h2>
-  <p>Tie compression to <b>task success</b> directly, in live episodes.</p>
-  <p>Finish re-measuring everything on our own trajectories.</p>
-  <p>Can the behavior score <b>train</b> a compressor?<br>
-     <span class="soft">First try: no effect. Bigger try queued.</span></p>
+  <div class="cards" style="margin-top:.6em">
+    <div class="card"><p style="font-size:1.5em">🎯</p>
+      <p><b>Tie compression to task success</b><br>live episodes, real outcomes</p></div>
+    <div class="card"><p style="font-size:1.5em">🔁</p>
+      <p><b>Finish the re-measurement</b><br>everything on our own trajectories</p></div>
+    <div class="card"><p style="font-size:1.5em">🏋️</p>
+      <p><b>Train with the behavior score</b><br>first try: no effect. Bigger try queued.</p></div>
+  </div>
 </section>
 
 <!-- 11 END -->

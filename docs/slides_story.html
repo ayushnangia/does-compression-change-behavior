@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Does Compression Change Behavior?</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { --ink:#1a2233; --soft:#5a6b8c; --bg:#f6f8fc; --card:#ffffff;
+          --blue:#3b6ef6; --red:#e05252; --green:#2ea36b; --amber:#e8a13c; }
+  * { box-sizing:border-box; margin:0; }
+  body { font-family:'Segoe UI', system-ui, sans-serif; background:var(--bg);
+         color:var(--ink); overflow:hidden; }
+  .slide { display:none; width:100vw; height:100vh; padding:8vh 12vw;
+           flex-direction:column; justify-content:center; }
+  .slide.on { display:flex; }
+  h1 { font-size:3.2em; line-height:1.15; }
+  h2 { font-size:2.6em; margin-bottom:.5em; line-height:1.2; }
+  p { font-size:1.6em; line-height:1.5; margin-top:.6em; }
+  .soft { color:var(--soft); font-size:.65em; }
+  .big { font-size:2em; font-weight:600; margin-top:.8em; }
+  .red { color:var(--red); }
+  .green { color:var(--green); }
+  .bar { height:34px; border-radius:8px; margin:.35em 0; color:#fff;
+         font-size:1.1em; display:flex; align-items:center; padding-left:.7em;
+         white-space:nowrap; }
+  footer { position:fixed; bottom:12px; right:20px; color:var(--soft); font-size:.9em; }
+  .nav { position:fixed; bottom:12px; left:20px; color:var(--soft); font-size:.9em; }
+</style>
+</head>
+<body>
+
+<!-- 1 TITLE -->
+<section class="slide on">
+  <h1>Does compression<br>change behavior?</h1>
+  <p>When an agent's memory gets compacted,<br>does it still <b>do</b> the same things?</p>
+</section>
+
+<!-- 2 THE SETUP -->
+<section class="slide">
+  <h2>Agents forget.</h2>
+  <p>Long tasks overflow the context window.</p>
+  <p>So every system does the same thing:<br>
+     <b>summarize the old history, keep going.</b></p>
+  <p>And everyone checks the summary the same way:<br>
+     <i>did the facts survive?</i></p>
+</section>
+
+<!-- 3 THE QUESTION -->
+<section class="slide">
+  <h2>We ask a different question.</h2>
+  <p>Not <i>"are the facts still there?"</i></p>
+  <p class="big">Would the agent still take the<br>same next action?</p>
+  <p>A perfect compaction is invisible:<br>the agent behaves as if nothing was removed.</p>
+</section>
+
+<!-- 4 THE TEST -->
+<section class="slide">
+  <h2>The test</h2>
+  <p>Freeze a real agent mid-task.<br>
+     Compress its memory.<br>
+     Ask it: <b>what do you do next?</b></p>
+  <p>The original run already recorded the true answer.<br>We count how often they match.</p>
+</section>
+
+<!-- 5 RESULT 1 -->
+<section class="slide">
+  <h2>Summaries fail this test.</h2>
+  <p>How often the agent repeats its real next action:</p>
+  <div style="margin-top:.6em; max-width:780px">
+    <div class="bar" style="width:65%; background:var(--green)">full memory: 65%</div>
+    <div class="bar" style="width:66%; background:#57b98a">just keep recent tokens: 66%</div>
+    <div class="bar" style="width:46%; background:var(--red)">LLM-written summary: 46%</div>
+  </div>
+  <p><b>The default in every product is the worst option we measured.</b><br>
+     <span class="soft">Doing almost nothing beats it. This survived every replication we threw at it.</span></p>
+</section>
+
+<!-- 6 RESULT 2 -->
+<section class="slide">
+  <h2>Copy exactly. Never paraphrase.</h2>
+  <p>Same information, same size budget:</p>
+  <p><span class="green"><b>Byte-exact copies</b></span> of the agent's past commands
+     keep its behavior.</p>
+  <p><span class="red"><b>The same commands rewritten</b></span> as tidy one-liners
+     lose 13 to 20 points.</p>
+  <p class="soft">The rewriting was our own idea. The experiment rejected it.</p>
+</section>
+
+<!-- 7 RESULT 3 -->
+<section class="slide">
+  <h2>Format cliffs</h2>
+  <p>The same summary, delivered in a different wrapper:</p>
+  <p>one model works fine <span class="green"><b>(0.75)</b></span>,<br>
+     another outputs gibberish <span class="red"><b>(0.00)</b></span>.</p>
+  <p class="big">There is no universal compaction format.</p>
+</section>
+
+<!-- 8 RESULT 4 -->
+<section class="slide">
+  <h2>The training mismatch</h2>
+  <p>In a long task, memory is compressed many times.<br>
+     <b>The first compression does nearly all the damage.</b></p>
+  <p>But RL training schemes give that first summary<br>
+     the <span class="red"><b>least</b></span> learning signal (13.5% of the last one's).</p>
+  <p class="big">The one that hurts most learns least.</p>
+</section>
+
+<!-- 9 REPLICATION -->
+<section class="slide">
+  <h2>We replicated ourselves.</h2>
+  <p>Everything was first measured on public traces of other models.<br>
+     Then re-measured on our own agents' real trajectories.</p>
+  <p><span class="green"><b>Survived:</b></span> summaries worst, copy-exactly, the metric itself.</p>
+  <p><span class="red"><b>Did not survive:</b></span> two of our early laws.</p>
+  <p class="big">Measure compaction on your own agent,<br>not on borrowed traces.</p>
+</section>
+
+<!-- 10 NEXT -->
+<section class="slide">
+  <h2>What's next</h2>
+  <p>Tie compression to <b>task success</b> directly, in live episodes.</p>
+  <p>Finish re-measuring everything on our own trajectories.</p>
+  <p>Can the behavior score <b>train</b> a compressor?<br>
+     <span class="soft">First try: no effect. Bigger try queued.</span></p>
+</section>
+
+<!-- 11 END -->
+<section class="slide">
+  <h1>Keep the behavior,<br>not just the facts.</h1>
+  <p class="soft" style="margin-top:2em">github.com/ayushnangia/does-compression-change-behavior</p>
+</section>
+
+<footer id="pg"></footer>
+<div class="nav">← → arrows to advance</div>
+<script>
+  const S = [...document.querySelectorAll('.slide')];
+  let i = 0;
+  const show = () => { S.forEach((s,k)=>s.classList.toggle('on', k===i));
+    document.getElementById('pg').textContent = (i+1) + ' / ' + S.length; };
+  const step = d => { i = Math.min(S.length-1, Math.max(0, i+d)); show(); };
+  addEventListener('keydown', e => {
+    if (e.key==='ArrowRight'||e.key===' '||e.key==='PageDown') step(1);
+    if (e.key==='ArrowLeft'||e.key==='PageUp') step(-1);
+    if (e.key==='Home'){i=0;show();} if(e.key==='End'){i=S.length-1;show();}
+  });
+  show();
+</script>
+</body>
+</html>

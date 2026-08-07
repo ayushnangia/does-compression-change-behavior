@@ -170,21 +170,10 @@
 </section>
 
 <!-- 5b MEME: DRAKE -->
-<section class="slide">
-  <div style="max-width:760px; margin:0 auto">
-    <div style="display:flex; align-items:stretch; background:var(--card); border-radius:16px 16px 0 0; box-shadow:0 4px 14px rgba(30,50,90,.08); overflow:hidden">
-      <div style="width:160px; background:#fdeeee; display:flex; align-items:center; justify-content:center; font-size:4em">🙅</div>
-      <div style="flex:1; padding:1.2em 1.4em; display:flex; align-items:center">
-        <p style="margin:0">Spend an entire LLM call writing a careful,
-           fluent summary of the history</p></div>
-    </div>
-    <div style="display:flex; align-items:stretch; background:var(--card); border-radius:0 0 16px 16px; box-shadow:0 4px 14px rgba(30,50,90,.08); overflow:hidden; border-top:2px solid #eef2fb">
-      <div style="width:160px; background:#e9f7f0; display:flex; align-items:center; justify-content:center; font-size:4em">👉</div>
-      <div style="flex:1; padding:1.2em 1.4em; display:flex; align-items:center">
-        <p style="margin:0">Delete old tokens. Do nothing else.</p></div>
-    </div>
-    <p class="soft" style="text-align:center; margin-top:1.2em">46% vs 66% agreement. The agent has spoken.</p>
-  </div>
+<section class="slide" style="align-items:center">
+  <img src="drake_summary.jpg" alt="Drake meme: no to careful LLM summary, yes to deleting old tokens"
+       style="max-height:75vh; max-width:90vw; border-radius:14px; box-shadow:0 6px 20px rgba(30,50,90,.15)">
+  <p class="soft" style="text-align:center; margin-top:1em">46% vs 66% agreement. The agent has spoken.</p>
 </section>
 
 <!-- 6b TINY CORE -->
@@ -200,26 +189,6 @@
   </div>
   <p class="big">A bare list of its own actions preserves most of the behavior.<br>
      A fluent summary, using far more space, preserves less.</p>
-</section>
-
-<!-- 6c MEME: AT HOME -->
-<section class="slide">
-  <div style="max-width:780px; margin:0 auto">
-    <div class="card" style="margin-bottom:1em">
-      <p><b>The agent:</b> can we keep my actual commands?</p>
-      <p style="font-family:ui-monospace,monospace; font-size:1.05em; background:#f3f6fc; border-radius:8px; padding:.7em; margin-top:.5em">
-        grep -rn "auth" src/utils/<br>cat src/utils/auth.py</p>
-    </div>
-    <div class="card" style="margin-bottom:1em">
-      <p><b>The compressor:</b> we have your commands at home.</p>
-    </div>
-    <div class="card" style="border-top:6px solid var(--red)">
-      <p><b>The commands at home:</b></p>
-      <p style="font-family:ui-monospace,monospace; font-size:1.05em; background:#f3f6fc; border-radius:8px; padding:.7em; margin-top:.5em">
-        GREP auth src/<br>READ auth.py</p>
-    </div>
-    <p style="text-align:center; margin-top:1em" class="big">Same information. <span class="red">Minus 16 points.</span></p>
-  </div>
 </section>
 
 <!-- 7 FORMAT CLIFFS -->

@@ -1,0 +1,72 @@
+{
+  "model": "Qwen/Qwen3.5-9B",
+  "usable": 7,
+  "floor": 0.5,
+  "budget": 256,
+  "policies": {
+    "naive": {
+      "acting": 0.21428571428571427,
+      "change": 0.7321428571428571,
+      "entropy": 0.851383590759637,
+      "agree": 0.19642857142857142,
+      "length": 256.0
+    },
+    "structured_handoff": {
+      "acting": 0.5357142857142857,
+      "change": 0.7142857142857143,
+      "entropy": 1.9822550275055182,
+      "agree": 0.5,
+      "length": 256.0
+    },
+    "condense_observations": {
+      "acting": 0.42857142857142855,
+      "change": 0.6964285714285714,
+      "entropy": 1.694010215897013,
+      "agree": 0.4107142857142857,
+      "length": 256.0
+    },
+    "block_aware": {
+      "acting": 0.19642857142857142,
+      "change": 0.6785714285714286,
+      "entropy": 0.8043847613712556,
+      "agree": 0.10714285714285714,
+      "length": 256.0
+    },
+    "wrapper_only": {
+      "acting": 0.2857142857142857,
+      "change": 0.6785714285714286,
+      "entropy": 1.186753573815465,
+      "agree": 0.23214285714285715,
+      "length": 0.0
+    },
+    "minimal": {
+      "acting": 0.44642857142857145,
+      "change": 0.7321428571428571,
+      "entropy": 1.5521891710781464,
+      "agree": 0.3392857142857143,
+      "length": 256.0
+    },
+    "next_step_only": {
+      "acting": 0.48214285714285715,
+      "change": 0.6607142857142857,
+      "entropy": 1.685542134385057,
+      "agree": 0.39285714285714285,
+      "length": 256.0
+    }
+  },
+  "_provenance": {
+    "argv": [
+      "exp9_summary_policies.py",
+      "--examples-file",
+      "../data/examples_onpolicy.json"
+    ],
+    "timestamp": "2026-08-04 11:26:13",
+    "hostname": "trig0036",
+    "slurm_job_id": "711987",
+    "git_commit": "c5cfb810748df0e95a88355f268f6b38b9fb0f22",
+    "git_dirty": true,
+    "torch_version": "2.9.1",
+    "transformers_version": "5.14.1",
+    "input_sha256:examples_onpolicy.json": "835d6a1568feffb5"
+  }
+}

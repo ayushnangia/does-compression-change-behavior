@@ -1,0 +1,39 @@
+{
+  "model": "Qwen/Qwen3.5-9B",
+  "usable": 5,
+  "floor": 0.475,
+  "full_entropy": 2.331127812445913,
+  "summary_budget": 256,
+  "chain": {
+    "1": {
+      "change": 0.725,
+      "acting": 0.5,
+      "entropy": 1.6807275016708254
+    },
+    "2": {
+      "change": 0.7,
+      "acting": 0.475,
+      "entropy": 1.822014613030906
+    },
+    "3": {
+      "change": 0.725,
+      "acting": 0.4,
+      "entropy": 1.579681402171665
+    }
+  },
+  "_provenance": {
+    "argv": [
+      "exp7_compaction_chain.py",
+      "--examples-file",
+      "../data/examples_onpolicy.json"
+    ],
+    "timestamp": "2026-08-04 10:16:12",
+    "hostname": "trig0023",
+    "slurm_job_id": "711985",
+    "git_commit": "c5cfb810748df0e95a88355f268f6b38b9fb0f22",
+    "git_dirty": true,
+    "torch_version": "2.9.1",
+    "transformers_version": "5.14.1",
+    "input_sha256:examples_onpolicy.json": "835d6a1568feffb5"
+  }
+}

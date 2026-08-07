@@ -33,6 +33,12 @@
   footer { position:fixed; bottom:12px; right:20px; color:var(--soft); font-size:.9em; }
   .nav { position:fixed; bottom:12px; left:20px; color:var(--soft); font-size:.9em; }
   .logo { position:fixed; top:22px; right:28px; height:52px; mix-blend-mode:multiply; }
+  @page { size: 1280px 720px; margin:0; }
+  @media print {
+    body { overflow:visible; }
+    .slide { display:flex !important; page-break-after:always; break-after:page; }
+    .nav, footer { display:none; }
+  }
 </style>
 </head>
 <body>

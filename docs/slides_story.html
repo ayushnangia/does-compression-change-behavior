@@ -202,21 +202,23 @@
      A fluent summary, using far more space, preserves less.</p>
 </section>
 
-<!-- 6c MEME: SAME PICTURE -->
+<!-- 6c MEME: AT HOME -->
 <section class="slide">
-  <div style="max-width:820px; margin:0 auto">
-    <p style="text-align:center; margin-bottom:.8em"><b>Corporate needs you to find the difference
-       between these two contexts:</b></p>
-    <div style="display:flex; gap:1.5em">
-      <div class="card" style="flex:1">
-        <p style="font-family:ui-monospace,monospace; font-size:1.05em; background:#f3f6fc; border-radius:8px; padding:.8em">
-          grep -rn "auth" src/utils/<br>cat src/utils/auth.py</p></div>
-      <div class="card" style="flex:1">
-        <p style="font-family:ui-monospace,monospace; font-size:1.05em; background:#f3f6fc; border-radius:8px; padding:.8em">
-          GREP auth src/<br>READ auth.py</p></div>
+  <div style="max-width:780px; margin:0 auto">
+    <div class="card" style="margin-bottom:1em">
+      <p><b>The agent:</b> can we keep my actual commands?</p>
+      <p style="font-family:ui-monospace,monospace; font-size:1.05em; background:#f3f6fc; border-radius:8px; padding:.7em; margin-top:.5em">
+        grep -rn "auth" src/utils/<br>cat src/utils/auth.py</p>
     </div>
-    <p style="text-align:center; margin-top:1em">Every information metric: <i>"they're the same information."</i></p>
-    <p style="text-align:center" class="big">The agent: <span class="red">minus 16 points.</span></p>
+    <div class="card" style="margin-bottom:1em">
+      <p><b>The compressor:</b> we have your commands at home.</p>
+    </div>
+    <div class="card" style="border-top:6px solid var(--red)">
+      <p><b>The commands at home:</b></p>
+      <p style="font-family:ui-monospace,monospace; font-size:1.05em; background:#f3f6fc; border-radius:8px; padding:.7em; margin-top:.5em">
+        GREP auth src/<br>READ auth.py</p>
+    </div>
+    <p style="text-align:center; margin-top:1em" class="big">Same information. <span class="red">Minus 16 points.</span></p>
   </div>
 </section>
 

@@ -473,3 +473,11 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   cancelled before results. `--generation-config vllm` is now mandatory in
   TB2 and exp24 launchers and enforced by tests; the corrected baseline is the
   only run that may be interpreted.
+- **Qwen3.8 preflight round 1 (803407): serving GREEN, test parser WRONG.**
+  Qwen3.8-27B bf16 loaded in 51.1 GiB and served the full 77,824-token window
+  on one H100; completions succeeded. The gate then incorrectly fed raw
+  Terminus JSON responses to `behavior.parse_action`, which expects Harbor's
+  post-action `<tool_calls>` trace serialization. Its all-None result is not a
+  model verdict. Slurm `afterok` correctly cancelled baseline/data jobs
+  803411/803412. Round 2 uses Harbor's authoritative
+  `TerminusJSONPlainParser` and prints raw snippets before any decision.

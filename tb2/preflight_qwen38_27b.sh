@@ -24,23 +24,35 @@ for i in $(seq 1 180); do
 done
 curl -sf http://127.0.0.1:8000/health >/dev/null || exit 1
 
-# Use a real serialized decision point, not a toy chat prompt. Require at least
-# one parser-recognized action across four deployment-sampling draws.
+# Use a real serialized decision point, not a toy chat prompt. Decode it with
+# the tokenizer that created those IDs, then parse RAW model responses with
+# Harbor's live authority parser (not behavior.parse_action, which parses the
+# stored <tool_calls> serialization after Harbor has already acted).
 module unload python 2>/dev/null || true
 module load python/3.11 2>/dev/null
 $REAL_HOME/ENV-compress2/bin/python - <<'PY'
-import json, requests
+import json, os
 from transformers import AutoTokenizer
-from behavior import parse_action
 x=json.load(open('data/examples_onpolicy.json'))
 t=AutoTokenizer.from_pretrained('Qwen/Qwen3.5-9B',trust_remote_code=True)
-prompt=t.decode(x[5]['context_ids'][-28000:],skip_special_tokens=False)
+open(os.path.join(os.environ['SLURM_TMPDIR'],'q38_prompt.txt'),'w').write(
+    t.decode(x[5]['context_ids'][-28000:],skip_special_tokens=False))
+PY
+module unload python 2>/dev/null || true
+module load python/3.12 2>/dev/null
+$REAL_HOME/ENV-harbor2/bin/python - <<'PY'
+import os, requests
+from harbor.agents.terminus_2.terminus_json_plain_parser import TerminusJSONPlainParser
+prompt=open(os.path.join(os.environ['SLURM_TMPDIR'],'q38_prompt.txt')).read()
 r=requests.post('http://127.0.0.1:8000/v1/completions',json={
- 'model':'qwen38-27b-preflight','prompt':prompt,'n':4,'max_tokens':2048,
- 'temperature':1.0,'top_p':1.0,'seed':38},timeout=900)
+ 'model':'qwen38-27b-preflight','prompt':prompt,'n':2,'max_tokens':4096,
+ 'temperature':1.0,'top_p':1.0,'seed':38},timeout=1200)
 r.raise_for_status(); texts=[c['text'] for c in r.json()['choices']]
-a=[parse_action(s) for s in texts]
-print('parsed actions:',a)
-assert any(v is not None for v in a), 'Qwen3.8 generated no parser-recognized action'
+for i,text in enumerate(texts):
+    print(f'--- raw completion {i} ---\n{text[:2000]}\n--- end snippet ---')
+parsed=[TerminusJSONPlainParser().parse_response(text) for text in texts]
+counts=[len(p.commands) for p in parsed]
+print('authority-parser command counts:',counts)
+assert any(n > 0 for n in counts), 'Qwen3.8 generated no Harbor-parsed command'
 print('QWEN38 PREFLIGHT GREEN')
 PY

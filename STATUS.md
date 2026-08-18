@@ -6,8 +6,8 @@ verdicts and retractions: `docs/AUDIT.md`.
 
 ## Current state
 
-- Slurm chain now uses durable dependencies: parser preflight 803548 → valid
-  Qwen3.8 baseline 803549 → on-policy data build 803550. GRPO is not
+- Slurm chain now uses durable dependencies: full Harbor live gate 805028 →
+  valid Qwen3.8 baseline 805029 → on-policy data build 805030. GRPO is not
   auto-submitted; baseline competence and data power are manual gates.
 - Repository/data: on-policy dataset (64 examples, 2k–209k tokens) and all
   Aug 4–6 powered result artifacts are committed.
@@ -89,9 +89,10 @@ establishes a non-floor outcome evaluator.
 - verifier + oracle validity: **DONE**;
 - Qwen3.8-27B cache: **DONE**, snapshot `1d4bf0f...`, 52 GiB;
 - full-window serving: **DONE** (77,824 tokens, 51.1 GiB weights, job 803407);
-- authority-parser preflight round 2: **PENDING** job 803548 (node availability);
-- competent easy25 baseline: job 803549, Slurm `afterok:803548`;
-- Qwen3.8 on-policy exp24 data build: job 803550, `afterok:803549`;
+- raw-interface preflights 803407/803548: **retired as invalid proxies**;
+- full Harbor live gate: job 805028;
+- competent easy25 baseline: job 805029, Slurm `afterok:805028`;
+- Qwen3.8 on-policy exp24 data build: job 805030, `afterok:805029`;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

@@ -16,9 +16,14 @@ identical by construction), loaded via harbor's import-path factory - no fork.
 | arm | agent | policy |
 |---|---|---|
 | A | KeepRecentTerminus | newest messages verbatim, rest dropped |
-| B | OneLinerTerminus | full canonical action history (exp21, wrapped) + verbatim tail |
-| C | Terminus2 stock | deployed 3-step summarizer |
+| B | RawSkeletonTerminus | byte-exact command-bearing messages + verbatim tail |
+| C | StockCappedTerminus | deployed 3-step summarizer |
 | D | Terminus2 enable_summarize=False | no compaction (truncation) baseline |
+
+A/B/C use the assigned policy for the first three compaction events, then an
+identical keep-recent fallback. Arm B was changed after exp23 rejected the
+canonical one-liner proposal: raw skeleton+tail tied keep-recent, while
+rewriting lost about 13 agreement points.
 
 ## CompactionRL parity (their experiments section, adopted verbatim)
 - temperature 1.0, top_p 1.0 (serving side)
@@ -33,12 +38,22 @@ runs = 1,424 episodes ~ 700 H200-hours. Binomial reality: at ~25% base rate,
 both).
 
 ## Readouts
-1. Pass@1 per arm (primary, pre-registered ordering hypothesis: B >= A > C >= D)
+1. Pass@1 per arm (primary hypothesis: A/B > C; A vs B is a tie hypothesis,
+   and D is a baseline with no assumed ordering)
 2. D measured offline at each logged compaction event vs the arm's Pass@1
    delta - the D->outcome bridge (the paper's practical payoff)
 3. Post-compaction halt/derail rates from trajectories (ties to finding 1)
 
-## Smoke verdict (July 30, job 66693784): GREEN - fully de-risked
+## Validity gates
+
+- Agent/arm smoke (July 30, job 66693784): green for custom-agent loading and
+  live compaction, but its reward is not valid evidence because it predated the
+  verifier repair.
+- Offline verifier smoke (Aug 6): green; real pytest executes and writes reward.
+- Oracle smoke (Aug 18): **green, reward=1** on
+  `break-filter-js-from-html`; reproducible via `tb2/oracle_smoke.sh`.
+
+## Original agent smoke details
 
 One-task episode on Narval A100 (9B): vLLM up (ENV-vllm3), custom agent
 loaded via import_path, 18 live turns, OUR COMPACTION POLICY FIRED 15 TIMES

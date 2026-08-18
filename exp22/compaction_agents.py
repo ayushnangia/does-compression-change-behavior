@@ -9,42 +9,24 @@ config with NO fork of harbor:
         kwargs: {...}
 
 Arms:
-  Terminus2 (stock)     arm C: the deployed 3-step summarizer (harbor native)
+  StockCappedTerminus   arm C: deployed 3-step summarizer (harbor native)
   KeepRecentTerminus    arm A: keep the newest messages verbatim, drop the rest
-  OneLinerTerminus      arm B: canonical one-liner action history (exp21),
-                        wrapped in the model-native format
+  RawSkeletonTerminus   arm B: byte-exact command-bearing messages + verbatim tail
   (arm D, no compaction: stock Terminus2 with enable_summarize=False)
 
-Both overrides replace ONLY _summarize(); triggering (proactive threshold,
-context-limit) stays identical to stock, so the arms differ in policy alone.
-CompactionRL parity: temperature/top_p come from the serving side (1.0/1.0),
-<=3 compactions enforced via max_compactions, 250-turn episodes in the job
-config.
+The policy arms replace ONLY _summarize(); triggering (proactive threshold,
+context-limit) stays identical. A/B/C use their assigned policy for the first
+three compactions, then the same keep-recent fallback. Temperature/top_p come
+from the serving side (1.0/1.0); episodes allow 250 turns.
 """
 
 from __future__ import annotations
 
 import json
-import re
 
 from harbor.agents.terminus_2.terminus_2 import Terminus2
 
-# canonicalizer shared with exp21 (same repo)
-READ_VERBS = {"cat", "less", "head", "tail", "view", "open"}
-
-
-def _canon_command(cmd: str) -> str:
-    segs = re.split(r"\s*(?:&&|\|\||\||;)\s*", cmd.strip())
-    outs = []
-    for s in segs:
-        toks = [t for t in s.split() if t]
-        if not toks:
-            continue
-        verb = toks[0].lower()
-        verb = "read" if verb in READ_VERBS else verb
-        args = [t for t in toks[1:] if not t.startswith("-")][:3]
-        outs.append((verb.upper() + " " + " ".join(args)).strip())
-    return "; ".join(outs)[:120]
+from exp22.policy_utils import fit_raw_skeleton
 
 
 def _msg_text(m) -> str:
@@ -101,10 +83,7 @@ class KeepRecentTerminus(Terminus2):
         msgs = list(getattr(chat, "messages", []) or [])
         if not msgs:
             return original_instruction, None
-        if _capped(self):  # parity cap: identical fallback across arms
-            self._summarization_count += 1
-            return _fallback_keep_recent(msgs, original_instruction), None
-        if _capped(self):  # parity cap: identical fallback across arms
+        if _capped(self):  # parity cap: identical fallback across A/B/C
             self._summarization_count += 1
             return _fallback_keep_recent(msgs, original_instruction), None
         budget_chars = HANDOFF_BUDGET_CHARS
@@ -128,38 +107,57 @@ class KeepRecentTerminus(Terminus2):
         return handoff, None
 
 
-class OneLinerTerminus(Terminus2):
-    """Arm B: canonical one-liner action history (exp21, wrapped delivery) +
-    a small verbatim recent tail."""
+class RawSkeletonTerminus(Terminus2):
+    """Arm B: exact command-bearing agent messages plus an exact recent tail.
 
-    _POLICY = "one_liner"
+    exp23 rejected canonical one-liners: rewriting lost about 13 agreement
+    points while raw skeleton+tail tied keep-recent. Therefore this live arm
+    performs no canonicalization or paraphrase. Command-bearing messages are
+    identified with Harbor's parser but copied byte-for-byte.
+    """
+
+    _POLICY = "raw_skeleton"
 
     async def _summarize(self, chat, original_instruction, session):
         msgs = list(getattr(chat, "messages", []) or [])
         if not msgs:
             return original_instruction, None
-        lines = []
-        for m in msgs:
-            for ks in _extract_keystrokes(_msg_text(m)):
-                lines.append(_canon_command(ks))
-        # same total budget as every other arm: tail gets a third,
-        # the canonical history gets the rest (it is 10x denser)
-        tail_budget = HANDOFF_BUDGET_CHARS // 3
-        tail = "\n\n".join(_msg_text(m) for m in msgs[-4:])[-tail_budget:]
-        hist_budget = HANDOFF_BUDGET_CHARS - len(tail)
-        wrapped = [f"<tool_call>{l}</tool_call>" for l in lines]
-        history = ""
-        for w in reversed(wrapped):  # newest actions kept first if over budget
-            if len(history) + len(w) + 1 > hist_budget:
-                break
-            history = w + "\n" + history
+        if _capped(self):  # parity cap: identical fallback across A/B/C
+            self._summarization_count += 1
+            return _fallback_keep_recent(msgs, original_instruction), None
+
+        texts = [_msg_text(m) for m in msgs]
+        action_mask = [bool(_extract_keystrokes(t)) for t in texts]
+        skeleton, tail = fit_raw_skeleton(
+            texts, action_mask, HANDOFF_BUDGET_CHARS
+        )
         handoff = (
             f"Original task:\n{original_instruction}\n\n"
-            "You are resuming this task. Complete record of every command "
-            "you have run so far, in order, in shorthand:\n\n"
-            f"{history}\n\n"
-            f"Most recent exchanges, verbatim:\n{tail}\n\n"
+            "You are resuming this task. Older command-bearing responses and "
+            "the recent history are copied below verbatim.\n\n"
+            f"Command history:\n{skeleton}\n\n"
+            f"Recent history:\n{tail}\n\n"
             "Continue the task from the current terminal state."
         )
         self._summarization_count += 1
         return handoff, None
+
+
+class StockCappedTerminus(Terminus2):
+    """Arm C: stock three-step summarization for three events, then the same
+    fallback as A/B. This makes the cap policy identical across live arms."""
+
+    _POLICY = "stock_summary"
+
+    async def _summarize(self, chat, original_instruction, session):
+        msgs = list(getattr(chat, "messages", []) or [])
+        if not msgs:
+            return original_instruction, None
+        if _capped(self):
+            self._summarization_count += 1
+            return _fallback_keep_recent(msgs, original_instruction), None
+        return await super()._summarize(chat, original_instruction, session)
+
+
+# Compatibility only for old smoke configs; never use in paper runs.
+OneLinerTerminus = RawSkeletonTerminus

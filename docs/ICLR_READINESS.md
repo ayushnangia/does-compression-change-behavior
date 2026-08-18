@@ -1,55 +1,48 @@
 # ICLR readiness ledger
 
-Goal: every number in the paper traces to (a) on-policy data, (b) a certified
-measurement, (c) a provenance-stamped result file, (d) a survived attack in
-THREATS.md. This file tracks the distance to that bar. Companions: THREATS.md
-(attack register), DECISIONS.md (conventions), REVIEW.md (reviewer paths),
-ROADMAP.md (execution).
+Last audited: 2026-08-18. The execution order is in `docs/ICLR_PLAN.md`; all
+experiment dispositions are in `docs/EXPERIMENT_LEDGER.md`.
 
-## The bar, per claim
-
-| requirement | status | evidence |
+| Requirement | Status | Evidence / next action |
 |---|---|---|
-| On-policy data only (no other-model traces) | ENFORCED | run_all.sh queue-onpolicy hard-fails without examples_onpolicy.json; Open-SWE files retired for measurement |
-| Full real contexts (no fixed-size windows) | ENFORCED | prefetch_onpolicy keeps full history capped at 0.8 x native (or the largest servable window; see "window ceiling" below) |
-| Deployment-parity sampling | DONE | max_new=10240 (harbor budget), temp 1.0 / top_p 1.0 (cited standard), per-model native formats |
-| Parser = certified mirror of vLLM authority parsers | DONE | 5-format totality tests; qwen3_engine + glm47_moe verified in installed vllm 0.25; the Jul-24 XML-as-halt bug found, quantified (requants), tainted numbers retired |
-| Call equality = BFCL AST matching | DONE | args[:60] truncation bug found and removed |
-| D metric noise-honest | DONE | exp19 exact-vs-sampled (sampled tool-level TV is ~90% floor); all effects floor-referenced + paired permutation; BH correction on headline table |
-| Task success = real TB2 Pass@1 through harbor | IN FLIGHT | GLM easy-25 complete (retry closing 9 infra rows); 35B all-89 relaunching behind window gate |
-| Provenance in every result file | DONE (new) | common.save_result stamps git commit+dirty, versions, argv, SLURM job, input sha256 |
-| Statistical tests paired + cited | DONE | experiments/stats.py (scipy-backed, equivalence-tested fallbacks) |
-| Infra failures never read as model results | ENFORCED | verdict decomposition (ran/agent-timeout/env-infra); env-infra rows retried, never scored |
+| On-policy evidence for main claims | DONE | 64-example own-agent dataset; powered N=25 exp4/8/17/20/21/23 |
+| Full real contexts and deployment sampling | DONE | 2k–209k histories; temp=1/top_p=1; adaptive sampling |
+| Parser/call equality certified | DONE | authority parser tests + BFCL AST matching; 87/87 test gate |
+| Noise-honest behavioral metric | DONE | floors, paired tests, raw arrays; exp19 exact-TV audit |
+| Logged-action grounding | DONE | exp8: full 0.65, keep-recent 0.66, summary 0.46 |
+| Matched-budget verbatim-vs-rewrite test | DONE | exp23 N=25; verbatim tie, rewriting loses |
+| Regime-dependence test | DONE | exp4/21 effects fail on-policy |
+| TB2 verifier executes offline | DONE | real pytest smoke and reward file |
+| Oracle can earn positive reward | **DONE 2026-08-18** | `tb2/oracle_smoke.sh`; reward=1 on break-filter-js-from-html |
+| Competent-model baseline | OPEN | 35B bf16 easy25 is Gate 1 |
+| Live policy/outcome bridge | OPEN / CRITICAL | exp22 four-arm pilot, then powered row |
+| Figures generated from committed artifacts | OPEN | after exp22 pilot |
+| Full paper draft | OPEN | two-week sprint after Gate 1 |
 
-## Known limitations to STATE in the paper (not fix silently)
+## Claim readiness
 
-1. **Budget is the paper-comparable parameter, not the window.** CompactionRL:
-   compaction fires when C - |history| < 10,240 (max 3/rollout); budgets are
-   64k (GLM-4.7-Flash) and 80k (GLM-4.5-Air). TB2 runs now hand the agent
-   exactly C (max_input_tokens) and serve at C + 12288. Giant serving windows
-   were doubly wrong: no compaction pressure (loses the studied phenomenon)
-   AND vllm 0.25's int32 kernel wall at ~209k (illegal access + cublas fail,
-   confirmed on clean GPUs).
-2. **The accidental budget ablation**: the first GLM easy-25 run + its retry
-   executed at ~92k input cap (no compaction pressure). Kept and labeled as
-   the no-pressure condition; the paper-comparable C=64k rerun is job 696621
-   (glm47-flash-c64k). Report conditions separately, never mixed.
-3. **Halt semantics**: our halt is one-shot; deployed agents retry. Freeze
-   law manifests as wasted turns, not literal stops.
-4. **Single-model suite** until the H200 window (18-model coverage plan);
-   current findings are existence proofs on Qwen3.5-35B + GLM-4.7-Flash.
-5. **n_attempts=1** on TB2: Pass@1 over tasks, no per-task variance. Cheap
-   to fix later with n_attempts=3 on solved-adjacent tasks if reviewers push.
+| Claim | Status |
+|---|---|
+| Keep-recent at 25% is statistically indistinguishable from full behavior | READY, one-model/domain caveat |
+| Verbatim policies tie; rewriting loses at matched budgets | READY, N=25 caveat |
+| Off-policy compaction conclusions can fail to transfer on-policy | READY |
+| Verbatim compaction improves task success | **NOT YET ESTABLISHED; exp22 required** |
+| GLM has a universal format cliff | CUT: off-policy only |
+| Skeleton+tail beats keep-recent | FORBIDDEN: p=0.39 tie |
+| D-based training works | FORBIDDEN: clean null at tested dose |
 
-## Remaining work, ordered
+## Required paper disclosures
 
-1. [auto] Window hunt verdict -> 4x TB2 35B jobs -> Pass@1 + trajectories.
-2. [auto] Watcher -> examples_onpolicy.json -> 14-exp suite on-policy rerun.
-3. GLM retry lands -> complete GLM easy-25 row (all 25 verdicts honest).
-4. Aggregate: stats.py + make_figures.py over on-policy results; BH-corrected
-   headline table; verdicts to AUDIT.md with job ids.
-5. Group decision: vllm upgrade (to lift the window ceiling) vs document it.
-6. H200 window: coverage matrix per H200_PLAN.md; the matched-pair rows
-   (AgentWorld vs vanilla) are the strongest reviewer ammunition.
-7. Camera-ready hygiene: pip freeze > environment lock per venv; pin model
-   revisions (HF commit hashes) in eval configs.
+1. Behavioral fidelity is not task optimality; outcome evidence is separate.
+2. Usable N=25 is conditional on full-context acting >=0.5.
+3. Absolute sampled D is floor-biased; comparisons are paired and
+   floor-referenced.
+4. D values are not comparable across experiments.
+5. Scope is coding agents and one primary model/trace distribution.
+6. Every pre-Aug-6 TB2 score is retracted due to verifier failure.
+7. Infra failures are excluded/retried, never counted as task failures.
+
+## Submission gate
+
+Behavioral core ✅ · regime-dependence ✅ · verifier ✅ · oracle ✅ · competent
+baseline ❌ · exp22 pilot ❌ · powered outcome row ❌ · figures/draft ❌.

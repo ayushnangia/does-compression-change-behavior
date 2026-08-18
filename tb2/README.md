@@ -37,17 +37,25 @@ data source for the behavioral experiments; see `prefetch_onpolicy.py`).
 - task subsets must be a `tasks:` list in the YAML (repeated `-p` flags do not accumulate)
 - Apptainer needs `APPTAINER_TMPDIR=$SLURM_TMPDIR` or it fills the home quota
 
-## Measured results on this harness (Narval A100-40GB)
+## Validity status and retraction
 
-| model | subset | Pass@1 |
-|---|---|---|
-| Qwen3.5-9B bf16 | full 89 | 0/53 started |
-| Qwen3.5-35B-A3B GPTQ-Int4 | full 89 | 0/69 |
-| Qwen3.5-35B-A3B GPTQ-Int4, 4x timeout | easy 25 | 0/21 |
+**Every Pass@1 number produced before 2026-08-06 is retracted.** The task
+verifiers attempted to install uv/pytest from the internet at scoring time;
+compute nodes are air-gapped, so tests never executed and rewards defaulted
+to zero. Those rows measured infrastructure failure, not model capability.
+The trajectories remain valid behavioral data because agent execution was
+unaffected.
 
-Robust zeros: quantized/small models are too weak for TB2 (consistent with
-the CompactionRL paper's findings; their 35B bf16 scores approx 27%). The 35B
-bf16 needs more than 40GB per GPU or working multi-GPU serving - on this
-cluster vllm 0.25 hangs at multi-GPU MoE engine init (jobs 66203598 et al.),
-which is why the H100 migration exists (MIGRATION.md). The trajectories are
-still used as on-policy behavioral data regardless of task success.
+The repaired images install uv in `/usr/local/bin`, prewarm task-specific
+caches under `/opt`, and force offline resolution. Two gates now apply:
+
+```bash
+# Must execute real tests and write a reward.
+# Must then apply a known-good solution and obtain reward=1.
+bash oracle_smoke.sh
+```
+
+Both gates are green on `break-filter-js-from-html` as of 2026-08-18. The
+35B bf16 easy25 baseline is the first capability measurement to run after
+this repair. Never quote a task score without a verifier-clean marker; retry
+infrastructure failures rather than counting them as model failures.

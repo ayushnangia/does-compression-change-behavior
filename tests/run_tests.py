@@ -290,6 +290,22 @@ _units_raw = build_units(_old_text, _StubTok(), canonical=False)
 check("exp23 raw blocks longer than canonical",
       sum(len(u) for u in _units_raw) > sum(len(u) for u in _units))
 
+# ---------------- exp22 live raw-skeleton policy ----------------
+from exp22.policy_utils import fit_raw_skeleton
+
+_live_texts = ["OBS-old", "CMD exact --flag x", "OBS-new", "CMD newest"]
+_live_mask = [False, True, False, True]
+_live_skel, _live_tail = fit_raw_skeleton(_live_texts, _live_mask, 40)
+check("exp22 live budget respected", len(_live_skel) + len(_live_tail) <= 40)
+check("exp22 live skeleton byte-exact", _live_skel == "CMD newest")
+check("exp22 live tail byte-exact", "\n\n".join(_live_texts).endswith(_live_tail))
+try:
+    fit_raw_skeleton(["x"], [], 10)
+    _alignment_raises = False
+except ValueError:
+    _alignment_raises = True
+check("exp22 live policy alignment guard", _alignment_raises)
+
 print(f"\n{PASS} checks passed, {len(FAIL)} failed")
 if FAIL:
     for f in FAIL:

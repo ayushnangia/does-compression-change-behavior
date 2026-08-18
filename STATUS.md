@@ -1,92 +1,90 @@
-# STATUS — the one living board (done / running / open)
+# STATUS — current truth only
 
-Last updated: 2026-07-31, after merging the parallel Trillium session.
-Roles: STATUS (this file) = roll-up truth · docs/ROADMAP.md = execution
-phases & job plumbing · docs/ICLR_READINESS.md = rigor bar per claim ·
-docs/AUDIT.md = append-only verdicts · THREATS.md = attack register ·
-paper/OUTLINE.md = narrative. State changes go HERE + verdict to AUDIT.
+Last updated: 2026-08-18. Detailed experiment disposition:
+`docs/EXPERIMENT_LEDGER.md`. Execution plan: `docs/ICLR_PLAN.md`. Historical
+verdicts and retractions: `docs/AUDIT.md`.
 
-## Governing decisions (group, 2026-07-30)
+## Current state
 
-- **ON-POLICY ONLY**: Open-SWE (other-model) traces retired for
-  measurement; all 14 measured experiments rerun on examples_onpolicy.json
-  built from OUR TB2 trajectories. Existing requant numbers stay quotable
-  as the off-policy record until the on-policy suite supersedes them.
-- **Budget regime**: compaction fires at C−|h|<10240, ≤3/rollout; C=64k
-  (paper-comparable). Giant windows were silently removing the studied
-  phenomenon + hitting vllm's ~209k int32 kernel wall. Budget is the
-  first-class per-model parameter.
+- Slurm queue: **empty when audited on Aug 18**. The prior “running/queued”
+  language was stale.
+- Repository/data: on-policy dataset (64 examples, 2k–209k tokens) and all
+  Aug 4–6 powered result artifacts are committed.
+- Test gate before this pass: 87/87.
+- Paper policy: on-policy results only; off-policy appears only as evidence
+  that evaluation regimes do not reliably transfer.
 
-## RUNNING (Trillium H100 — the on-policy suite, resubmitted 2026-08-04)
+## What is established
 
-- **Round 3: 711982–711994** (13 exps) @ c5cfb81 — exp3 + exp14 already
-  COMPLETED with results (exp3_target_stability_20260804, 
-  exp14_fragility_Qwen35-9B_20260804).
-- Suite failure ledger (all fixed, each encoded in code or tests):
-  (1) Aug-1 700347–60: sbatch wrapper word-split --wrap (9afb268 gotcha) —
-  run_all.sh generates script files now, NEVER --wrap. (2) Aug-4 711507–21:
-  missing triton in ENV-compress2@Trillium — installed+verified. (3) Aug-4
-  711526–40: exp14 missing required --model (extra-args field added; 4B
-  cached for exp12); exp4/exp11 stale-file-handle from shared triton JIT
-  cache (node-local TRITON_CACHE_DIR now). (4) Aug-4 second wave: 13/15
-  CUDA OOM — full-context on-policy examples reach 209k tokens (p90=127k),
-  8-seq batched prefill blows H100-80; behavior.py now chunks sampling
-  adaptively by context length (deterministic per-chunk seeds, distribution
-  unchanged; 5 gate checks). Gate at 87/87.
+1. **Verbatim recency is nearly free at 25%.** exp8 powered N=25: logged-action
+   agreement full=0.65, keep-recent@25%=0.66, summary=0.46.
+2. **A tiny extractive core remains useful.** exp17 powered N=25: agreement
+   0.57 at 2%, 0.68 at 25%.
+3. **Do not rewrite action history.** exp23 powered N=25: raw skeleton+tail and
+   keep-recent statistically tie (pooled p=0.39); canonical rewriting loses
+   about 13 points and summaries about 20.
+4. **Off-policy laws did not transfer.** exp4 freeze law is null on-policy
+   (0.35 vs 0.28 halts, p=0.78); exp21 wrapper effect is null/reversed (0.49
+   vs 0.55, p=0.36).
+5. **Containment is supporting, not a law.** exp20 powered rho=-0.23 on-policy,
+   stronger than NLL (-0.12), but predictive only.
+6. **Qwen format phenotype is null on-policy.** exp14 completed Aug 8, N=24:
+   native=0.47 vs wrapper=0.48 at top_p=1. The GLM cliff remains off-policy
+   and is not a paper headline.
+7. **The 25/64 acting filter is not a long-context collapse.** Usable rates
+   are 0.20/0.40/0.50/0.50 across <16k/16–32k/32–64k/64k+ bins; usable
+   histories are longer on average, but not significantly (p=0.254).
 
-## TB2 harvest (Phase 1, done 2026-08-01)
+## What failed or is retired
 
-- GLM c64k easy-25: COMPLETED (15 trajectories). Qwen 35B: easy25 +
-  shard_00 COMPLETED, shard_01/02 OOM-killed late (host RAM) — 59 Qwen
-  trajectories total, 13/19 + 13/23 on the OOM shards. Watcher fired,
-  built examples_onpolicy.json (64 examples), auto-queued the suite.
-  Pass@1 rows for shard_01/02 are PARTIAL — rerun of missing tasks is an
-  open item if full-89 coverage is needed for the paper table.
+- exp6 powered rate curve timed out twice at 24h. Checkpointing saved N=16 but
+  had no resume mechanism, so the second run repeated work. The partial floor
+  is 0.45 [0.34,0.56] and policy ordering is unstable. **Retired from the
+  critical path**; exp8/17/23 answer the central budget question more cleanly.
+- exp3 is floor-dominated (0.68); exp12 has N=1; exp13 is confounded; exp15 is
+  format-confounded; exp16/DPO is a clean null at this dose. None blocks the
+  paper.
+- Every TB2 score before Aug 6 is retracted: verifiers could not run offline.
 
-## DONE (recent; full history in AUDIT)
+## Validity gate
 
-- All 4 headline requants survived hostile requantification (Jul 24–26)
-- exp20b (containment ×3 rates); temp-1.0 robustness for freeze law
-- Parser certified vs vLLM authority parsers; BFCL AST call-equality;
-  provenance stamps in every result file; env lock files (ICLR_READINESS)
-- TB2 harness end-to-end; 89/89 sifs; exp22 smoke GREEN (merged to main)
-- Repo: STATUS/paper layer added; exp22-outcome branch merged+deleted;
-  dead one-off job scripts removed; prefetch_onpolicy restored (upstream)
+- Offline verifier smoke: **GREEN** (real pytest execution and reward file).
+- Oracle/reference solution: **GREEN on 2026-08-18**. The reference solution
+  for `break-filter-js-from-html` passed offline and wrote reward=1.
+- Reproducible gate: `bash tb2/oracle_smoke.sh`.
+- easy25 images: 25/25 rebaked with system-path uv caches.
+- Remaining 64 images are stale; this does not block easy25 Gate 1, but they
+  must be rebaked before an all-89 run.
 
-## OPEN — not covered by the auto chain (the real to-do)
+## Sole next objective
 
-- [ ] **exp4 structure-preserving ablation** (placeholder blocks) —
-      threat 1.3; small diff on exp4, 1 H100 job after suite lands
-- [ ] **GLM-as-executor temp-1.0 arm** — threat 3.2; the on-policy suite
-      measures with 9B, so the GLM cliff still needs its own arm.
-      Blocks publishing the 0.00/0.75 magnitude
-- [ ] **E-B repo-level train/held-out split** (AUDIT MUST-fix; CPU)
-- [ ] **exp2 sensitivity sweep** over GRPO sim assumptions (X.7; CPU, minutes)
-- [ ] **Citation-graph walk** (paper/LITERATURE.md order; non-cluster
-      machine — Semantic Scholar rate-limits from here)
-- [ ] **exp22 H100 pilot** (2 arms × 1 model × 89 × 1) — the D→Pass@1
-      bridge direction before spending the H200 budget
-- [ ] exp10-free (free-running propagation) — if suite exp10 leaves the
-      healing claim short
-- [ ] Rewrite contradiction-prone claims in README findings table (#5, #6,
-      freeze dual-quote) once on-policy suite numbers land
+**exp22: connect behavioral preservation to valid Terminal-Bench task
+success.** First run a competent 35B bf16 easy25 baseline. If it yields at
+least two valid successes, run the four matched live policy arms:
 
-## AUTO (in the chain, do not duplicate — ROADMAP Phases 1–3)
+A. keep recent verbatim;
+B. raw action skeleton + verbatim tail;
+C. stock Terminus-2 summary;
+D. no compaction/truncation.
 
-Watcher → on-policy suite at deployment parity (temp 1.0, 10240,
-certified parser) including powered exp14 (format cliffs), exp17/exp21 at
-320×16k, exp6, exp20 — these supersede my earlier "Wave 1" powered-rerun
-items. **exp23 (one-liner history + verbatim tail @25/50/75%, exp22
-arm-B's offline twin; P1 pre-registered = hybrid > keep_recent @25%)
-added to the queue-onpolicy list — rides the same auto chain.** Then Phase 3: competent-trace regeneration + exp8 with task
-success + 64k arms (H100-80 clears the old OOM).
+Arm B has been corrected from the rejected canonical one-liner design. A/B/C
+now share a three-policy-compaction cap followed by the same fallback.
 
-## DEFERRED — H200 window (docs/H200_PLAN.md)
+## Hard stop rule
 
-18-model coverage, matched pairs, TP=8 giants, full exp22 matrix,
-Phase-2 training round, OpenRouter rows.
+No duplicate exp3–21 jobs, GLM cliff runs, full exp6 rerun, or broad model
+matrix before the outcome gate. If the 35B baseline is at floor, switch to a
+stronger model/scaffold; do not manufacture progress with more proxies.
+A proper training follow-up is designed as **exp24 GRPO-D** with matched base,
+SFT-best and DPO controls (`docs/RL_EXPERIMENT.md`); it starts only after exp22
+establishes a non-floor outcome evaluator.
 
-## Submission gate (THREATS §7, restated against today)
+## Submission gate
 
-requants ✅ · exp20b ✅ · temp-1.0 headline ✅ · on-policy suite 🔄 (auto) ·
-GLM temp-1.0 executor arm ❌ · exp22 pilot ❌ · citation walk ❌
+- on-policy behavioral evidence: **DONE**;
+- off-policy-regime warning: **DONE**;
+- verifier + oracle validity: **DONE**;
+- competent baseline: **NEXT**;
+- exp22 four-arm pilot: **OPEN**;
+- powered outcome row: **OPEN**;
+- paper draft/figures: **OPEN**.

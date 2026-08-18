@@ -350,37 +350,28 @@
 
 <!-- 8 FORMAT -->
 <section class="slide">
-  <h2>Finding 4: delivery format matters as much as content</h2>
-  <p>We hold the summary text constant and change only how it is delivered: injected as a
-     note inside the <a href="https://www.xor.tech/resources/agent-trace" target="_blank"
-     style="color:var(--blue)">agent-trace format</a> ("wrapper"), or passed through the
-     model's own chat template. Numbers are acting rates, the fraction of samples that
-     produce a valid tool call:</p>
+  <h2>Audit result: the apparent format cliff did not transfer</h2>
+  <p>Off-policy, holding summary content constant while changing only its wrapper
+     produced dramatic and model-specific acting rates:</p>
   <div class="cards">
-    <div class="card"><b>GLM-4.7-Flash</b> (MoE)
-      <p>trace-style wrapper: <span class="num">0.00</span> (incoherent output)<br>
-         its native chat format: <span class="num">0.75</span></p></div>
-    <div class="card"><b>Qwen3.5-35B-A3B</b> (the MoE twin)
-      <p>wrapper: <span class="num">0.79</span><br>
-         chat format: <span class="num">0.46</span>. The opposite preference.</p></div>
-    <div class="card"><b>Qwen3.5-27B</b> (dense)
-      <p>fine either way: <span class="num">0.75 to 0.83</span></p></div>
+    <div class="card"><span class="tag lose">off-policy GLM</span>
+      <p>wrapper <span class="num">0.00</span><br>native <span class="num">0.75</span></p></div>
+    <div class="card"><span class="tag meh">off-policy Qwen</span>
+      <p>wrapped shorthand <span class="num">0.61</span><br>bare shorthand <span class="num">0.43</span></p></div>
+    <div class="card"><span class="tag win">on-policy Qwen, N=24</span>
+      <p>wrapper <span class="num">0.48</span><br>native <span class="num">0.47</span></p></div>
   </div>
-  <p style="margin-top:1em"><b>There is no universal compaction format.</b>
-     The same content ranges from fine to catastrophic depending on the model.
-     This also explains why trained-compaction gains fail to transfer across setups.</p>
-  <p style="margin-top:.6em; padding:.5em .7em; border-left:4px solid var(--red)">
-     <b>On-policy revision (Aug 6):</b> the finer within-model effect (native
-     tool-call wrapper vs bare shorthand, +18pts off-policy) did <b>not</b>
-     replicate on-policy (0.49 vs 0.55, p = 0.36). The cross-model cliff above
-     stands; the wrapper micro-effect is re-scoped as off-policy.</p>
-  <p class="soft">exp5 (content held constant), exp14 (3 models, 2 formats, 2 sampling
-     settings) — measured off-policy; the on-policy rerun of the phenotype is in flight,
-     with a small preliminary 9B arm showing the same direction (native 0.50 vs
-     wrapper 0.38, N=6 — too small to quote).
-     The trace format we refer to is the agent-trace format:
-     <a href="https://www.xor.tech/resources/agent-trace" target="_blank"
-     style="color:var(--blue)">www.xor.tech/resources/agent-trace</a></p>
+  <p style="margin-top:1em"><b>The powered on-policy phenotype is a null.</b>
+     The earlier wrapper advantage also reversed on-policy (0.49 vs 0.55,
+     p = 0.36). We therefore cut “format cliff” as a general paper law; the GLM
+     case remains an off-policy observation, not headline evidence.</p>
+  <p style="margin-top:.7em; padding:.5em .7em; border-left:4px solid var(--green)">
+     <b>What survives is narrower and stronger:</b> rewriting hurts even when the
+     wrapper does not. Surface-form containment, not one preferred envelope,
+     is the cross-regime signal.</p>
+  <p class="soft">exp14 job 715815 (on-policy, N=24, top_p=1); exp21 powered
+     (on-policy, N=25). The audit changed the claim instead of adding another
+     favorable condition.</p>
 </section>
 
 <!-- 9 CREDIT MISMATCH -->
@@ -401,10 +392,10 @@
       <p class="soft" style="margin-top:.5em">The damage-ordering measurement is
          off-policy; the credit arithmetic is CompactionRL's own equations and is
          regime-independent. An on-policy rerun of the chain is not yet powered.</p>
-      <p style="margin-top:.8em"><b>D offers a possible way out:</b> instead of passing
-         credit back from the final task outcome, score each summary immediately with D
-         at the place it was written. Whether that actually trains a better compressor
-         is an open question we are testing now (the T4 run).</p>
+      <p style="margin-top:.8em"><b>D offered a possible way out:</b> score each
+         summary immediately where it was written. The first clean training attempt
+         came back null (0.73 vs 0.75, p = 0.345), so we do not claim that this
+         signal trains a better compressor at the tested dose.</p>
       <p class="soft">exp7, exp1 (computed from their equations).</p>
     </div>
     <div>
@@ -461,7 +452,8 @@
   <p>All findings were first measured on public agent traces (other models' runs,
      fixed-size contexts). We then rebuilt the entire pipeline on trajectories our
      own agents produced — full real contexts, real compaction pressure — and
-     re-ran every experiment at N=25. The scorecard:</p>
+     re-ran the headline experiments, powering the decisive comparisons to N=25.
+     The scorecard:</p>
   <div class="cards">
     <div class="card"><span class="tag win">survived</span>
       <p style="font-size:1.05em">summaries worst (sharper: −20pts) ·
@@ -499,9 +491,9 @@
         shadowed by the container runtime's home-mount, caught by our own offline
         smoke before any GPU was spent. The smoke now shows a real test executing
         and writing a real reward, with networking disabled.</li>
-    <li><b>First valid task-success measurement is queued</b>: it auto-submits the
-        moment the last task images finish rebaking. Whatever number it returns will
-        be the first Pass@1 ever measured correctly on this cluster.</li>
+    <li><b>Oracle gate now green (Aug 18):</b> a reference solution passed the
+        offline verifier and wrote reward 1. The first valid 35B easy25 baseline
+        is now the sole execution objective; the brittle auto-chain was retired.</li>
   </ul>
   <p style="margin-top:.7em"><b>A valuable byproduct stands:</b> the runs produced
      100+ on-policy trajectories with real context-exhaustion compaction events —
@@ -510,7 +502,7 @@
 
 <!-- 11 NEXT -->
 <section class="slide">
-  <h2>In the queue, and what comes next</h2>
+  <h2>One objective now: connect behavior to task success</h2>
   <p>The direct comparison of production summaries against designed ones at real
      window-exhaustion moments gave a partial result: keeping recent tokens matches
      the agent's real next action 74% of the time there, but the note-style injection
@@ -521,10 +513,10 @@
         episodes with compaction policies as arms — keep-recent, raw skeleton +
         tail (per Finding 6), the stock production summarizer, and no-compaction.
         Unblocked by the verifier fix; the first valid Pass@1 run is the gate.</li>
-    <li><b>Finish the on-policy set</b>: the D(R) curve rerun (checkpointed this
-        time), the format-phenotype rerun, and a GLM arm on our own trajectories —
-        the cross-model cliff is the one headline still resting on off-policy data.</li>
-    <li><b>Train a compressor with D</b>: first attempt completed cleanly
+    <li><b>Stop running proxies until exp22 lands.</b> The powered format rerun is
+        a null; the D(R) rerun timed out twice and is floor-dominated; the GLM arm
+        and broad model survey are deferred rather than allowed to block the paper.</li>
+    <li><b>Training is secondary:</b> the first attempt completed cleanly
         (86 preference pairs, task-level held-out split) and came back null:
         trained D 0.73 [0.67, 0.80] vs base 0.75 [0.68, 0.81], p = 0.345.
         Selection works; training at ~100 pairs shows no effect either way.

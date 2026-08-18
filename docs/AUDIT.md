@@ -432,4 +432,38 @@ network disabled: pytest executed a real assertion ("/app/out.html does
 not exist", 1 failed in 0.70s) and wrote reward.txt. Reward 0 now means
 UNSOLVED, not unmeasured. Gate for quoting Pass@1 hereafter: this offline
 verifier smoke + an oracle-class run on rebaked sifs. easy25 rebaked
-(25/25); full-89 rebake chained; first valid TB2 eval to follow.
+(25/25). **Aug-18 correction:** the full-89/eval auto-chain did not complete:
+its process polling raced the rebake (88/89) and was not durable. The 64
+non-easy25 images remain stale. This does not block the easy25 validity gate.
+
+## Aug 8–18 final harvest and recovery decision
+
+- **exp14 powered on-policy completed (job 715815), N=24:** at top_p=1,
+  Qwen native acting=0.469 and wrapper=0.479; at top_p=0.9, 0.417 vs 0.490.
+  There is no powered on-policy Qwen format cliff. The old GLM 0.00/0.75
+  cliff is off-policy only and is cut from the main narrative.
+- **exp6 timed out twice** (715809 and checkpointed 723922) at the same long
+  example. The second job saved N=16 but restarted from zero: snapshots were
+  added without resume semantics. Partial floor=0.453 [0.344,0.562], and no
+  stable compressor ordering appears across rates/metrics. exp6 is retired
+  from the ICLR critical path; exp8/17/23 answer the budget question with
+  powered, directly grounded endpoints.
+- **Oracle validity gate GREEN (2026-08-18):** with external networking
+  blocked but localhost exempted for Selenium, the reference solution for
+  `break-filter-js-from-html` passed real pytest and wrote reward=1. The gate
+  is reproducible via `tb2/oracle_smoke.sh`. Valid Pass@1 is now measurable
+  on rebaked images.
+- **Selection-vs-length analysis (job 715810 indices, Aug 18):** 25/64 pass
+  the acting filter, but failures are NOT concentrated at long contexts.
+  Usable rates rise from 0.20 (<16k) to 0.40 (16–32k) and 0.50 (32–64k and
+  64k+); usable median length=48.6k vs skipped=25.6k, mean-length permutation
+  p=0.254. Retire the phrase “full-context acting collapse at long lengths.”
+  The filter is a policy/state selection issue, not demonstrated length decay.
+- **Program decision:** freeze duplicate exp3–21 proxy jobs and make exp22 the sole next objective.
+  First establish a competent 35B easy25 baseline; then run keep-recent, raw
+  skeleton+tail, stock summary, and no-compaction arms. If baseline success is
+  at floor, switch model/scaffold rather than run more behavioral proxies.
+- **exp22 implementation corrected before launch:** canonical one-liners were
+  replaced by byte-exact command-bearing messages + verbatim tail (the exp23
+  verdict); duplicate/missing cap logic was fixed; A/B/C now share the same
+  post-third-compaction fallback.

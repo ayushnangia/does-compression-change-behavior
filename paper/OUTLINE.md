@@ -1,79 +1,120 @@
-# ICLR outline — the single source of narrative truth
+# ICLR outline — narrative truth
 
-Title: **Does Compression Change Behavior? Measuring What Context
-Compaction Does to Coding Agents**
+Working title: **Does Compression Change Behavior? On-Policy Evaluation of
+Context Compaction for Coding Agents**
 
-Thesis (one sentence): context compression for agents is not text
-compression — behavior, not information, is what must be preserved, and
-only verbatim-extractive compression preserves it; every form of
-rewriting (summaries, canonical shorthand) destroys it.
+Thesis: context compaction should be evaluated by the behavior and task
+outcomes it induces, not by textual information retention. On our agent’s own
+trajectories, verbatim-extractive policies preserve next-action behavior while
+rewriting loses it; several apparent “laws” discovered off-policy disappear.
 
-DATA POLICY (group, 2026-07-30 + powered verdicts 2026-08-06): the paper
-quotes ON-POLICY numbers only. Off-policy results appear in exactly one
-place — the regime-dependence section — as evidence that off-policy
-evaluation (the field's default) produces laws that do not transfer.
+Data policy: paper claims use on-policy trajectories only. Off-policy results
+appear only in the regime-dependence experiment. Never claim skeleton+tail
+beats keep-recent: they tie (pooled p=0.39).
 
-Rules for this file: every claim cites its experiment + the AUDIT-approved
-number. STATUS says what blocks it. Nothing goes in the paper that is
-BLOCKED here. Quotable numbers come from docs/AUDIT.md requant sections
-only. Rigor bar per claim: docs/ICLR_READINESS.md.
+## Paper structure
 
-NOTE (2026-07-31): the ON-POLICY ONLY policy means every number in the
-table below will be superseded by the auto-queued on-policy suite
-(ROADMAP Phase 2). Treat current numbers as the off-policy record;
-refresh this table from the suite's provenance-stamped results before
-drafting §4.
+### 1. Introduction
 
-## Section skeleton -> experiments -> figures
+- Production agents summarize when context fills, but evaluate summaries as
+  text rather than interventions on a policy.
+- We define behavioral preservation and ask three questions:
+  1. Which compression operations preserve next actions at fixed rate?
+  2. Do conclusions transfer from public/off-policy traces to the evaluated
+     agent’s own trajectories?
+  3. Do behavioral differences predict task success in live episodes?
+- Lead result: at 25%, keep-recent agrees with logged actions as often as full
+  context (0.66 vs 0.65), while summaries fall to 0.46; rewriting a raw action
+  skeleton loses about 13 points relative to keeping it verbatim.
 
-| § | section | experiments | quotable numbers (AUDIT) | STATUS |
-|---|---------|-------------|--------------------------|--------|
-| 1 | Intro (freeze law as Fig 1) | exp4 | halts 0.31 vs 0.10 (3.1x) @0.7; 0.42 vs 0.21 (2.0x) @1.0 | READY; structure-preserving ablation strengthens (Wave 1) |
-| 2 | Related work | — | — | BLOCKED: citation-graph walk (paper/LITERATURE.md) |
-| 3 | The instrument: D, floors, theory | exp19, exp8, stats.py | exact 0.029 vs sampled 0.275; grounding 0.67–0.73 | READY; add PDL/AIS framing paragraph |
-| 4.1 | Regime dependence (methods finding): off-policy laws don't transfer | exp4 + exp21, both regimes | freeze law 3.1x off-policy -> p=0.78 on-policy; wrapper +18pts -> p=0.36 reversed | READY — the cautionary tale that justifies on-policy-only |
-| 4.2 | Law 2: containment | exp20, exp20b | rho −0.38/−0.44/−0.45 (N=23 x3); NLL +0.22..+0.30 | READY (predictive-only phrasing, threat 2.3) |
-| 4.3 | Law 3: format cliff + wrapper | exp14, exp21, GLM requant | GLM 0.00 vs 0.75 (N=24); wrapper +18pts p=0.023 @0.7; +12 p=0.121 @1.0 | BLOCKED: GLM temp-1.0 arm (threat 3.2); powered wrapper N~64 @1.0 (Wave 1) |
-| 4.4 | Law 4: tiny core | exp17, exp21 | 0.59 agreement @330 tokens (2%); ~870-token canonical history 0.53–0.61 vs 0.68 raw | READY (one model caveat, threat 4.3) |
-| 4.5 | Deployable rule | exp23 powered (N=25) | P1 NULL (one-liners don't help, p=0.43); **skeleton_tail (raw blocks+tail) best at all rates** (0.71/0.74/0.68, P3 p=0.11) | READY as directional; suggests exp22 arm-B should use raw skeletons |
-| 5 | Selection vs training | exp11, T4/expB | selection p=0.0004; fresh 0.612 vs 0.790; 16k: 0.67 vs 0.72 non-overlap CIs; DPO null 0.73 vs 0.75 p=0.345 | READY as scoped null ("at this dose"); E-B repo-split fix owed (Wave 0) |
-| 6 | The outcome bridge | exp22 (+ TB2 bf16 traces) | — | BLOCKED: H100 pilot (Wave 2), full matrix H200 |
-| 7 | Limitations | — | one domain (scoped in title); ≤35B local; D@0 with exp10 context | READY |
-| A | Appendix: audit | docs/AUDIT.md near-verbatim | 4 parser bugs found, all headlines requantified, none died | READY — this is a feature, present it as one |
+### 2. Related work
+
+Context compression/summarization, KV/cache eviction, agent memory, behavioral
+distillation, CompactionRL, and rate-distortion. exp1/2 appear only as brief
+motivation. Complete citation graph from `paper/LITERATURE.md` during writing;
+it does not block exp22.
+
+### 3. Method
+
+- On-policy Terminal-Bench/Terminus trajectories and decision-point extraction.
+- Full-context reference, matched token budgets, shared examples/seeds.
+- Acting rate, logged-action agreement, label/tool/verb divergence, noise floor,
+  paired tests, selection filter.
+- Explicit distinction: behavioral fidelity is not optimality. exp22 supplies
+  the outcome bridge.
+- Measurement audit: parser certification, exp19 exact-vs-sampled validation,
+  and verifier/oracle gate.
+
+### 4. Behavioral results
+
+#### 4.1 Verbatim extraction survives aggressive compression
+
+- exp8: full 0.65; keep-recent@25% 0.66; summary 0.46 (N=25).
+- exp17: 2% still 0.57; 25% 0.68 (N=25).
+- Claim: no measurable loss at 25% in this regime; not “25% is better.”
+
+#### 4.2 Rewriting, not information amount, is the boundary
+
+- exp23 matched-budget comparison: raw skeleton+tail 0.71/0.74/0.68;
+  keep-recent 0.68/0.66/0.69; pooled difference +0.037, p=0.39.
+- Canonical one-liner+tail loses about 13 points; summary loses about 20.
+- exp20 supports the pattern: containment rho=-0.23, stronger than NLL.
+- Deployable rule: preserve tokens verbatim; choose between verbatim policies
+  based on systems cost, not an unsupported quality ranking.
+
+#### 4.3 Off-policy evaluation invents non-transferring laws
+
+- exp4: freeze/block asymmetry strong off-policy, null on-policy (p=0.78).
+- exp21: wrapper advantage +18 points off-policy, null/reversed on-policy
+  (p=0.36).
+- This is the only section allowed to quote off-policy numbers, paired directly
+  with their on-policy failures.
+
+### 5. Outcome-grounded live evaluation
+
+exp22, four arms with identical triggers and handoff budgets:
+
+A. keep recent; B. raw skeleton+tail; C. stock summary; D. no compaction.
+
+Primary: valid Pass@1. Secondary: tasks that actually compacted,
+post-compaction stalls, compaction count, and D at compaction events. The
+verifier must carry a clean marker; infra failures are retried, not scored.
+This section is the remaining submission-critical result.
+
+### 6. What did not work
+
+Brief, useful negative results: format effect null on-policy for Qwen N=24;
+DPO null at 86-pair dose; rate-curve estimator floor/compute failure. Keep
+these scoped and do not turn them into new claims.
+
+### 7. Limitations
+
+One coding-agent domain; one primary local model until outcome row is complete;
+25 usable behavioral points; selection conditional on full-context acting;
+next-action fidelity can preserve bad behavior; D values cannot be compared
+across experiments; task outcome variance; raw-skeleton exactness is defined
+relative to each scaffold’s serialization.
 
 ## Figure plan
 
-1. **Fig 1 (the hook):** halt-rate bars by deleted block type, control floor
-   line, both temps. "Agents freeze when you delete their own actions."
-2. **Fig 2:** containment-vs-coarse-D scatter, 3 rates overlaid, NLL inset.
-3. **Fig 3:** format cliff — GLM native vs wrapper acting rate; wrapper
-   effect at 2% budget (content held constant).
-4. **Fig 4:** agreement vs budget (the 2% knee), compressor families as
-   curves; canonical-shorthand saturation point marked.
-5. **Fig 5:** exp22 bridge — per-arm Pass@1 vs offline D at compaction
-   events. (Placeholder until Wave 2 pilot.)
+1. **Behavior vs budget:** full, keep-recent, raw skeleton+tail, canonical
+   rewrite, summary; exp8/17/23 only.
+2. **Same proposal, two regimes:** exp4 and exp21 off-policy effects beside
+   on-policy nulls.
+3. **Outcome bridge:** Pass@1 by exp22 arm, with compacted-task subset and
+   behavioral preservation inset.
+4. Appendix: audit timeline and exact-vs-sampled D validation.
 
-## What is CUT from the paper (and why — do not resurrect)
+## Cut from the main paper
 
-- exp13 (manifest masked by menu confound), exp15 v1/v2 (format-confounded,
-  withdrawn), exp3 v1 (truncation confound), exp6 label-level (ceiling),
-  exp7 GLM arm (measured format effect), anything floor>0.5 at label
-  granularity. Full list: COAUTHOR.md §11.
-- exp1/exp2 (CompactionRL analyses): one paragraph in related work as
-  motivation ("deployed credit schemes sit at a known-bad point of the
-  TD(λ) family"), NOT a section. They are a different paper's contribution.
+exp3, exp5, exp6 curve, exp7, exp9/10 preliminary runs, exp12, exp13, exp14
+GLM cliff, exp15, exp16 training details, exp18, and broad H200 coverage.
+exp11 selection can enter the appendix only if exp22 validates the metric
+externally.
 
-## Do-not list (from THREATS.md, paper-shaped)
+## Submission decision
 
-1. No GLM cliff magnitude before the temp-1.0 arm.
-2. Wrapper effect: "significant at 0.7, directional at 1.0" until powered run.
-3. "Training showed no effect at this dose" — never "training doesn't work".
-4. Containment is predictive, never causal/mechanistic.
-5. Never compare D across experiments; say so once, explicitly.
-6. Scope every claim sentence to coding agents.
-
-## Submission gate (unchanged from THREATS §7)
-
-requants harvested ✅ + exp20b ✅ + temp-1.0 headline ✅ + GLM temp-1.0 ❌
-+ powered wrapper @1.0 ❌ + exp22 (pilot minimum) ❌. Anything earlier is a
-workshop paper.
+A full ICLR claim requires an interpretable exp22 row. If no competent model is
+available before the writing deadline, submit as a behavioral-measurement paper
+only and state that task utility is unresolved; do not imply a deployable task
+success gain.

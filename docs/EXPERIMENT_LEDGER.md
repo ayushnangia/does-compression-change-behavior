@@ -29,7 +29,7 @@ Off-policy results are retained only for the regime-dependence comparison.
 | 21 | Does canonical shorthand preserve action history? | Powered on-policy N=25: wrapped 0.49 vs bare 0.55, p=0.36; raw beats canonical | On-policy null for wrapper; supports **do not rewrite** |
 | 22 | Do policies change real task success? | Harness smoke only; offline verifier and oracle reward=1 now green | **SOLE NEXT EXPERIMENT / submission gate** |
 | 23 | Raw skeleton+tail vs rewritten one-liners | Powered on-policy N=25: verbatim policies tie (pooled p=0.39); rewriting costs about 13 points | **Headline matched-budget evidence** |
-| 24 | Can direct behavioral-reward training work? | Designed only: GRPO-D vs matched base/SFT-best/DPO, >=1k task-split points | **Next major training experiment after exp22 Gate 1; not yet run** |
+| 24 | Can direct behavioral-reward training work? | Implemented, not run: extractive Qwen3.5-4B selector, frozen Qwen3.8-27B executor, Dr-GRPO contextual-bandit reward, >=1k Qwen3.8-on-policy task-split points | **Cache/preflight/baseline/data gates must pass first; no performance claim yet** |
 
 ## The evidence package we already have
 

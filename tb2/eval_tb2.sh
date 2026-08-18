@@ -56,6 +56,9 @@ case "$MODEL" in
   *Qwen3.5-35B*)  # Mamba cache: one block per decode seq; ~135 fit at util .92
     GPU_UTIL=${GPU_UTIL:-0.92}
     VLLM_EXTRA_ARGS=${VLLM_EXTRA_ARGS:---max-num-seqs 128 --max-num-batched-tokens 1024} ;;
+  *Qwen3.8-27B*)  # dense 27B + hybrid cache: leave weight/KV headroom
+    GPU_UTIL=${GPU_UTIL:-0.92}
+    VLLM_EXTRA_ARGS=${VLLM_EXTRA_ARGS:---max-num-seqs 16 --max-num-batched-tokens 1024} ;;
 esac
 GPU_UTIL=${GPU_UTIL:-0.90}
 VLLM_EXTRA_ARGS=${VLLM_EXTRA_ARGS:-}
@@ -105,6 +108,7 @@ WINDOW=$((BUDGET + 12288))
 echo "context budget C=$BUDGET (compaction pressure at $((BUDGET-10240))), serving window=$WINDOW"
 vllm serve "$MODEL" --port $PORT --served-model-name "$SERVED" \
     --tensor-parallel-size "$TP" --max-model-len $WINDOW \
+    --generation-config vllm \
     --gpu-memory-utilization "$GPU_UTIL" $VLLM_EXTRA_ARGS > "vllm_$SLURM_JOB_ID.log" 2>&1 &
 VLLM_PID=$!
 deactivate

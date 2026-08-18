@@ -10,7 +10,8 @@ verdicts and retractions: `docs/AUDIT.md`.
   language was stale.
 - Repository/data: on-policy dataset (64 examples, 2k–209k tokens) and all
   Aug 4–6 powered result artifacts are committed.
-- Test gate before this pass: 87/87.
+- Test gate: **108/108** after exp22/exp24 lineage, budget, parser and
+  generation-default guards.
 - Paper policy: on-policy results only; off-policy appears only as evidence
   that evaluation regimes do not reliably transfer.
 
@@ -59,8 +60,9 @@ verdicts and retractions: `docs/AUDIT.md`.
 ## Sole next objective
 
 **exp22: connect behavioral preservation to valid Terminal-Bench task
-success.** First run a competent 35B bf16 easy25 baseline. If it yields at
-least two valid successes, run the four matched live policy arms:
+success.** Final lineage is `Qwen/Qwen3.8-27B` bf16 (user decision,
+2026-08-18). After cache + vLLM/parser preflight, run its easy25 baseline. If
+it yields at least two valid successes, run the four matched live policy arms:
 
 A. keep recent verbatim;
 B. raw action skeleton + verbatim tail;
@@ -73,8 +75,8 @@ now share a three-policy-compaction cap followed by the same fallback.
 ## Hard stop rule
 
 No duplicate exp3–21 jobs, GLM cliff runs, full exp6 rerun, or broad model
-matrix before the outcome gate. If the 35B baseline is at floor, switch to a
-stronger model/scaffold; do not manufacture progress with more proxies.
+matrix before the outcome gate. If the Qwen3.8-27B baseline is at floor,
+switch model/scaffold; do not manufacture progress with more proxies.
 A proper training follow-up is designed as **exp24 GRPO-D** with matched base,
 SFT-best and DPO controls (`docs/RL_EXPERIMENT.md`); it starts only after exp22
 establishes a non-floor outcome evaluator.
@@ -84,6 +86,7 @@ establishes a non-floor outcome evaluator.
 - on-policy behavioral evidence: **DONE**;
 - off-policy-regime warning: **DONE**;
 - verifier + oracle validity: **DONE**;
+- Qwen3.8-27B cache + parser/serve preflight: **IN PROGRESS**;
 - competent baseline: **NEXT**;
 - exp22 four-arm pilot: **OPEN**;
 - powered outcome row: **OPEN**;

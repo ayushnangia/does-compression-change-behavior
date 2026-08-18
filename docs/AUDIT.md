@@ -467,3 +467,9 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   replaced by byte-exact command-bearing messages + verbatim tail (the exp23
   verdict); duplicate/missing cap logic was fixed; A/B/C now share the same
   post-third-compaction fallback.
+- **Gate-1 launch caught a sampling mismatch before scoring (Aug 18):** vLLM
+  imported Qwen's bundled generation defaults (`top_k=20, top_p=.95`) unless
+  explicitly disabled, despite the declared 1.0/1.0 protocol. Job 803214 was
+  cancelled before results. `--generation-config vllm` is now mandatory in
+  TB2 and exp24 launchers and enforced by tests; the corrected baseline is the
+  only run that may be interpreted.

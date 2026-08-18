@@ -65,12 +65,15 @@ This was not a lack of experiments; it was a failure to close the loop.
 
 ### Gate 1 — competent baseline
 
-Run 35B bf16, stock Terminus-2, easy25 once using rebaked images.
+Cache and preflight `Qwen/Qwen3.8-27B` bf16, then run stock Terminus-2 on
+easy25 once using rebaked images. The preflight must prove current vLLM can
+serve the architecture and that real serialized contexts yield actions parsed
+by the certified Qwen parser.
 
 - **GO:** at least 2 valid successes and no verifier/infra failures. Proceed to
   the four-arm pilot on a fixed task subset.
 - **STOP/SWITCH MODEL:** 0–1 successes. Do not compare policies on a floor.
-  Move directly to the strongest available H200 model/scaffold and repeat Gate
+  Move to the strongest available H200 model/scaffold and repeat Gate
   1; do not restart behavioral proxy experiments.
 - Every trial must be classified `valid reward`, `agent timeout`, or `infra`.
   Infra rows are retried and excluded, never scored as failures.

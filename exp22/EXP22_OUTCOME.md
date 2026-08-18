@@ -32,10 +32,11 @@ rewriting lost about 13 agreement points.
 - full model context window; Pass@1, mean of 2 runs
 
 ## Run matrix and cost
-4 arms x 2 models (Qwen3.5-35B-A3B, Qwen-AgentWorld-35B-A3B) x 89 tasks x 2
-runs = 1,424 episodes ~ 700 H200-hours. Binomial reality: at ~25% base rate,
-89x2 resolves arm gaps of ~7pts; smaller true gaps are why D exists (report
-both).
+Phase 1 freezes one lineage: `Qwen/Qwen3.8-27B` bf16. Four arms x 89 tasks x
+up to 2 runs = 712 episodes. The easy25 baseline/pilot gates that spend. A
+second model is deferred until one complete, valid Qwen3.8 row exists.
+Binomial reality: at ~25% base rate, 89x2 resolves arm gaps of roughly 7pts;
+smaller true gaps are why D is reported alongside outcomes.
 
 ## Readouts
 1. Pass@1 per arm (primary hypothesis: A/B > C; A vs B is a tie hypothesis,

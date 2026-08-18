@@ -306,6 +306,52 @@ except ValueError:
     _alignment_raises = True
 check("exp22 live policy alignment guard", _alignment_raises)
 
+# ---------------- exp24 direct-reward extractive GRPO ----------------
+from exp24_credit import group_advantages, event_weights, selector_reward
+from exp24_data import extract_turns, parse_keep, render_selection, stable_split
+
+_ga = group_advantages([0.0, 1.0, 2.0, 3.0])
+check("exp24 group advantages centered", abs(sum(_ga)) < 1e-9)
+check("exp24 constant group zero", group_advantages([1.0] * 4) == [0.0] * 4)
+check("exp24 trajectory mass fixed", abs(sum(event_weights(4)) - 1.0) < 1e-9)
+check("exp24 no early-credit decay", len(set(event_weights(4))) == 1)
+check("exp24 invalid selection penalized", selector_reward(
+      tool_agreement=1, verb_agreement=1, acting_rate=1, valid=False,
+      budget_ratio=0.5) < 0)
+_trace = "<agent_trace>\n<turn index=0 role=user>A</turn>\n<turn index=1 role=agent>B</turn>\n"
+_hdr, _turns = extract_turns(_trace)
+check("exp24 exact turns extracted", _hdr == "<agent_trace>\n" and len(_turns) == 2)
+_partial_hdr, _ = extract_turns("TRUNCATED GARBAGE<turn index=1 role=agent>B</turn>")
+check("exp24 truncated prefix is not free header", _partial_hdr == "")
+_keep, _valid = parse_keep('noise {"keep":[1,0,1]}', 2)
+check("exp24 selector JSON strict", _valid and _keep == [0, 1])
+check("exp24 selector rejects range", not parse_keep('{"keep":[2]}', 2)[1])
+check("exp24 parser finds first valid JSON", parse_keep(
+      'bad {x} then {"keep":[1]} trailing {"junk":0}', 2) == ([1], True))
+_rendered = render_selection(_hdr, _turns, [1], "RECENT")
+check("exp24 renderer copies exact bytes", _rendered == _hdr + _turns[1] + "RECENT")
+check("exp24 task split deterministic", stable_split("task-x") == stable_split("task-x"))
+from exp24_grpo_train import ExecutorReward
+_exp24_log = REPO / "tests" / ".exp24_reward_test.jsonl"
+_exp24_log.unlink(missing_ok=True)
+_bad_reward = ExecutorReward("http://127.0.0.1:9", "unused", 1, 8, _exp24_log)(
+    prompts=["p"], completions=["bad"], header=["h"],
+    units_json=['["u"]'], recent_text=["r"], logged_action=["bash::x"],
+    budget_chars=[1], task=["t"], id=[0])
+check("exp24 invalid completion needs no executor", _bad_reward[0] < 0)
+_exp24_log.unlink(missing_ok=True)
+# vLLM otherwise silently imports model generation_config (Qwen top_k=20,
+# top_p=.95), invalidating the declared temp=1/top_p=1 protocol.
+check("TB2 disables model generation defaults", "--generation-config vllm" in
+      (REPO / "tb2/eval_tb2.sh").read_text())
+_exp24_job_text = (REPO / "experiments/exp24_job.sh").read_text()
+check("exp24 disables model generation defaults", "--generation-config vllm" in
+      _exp24_job_text)
+check("exp24 final executor is Qwen3.8-27B",
+      "Qwen/Qwen3.8-27B" in _exp24_job_text and "exp24_qwen38_data" in _exp24_job_text)
+check("exp24 trainer has lineage guard", "OFF-POLICY DATA REFUSED" in
+      (REPO / "experiments/exp24_grpo_train.py").read_text())
+
 print(f"\n{PASS} checks passed, {len(FAIL)} failed")
 if FAIL:
     for f in FAIL:

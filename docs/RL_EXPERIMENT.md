@@ -14,18 +14,22 @@ non-floor task-success evaluator.
 
 ## Question
 
-Can direct optimization of a compactor for downstream behavioral preservation
-outperform supervised and preference-learning baselines, and does any gain
-transfer to live task success?
+Can direct optimization of an **extractive selector** for downstream
+behavioral preservation outperform fixed extractive heuristics, supervised
+and preference-learning baselines, and does any gain transfer to live task
+success? The selector emits block indices; the system copies those trace
+blocks byte-for-byte. The policy cannot paraphrase or hallucinate memory.
 
 ## Why GRPO, not an algorithm zoo
 
-GRPO naturally matches the data-generating unit: generate a group of candidate
-compactions for one history, execute each under the same downstream model, and
-normalize rewards within that history. PPO adds a critic whose quality becomes
-another confound; TRPO adds substantial implementation cost without addressing
-the reward-validity question. One credible GRPO comparison is stronger than
-five underpowered optimizers.
+GRPO naturally matches the data-generating unit: at one fixed history, generate
+a group of block selections, execute each under the same frozen downstream
+model, and normalize rewards only within that history. This is a contextual
+bandit, so **GAE is removed rather than modified**. PPO adds a critic whose
+quality becomes another confound; TRPO adds implementation cost without fixing
+reward validity. Dr-GRPO removes completion-length bias, sequence-level
+importance weights match the sequence-level action, and each history enters
+once—no segment-expanded gradient mass.
 
 ## Frozen design
 
@@ -39,9 +43,10 @@ five underpowered optimizers.
 
 ### Models
 
-- Compactor: one trainable 4B–9B model, LoRA first; model generates its own
-  candidates (no off-policy 9B-text/4B-trainee mismatch).
-- Executor: fixed model/scaffold used by exp22.
+- Compactor: one trainable 4B selector, LoRA first; it generates its own
+  index selections (no off-policy 9B-text/4B-trainee mismatch).
+- Executor: frozen `Qwen/Qwen3.8-27B` bf16 under the exact exp22 scaffold.
+  Qwen3.5-9B may be used only for a non-result plumbing smoke.
 - Freeze tokenizer, chat template, sampling parameters, context budget, and
   model revisions.
 
@@ -57,14 +62,14 @@ optimizer-token budget, and evaluation draws.
 
 ### Reward
 
-For candidate compression `c` at history `h`:
+For candidate selection `c` at history `h`:
 
-`R = logged_action_agreement(c) - alpha * halt_increase(c) - beta * budget_violation`
+`R = .70 tool_agreement + .20 verb_agreement + .10 acting_rate`
 
-Use multiple executor samples and a cached full-context reference. Do not use
-raw sampled D alone: exp19 shows tool-level D is floor-dominated, and optimizing
-the evaluation metric directly invites circularity. Agreement and halt are
-computed downstream, not from summary text.
+Invalid JSON and budget overflow receive a hard negative reward. Use multiple
+executor samples. Do not use raw sampled D alone: exp19 shows tool-level D is
+floor-dominated. All reward terms are computed from the frozen executor’s
+next actions, never from memory text. The reward is frozen before training.
 
 ### Primary endpoint
 
@@ -88,6 +93,21 @@ agent rather than merely its behavioral proxy.
   acting is at floor, or if no arm changes the validation endpoint after the
   predeclared token budget.
 - Never add PPO/TRPO after a null without first diagnosing reward validity.
+
+## Implementation
+
+- `exp24_data.py`: exact turn extraction, strict index parser, verbatim renderer.
+- `exp24_prepare.py`: deterministic task-level split and selector manifests.
+- `exp24_credit.py`: group advantages, unit trajectory mass, frozen reward.
+- `exp24_grpo_train.py`: LoRA Dr-GRPO with a frozen vLLM executor reward.
+- `exp24_job.sh`: supported two-H100 Slurm launcher (GPU0 train, GPU1 execute).
+
+The old 64-example Qwen3.5-derived data yielded only 31/8/13 rows and is
+**forbidden for training this lineage**. After the Qwen3.8 baseline, an
+efficient turn-boundary-aware builder harvests up to 2,000 decision points
+from Qwen3.8's own trajectories and splits by task. The trainer hard-fails if
+any row's `source_model` is not `Qwen/Qwen3.8-27B`. The main run still requires
+>=1,000 points; smaller data is plumbing only.
 
 ## Required artifacts
 

@@ -6,6 +6,10 @@ __pycache__/
 *.out
 *.log
 experiments/results/dpo_compressor*/
+experiments/results/exp24*_data/*.jsonl
+data/examples_qwen38_exp24.json
+experiments/results/exp24_grpo_*/
+experiments/results/exp24_grpo_rewards_*.jsonl
 nohup.out
 .env
 dpo_checkpoints.tar.gz

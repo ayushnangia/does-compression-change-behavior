@@ -8,7 +8,7 @@ task environments run from pre-baked Apptainer images.
 
 ```bash
 # 1. cache the model
-HF_HOME=$SCRATCH/hf hf download Qwen/Qwen3.5-9B
+HF_HOME=$SCRATCH/hf hf download Qwen/Qwen3.8-27B
 
 # 2. download the task set (needs internet -> login node)
 harbor datasets download terminal-bench-2 -o $SCRATCH/tb2/terminal-bench
@@ -20,8 +20,8 @@ bash bake_all_sifs.sh
 ## Run
 
 ```bash
-sbatch eval_tb2.sh Qwen/Qwen3.5-9B qwen35-9b            # full 89 tasks
-sbatch eval_tb2.sh Qwen/Qwen3.5-9B qwen35-9b 1 easy25   # 25 easiest
+sbatch eval_tb2.sh Qwen/Qwen3.8-27B qwen38-27b            # full 89 tasks
+sbatch eval_tb2.sh Qwen/Qwen3.8-27B qwen38-27b 1 easy25   # 25 easiest
 sbatch eval_tb2.sh zai-org/GLM-4.7-Flash glm47 2        # tensor-parallel 2
 ```
 
@@ -56,6 +56,6 @@ bash oracle_smoke.sh
 ```
 
 Both gates are green on `break-filter-js-from-html` as of 2026-08-18. The
-35B bf16 easy25 baseline is the first capability measurement to run after
-this repair. Never quote a task score without a verifier-clean marker; retry
+Qwen3.8-27B bf16 easy25 is the first capability measurement to run after
+this repair (after its vLLM/parser preflight). Never quote a task score without a verifier-clean marker; retry
 infrastructure failures rather than counting them as model failures.

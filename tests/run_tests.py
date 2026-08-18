@@ -352,9 +352,14 @@ check("exp24 final executor is Qwen3.8-27B",
 check("exp24 trainer has lineage guard", "OFF-POLICY DATA REFUSED" in
       (REPO / "experiments/exp24_grpo_train.py").read_text())
 _q38_preflight = (REPO / "tb2/preflight_qwen38_27b.sh").read_text()
-check("Qwen3.8 preflight uses Harbor authority parser",
-      "TerminusJSONPlainParser" in _q38_preflight)
-check("Qwen3.8 preflight does not misuse stored-trace parser",
+check("Qwen3.8 preflight runs real Harbor",
+      "bash tb2/eval_tb2.sh" in _q38_preflight)
+check("Qwen3.8 preflight requires Harbor-parsed commands",
+      "tool_calls" in _q38_preflight and "actions > 0" in _q38_preflight)
+check("Qwen3.8 preflight requires executed verifier",
+      "test-stdout.txt" in _q38_preflight and "pytest did not execute" in _q38_preflight)
+check("Qwen3.8 preflight does not use raw completion proxy",
+      "/v1/completions" not in _q38_preflight and
       "from behavior import parse_action" not in _q38_preflight)
 
 print(f"\n{PASS} checks passed, {len(FAIL)} failed")

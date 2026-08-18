@@ -481,3 +481,12 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   model verdict. Slurm `afterok` correctly cancelled baseline/data jobs
   803411/803412. Round 2 uses Harbor's authoritative
   `TerminusJSONPlainParser` and prints raw snippets before any decision.
+- **Qwen3.8 preflight round 2 (803548): wrong interface, no model verdict.**
+  Full-window serving again passed. The raw completion endpoint was fed an old
+  Qwen3.5 serialized `<agent_trace>` prefix; Qwen3.8 closed that document and
+  wrote retrospective prose. Harbor's parser correctly found zero commands,
+  but live Terminus uses chat messages + Qwen3.8's native chat template, not
+  that raw-prefix interface. Baseline/data were again safely cancelled by
+  `afterok`. Round 3 removes the proxy entirely: one real Harbor/Terminus task
+  must contain executed `tool_calls` in trajectory.json and real pytest output
+  before easy25 is released.

@@ -1,58 +1,45 @@
 #!/bin/bash
 #SBATCH --account=def-rgrosse
-#SBATCH --job-name=q38preflight
+#SBATCH --job-name=q38livegate
 #SBATCH --gpus-per-node=h100:1
-#SBATCH --time=0-01:00
-#SBATCH --output=q38_preflight_%j.out
-# Architecture + generation + parser gate for the final Qwen3.8-27B lineage.
+#SBATCH --time=0-02:00
+#SBATCH --output=q38_livegate_%j.out
+# Full-stack gate for Qwen3.8-27B. Do not approximate Harbor with a raw
+# completions prompt: run one real Terminus-2 task, then require Harbor-parsed
+# commands AND a verifier that actually executed.
 set -euo pipefail
 ROOT=${SLURM_SUBMIT_DIR:-$SCRATCH/dccb}; [ -f "$ROOT/behavior.py" ] || ROOT=$SCRATCH/dccb
 cd "$ROOT"
-module load gcc cuda python/3.12 arrow/19.0.1 2>/dev/null
-REAL_HOME=$HOME; export HOME=$SCRATCH/compute_home HF_HOME=$SCRATCH/hf
-export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 VLLM_NO_USAGE_STATS=1 PYTHONUNBUFFERED=1
-mkdir -p "$HOME/.cache" "$SLURM_TMPDIR/triton"
-TRITON_CACHE_DIR=$SLURM_TMPDIR/triton $REAL_HOME/ENV-vllm2/bin/vllm serve \
-  Qwen/Qwen3.8-27B --port 8000 --served-model-name qwen38-27b-preflight \
-  --max-model-len 77824 --generation-config vllm --gpu-memory-utilization 0.92 \
-  --max-num-seqs 8 --max-num-batched-tokens 1024 > q38_vllm_$SLURM_JOB_ID.log 2>&1 &
-SERVER=$!; trap 'kill $SERVER 2>/dev/null || true' EXIT
-for i in $(seq 1 180); do
-  curl -sf http://127.0.0.1:8000/health >/dev/null && break
-  kill -0 $SERVER 2>/dev/null || { tail -100 q38_vllm_$SLURM_JOB_ID.log; exit 1; }
-  sleep 10
-done
-curl -sf http://127.0.0.1:8000/health >/dev/null || exit 1
+SERVED="qwen38-27b-smoke-$SLURM_JOB_ID"
+SUBSET="$ROOT/tb2/q38_smoke.txt"
 
-# Use a real serialized decision point, not a toy chat prompt. Decode it with
-# the tokenizer that created those IDs, then parse RAW model responses with
-# Harbor's live authority parser (not behavior.parse_action, which parses the
-# stored <tool_calls> serialization after Harbor has already acted).
-module unload python 2>/dev/null || true
-module load python/3.11 2>/dev/null
-$REAL_HOME/ENV-compress2/bin/python - <<'PY'
-import json, os
-from transformers import AutoTokenizer
-x=json.load(open('data/examples_onpolicy.json'))
-t=AutoTokenizer.from_pretrained('Qwen/Qwen3.5-9B',trust_remote_code=True)
-open(os.path.join(os.environ['SLURM_TMPDIR'],'q38_prompt.txt'),'w').write(
-    t.decode(x[5]['context_ids'][-28000:],skip_special_tokens=False))
-PY
-module unload python 2>/dev/null || true
-module load python/3.12 2>/dev/null
-$REAL_HOME/ENV-harbor2/bin/python - <<'PY'
-import os, requests
-from harbor.agents.terminus_2.terminus_json_plain_parser import TerminusJSONPlainParser
-prompt=open(os.path.join(os.environ['SLURM_TMPDIR'],'q38_prompt.txt')).read()
-r=requests.post('http://127.0.0.1:8000/v1/completions',json={
- 'model':'qwen38-27b-preflight','prompt':prompt,'n':2,'max_tokens':4096,
- 'temperature':1.0,'top_p':1.0,'seed':38},timeout=1200)
-r.raise_for_status(); texts=[c['text'] for c in r.json()['choices']]
-for i,text in enumerate(texts):
-    print(f'--- raw completion {i} ---\n{text[:2000]}\n--- end snippet ---')
-parsed=[TerminusJSONPlainParser().parse_response(text) for text in texts]
-counts=[len(p.commands) for p in parsed]
-print('authority-parser command counts:',counts)
-assert any(n > 0 for n in counts), 'Qwen3.8 generated no Harbor-parsed command'
-print('QWEN38 PREFLIGHT GREEN')
+# This starts vLLM at the production 77,824-token window, runs Harbor/Terminus,
+# executes the rebaked offline verifier, and shuts the server down.
+bash tb2/eval_tb2.sh Qwen/Qwen3.8-27B "$SERVED" 1 "$SUBSET" 4
+
+JOB="$SCRATCH/tb2/jobs/tb2-$SERVED-q38_smoke"
+TRIAL=$(find "$JOB" -mindepth 1 -maxdepth 1 -type d | head -1)
+[ -n "$TRIAL" ] || { echo "LIVE GATE FAILED: no trial directory in $JOB"; exit 1; }
+TRAJ="$TRIAL/agent/trajectory.json"
+REWARD="$TRIAL/verifier/reward.txt"
+TESTOUT="$TRIAL/verifier/test-stdout.txt"
+[ -s "$TRAJ" ] || { echo "LIVE GATE FAILED: missing trajectory"; exit 1; }
+[ -s "$REWARD" ] || { echo "LIVE GATE FAILED: missing reward"; exit 1; }
+[ -s "$TESTOUT" ] || { echo "LIVE GATE FAILED: missing verifier stdout"; exit 1; }
+
+# tool_calls in trajectory.json exist only after Harbor's authoritative parser
+# accepted a raw model response and executed it.
+python3 - "$TRAJ" "$REWARD" "$TESTOUT" <<'PY'
+import json,re,sys
+traj,reward_path,testout_path=sys.argv[1:]
+d=json.load(open(traj)); steps=d.get('steps',[])
+actions=sum(len(s.get('tool_calls') or []) for s in steps)
+reward=open(reward_path).read().strip(); testout=open(testout_path).read()
+print(f'live steps={len(steps)} parsed_tool_calls={actions} reward={reward}')
+assert actions > 0, 'Qwen3.8 produced no Harbor-parsed/executed command'
+assert reward in {'0','1','0.0','1.0'}, f'invalid reward: {reward!r}'
+assert re.search(r'\b(passed|failed)\b', testout, re.I), 'pytest did not execute'
+for bad in ('uvx: command not found','pytest: command not found'):
+    assert bad not in testout, f'verifier infrastructure error: {bad}'
+print('QWEN38 FULL-STACK LIVE GATE GREEN')
 PY

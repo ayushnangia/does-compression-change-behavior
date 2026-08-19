@@ -512,3 +512,8 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   `experiments/` importable. Fixed after 10 seconds, before data or GPUs were
   used meaningfully. Regression test now launches the entrypoint from `/tmp`,
   so the test harness cannot mask this class of path bug by running at repo root.
+- **exp24 pilot data round 2 (809850) GREEN:** immutable snapshot of five
+  completed baseline trajectories produced 66 Qwen3.8-on-policy decision
+  points from 3 tasks in 28 seconds. All three hash to train (0 validation),
+  which is acceptable only for the 10-step plumbing pilot; the launcher now
+  omits an empty eval file. This dataset is explicitly too small for evidence.

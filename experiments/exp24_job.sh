@@ -40,10 +40,11 @@ curl -sf http://127.0.0.1:8001/health >/dev/null || { echo 'executor failed read
 
 # Selector LoRA training on GPU 0. Dr-GRPO removes completion-length bias;
 # sequence-level importance weights match the sequence-level selector reward.
+EVAL_ARGS=()
+[ -s "$DATA_DIR/validation.jsonl" ] && EVAL_ARGS=(--eval-file "$DATA_DIR/validation.jsonl")
 CUDA_VISIBLE_DEVICES=0 TRITON_CACHE_DIR=$SLURM_TMPDIR/triton-train \
   $REAL_HOME/ENV-compress2/bin/python experiments/exp24_grpo_train.py \
-  --train-file "$DATA_DIR/train.jsonl" \
-  --eval-file "$DATA_DIR/validation.jsonl" \
+  --train-file "$DATA_DIR/train.jsonl" "${EVAL_ARGS[@]}" \
   --out experiments/results/exp24_grpo_$SLURM_JOB_ID \
   --reward-log experiments/results/exp24_grpo_rewards_$SLURM_JOB_ID.jsonl \
   --max-steps "$MAX_STEPS" --min-train-examples "$MIN_TRAIN"

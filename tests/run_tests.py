@@ -356,6 +356,8 @@ check("exp24 disables model generation defaults", "--generation-config vllm" in
       _exp24_job_text)
 check("exp24 final executor is Qwen3.8-27B",
       "Qwen/Qwen3.8-27B" in _exp24_job_text and "exp24_qwen38_data" in _exp24_job_text)
+check("exp24 uses valid Trillium whole-node request",
+      "#SBATCH --gpus-per-node=h100:4" in _exp24_job_text)
 _exp24_trainer_text = (REPO / "experiments/exp24_grpo_train.py").read_text()
 check("exp24 trainer has lineage guard", "OFF-POLICY DATA REFUSED" in
       _exp24_trainer_text)

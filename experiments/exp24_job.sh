@@ -1,11 +1,13 @@
 #!/bin/bash
 #SBATCH --account=def-rgrosse
 #SBATCH --job-name=exp24grpo
-#SBATCH --gpus-per-node=h100:2
+#SBATCH --gpus-per-node=h100:4
 #SBATCH --time=1-00:00
 #SBATCH --output=exp24_grpo_%j.out
 # Usage after Gate 1: sbatch exp24_job.sh 10   # plumbing pilot only
 # Main run:          sbatch exp24_job.sh -1
+# Trillium allocates either 1 or a multiple of 4 GPUs. We request one node;
+# GPU0 trains, GPU1 serves the frozen executor, GPUs2-3 remain unused.
 # Final frozen executor: Qwen3.8-27B bf16. The 4B model only selects indices.
 set -euo pipefail
 

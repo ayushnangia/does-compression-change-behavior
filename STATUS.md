@@ -12,7 +12,7 @@ verdicts and retractions: `docs/AUDIT.md`.
   gates.
 - Repository/data: on-policy dataset (64 examples, 2k–209k tokens) and all
   Aug 4–6 powered result artifacts are committed.
-- Test gate: **120/120** after exp22/exp24 lineage, budget, parser and
+- Test gate: **121/121** after exp22/exp24 lineage, budget, parser and
   generation-default guards.
 - Paper policy: on-policy results only; off-policy appears only as evidence
   that evaluation regimes do not reliably transfer.
@@ -93,9 +93,14 @@ establishes a non-floor outcome evaluator.
 - raw-interface preflights 803407/803548: **retired as invalid proxies**;
 - Harbor gate 805028: commands+verifier green but trial timeout; gate fixed;
 - partial baseline 805029/data 805030: **cancelled non-results**;
-- corrected full Harbor gate: job 809199 (`reasoning_effort=low`, timeout=1800);
-- clean easy25 baseline: job 809200, Slurm `afterok:809199`;
-- Qwen3.8 on-policy exp24 data build: job 809201, `afterok:809200`;
+- corrected full Harbor gate 809199: **GREEN**, reward=1, 14 tool calls,
+  no exception, real pytest, 19 minutes;
+- easy25 baseline 809200: **RUNNING**; already 2 clean successes, while
+  environment failures/timeouts are classified for retry rather than scored;
+- immutable pilot snapshot: 66 points/3 tasks (809850), plumbing only;
+- exp24 10-step GRPO plumbing pilot: **PENDING** job 809859 (4-H100 whole
+  node; Trillium does not permit a 2-GPU request);
+- full Qwen3.8 on-policy exp24 data build: job 809201, `afterok:809200`;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

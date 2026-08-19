@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import random
+import subprocess
 import sys
 from pathlib import Path
 
@@ -363,6 +364,11 @@ check("exp24 reward uses native chat interface",
       '"reasoning_effort": "low"' in _exp24_trainer_text)
 check("exp24 reward rejects raw completion proxy",
       'url.rstrip("/") + "/v1/completions"' not in _exp24_trainer_text)
+_exp24_entry = subprocess.run(
+    [sys.executable, str(REPO / "experiments/exp24_prefetch_onpolicy.py"), "--help"],
+    cwd="/tmp", capture_output=True, text=True)
+check("exp24 prefetch standalone entrypoint", _exp24_entry.returncode == 0,
+      _exp24_entry.stderr[-300:])
 _q38_preflight = (REPO / "tb2/preflight_qwen38_27b.sh").read_text()
 check("Qwen3.8 preflight runs real Harbor",
       "bash tb2/eval_tb2.sh" in _q38_preflight)

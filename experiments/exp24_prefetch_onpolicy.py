@@ -13,6 +13,11 @@ import glob
 import json
 import random
 import re
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO))
 
 from behavior import parse_action
 from data import Example, _serialize, save_examples

@@ -506,3 +506,9 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   before any training, it was changed to native `/v1/chat/completions`, low
   reasoning effort, a post-compaction handoff message, and raw Terminus JSON
   parsing. Thus live evaluation and training reward now use the same interface.
+- **exp24 plumbing pilot round 1 (809830) failed fast, no training:** the
+  standalone data entrypoint imported `behavior.py` from the repo root without
+  adding that root to `sys.path`; Slurm executes the script with only
+  `experiments/` importable. Fixed after 10 seconds, before data or GPUs were
+  used meaningfully. Regression test now launches the entrypoint from `/tmp`,
+  so the test harness cannot mask this class of path bug by running at repo root.

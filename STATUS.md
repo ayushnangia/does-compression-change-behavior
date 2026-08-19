@@ -12,7 +12,7 @@ verdicts and retractions: `docs/AUDIT.md`.
   gates.
 - Repository/data: on-policy dataset (64 examples, 2k–209k tokens) and all
   Aug 4–6 powered result artifacts are committed.
-- Test gate: **119/119** after exp22/exp24 lineage, budget, parser and
+- Test gate: **120/120** after exp22/exp24 lineage, budget, parser and
   generation-default guards.
 - Paper policy: on-policy results only; off-policy appears only as evidence
   that evaluation regimes do not reliably transfer.

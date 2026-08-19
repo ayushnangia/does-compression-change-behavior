@@ -10,6 +10,7 @@
 set -euo pipefail
 
 MAX_STEPS=${1:-10}
+DATA_DIR=${2:-experiments/results/exp24_qwen38_data}
 MIN_TRAIN=1000
 [ "$MAX_STEPS" != "-1" ] && MIN_TRAIN=20  # labeled plumbing pilot only
 ROOT=${SLURM_SUBMIT_DIR:-$SCRATCH/dccb}
@@ -41,8 +42,8 @@ curl -sf http://127.0.0.1:8001/health >/dev/null || { echo 'executor failed read
 # sequence-level importance weights match the sequence-level selector reward.
 CUDA_VISIBLE_DEVICES=0 TRITON_CACHE_DIR=$SLURM_TMPDIR/triton-train \
   $REAL_HOME/ENV-compress2/bin/python experiments/exp24_grpo_train.py \
-  --train-file experiments/results/exp24_qwen38_data/train.jsonl \
-  --eval-file experiments/results/exp24_qwen38_data/validation.jsonl \
+  --train-file "$DATA_DIR/train.jsonl" \
+  --eval-file "$DATA_DIR/validation.jsonl" \
   --out experiments/results/exp24_grpo_$SLURM_JOB_ID \
   --reward-log experiments/results/exp24_grpo_rewards_$SLURM_JOB_ID.jsonl \
   --max-steps "$MAX_STEPS" --min-train-examples "$MIN_TRAIN"

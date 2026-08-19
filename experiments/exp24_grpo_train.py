@@ -33,7 +33,7 @@ class ExecutorReward:
     """Callable TRL reward backed by a frozen OpenAI-compatible vLLM server."""
 
     def __init__(self, url, model, samples, max_tokens, log_path):
-        self.url = url.rstrip("/") + "/v1/completions"
+        self.url = url.rstrip("/") + "/v1/chat/completions"
         self.model = model
         self.samples = samples
         self.max_tokens = max_tokens
@@ -59,12 +59,25 @@ class ExecutorReward:
                       "reward": reward, "actions": []}
         else:
             context = render_selection(header, units, keep, recent_text)
-            payload = {"model": self.model, "prompt": context,
+            # Match the live post-compaction interface: a fresh native chat
+            # receives one handoff message containing exact selected history.
+            # Raw /v1/completions over an old trace prefix was invalidated by
+            # Qwen3.8 preflight 803548.
+            handoff = (
+                "You are resuming a command-line task after context compaction. "
+                "Selected prior trace blocks are copied below verbatim, followed "
+                "by the recent history. Continue from the current terminal state "
+                "and respond in the required Terminus JSON command format.\n\n" +
+                context)
+            payload = {"model": self.model,
+                       "messages": [{"role": "user", "content": handoff}],
                        "n": self.samples, "max_tokens": self.max_tokens,
-                       "temperature": 1.0, "top_p": 1.0}
-            response = requests.post(self.url, json=payload, timeout=600)
+                       "temperature": 1.0, "top_p": 1.0,
+                       "reasoning_effort": "low"}
+            response = requests.post(self.url, json=payload, timeout=1800)
             response.raise_for_status()
-            texts = [c["text"] for c in response.json()["choices"]]
+            texts = [c["message"].get("content") or ""
+                     for c in response.json()["choices"]]
             actions = [parse_action(t) for t in texts]
             acting = sum(a is not None for a in actions) / len(actions)
             tool = sum(_tool(a) == _tool(logged_action) for a in actions) / len(actions)
@@ -103,7 +116,7 @@ def main():
     ap.add_argument("--reward-log", default="results/exp24_grpo_rewards.jsonl")
     ap.add_argument("--generations", type=int, default=4)
     ap.add_argument("--executor-samples", type=int, default=4)
-    ap.add_argument("--executor-max-tokens", type=int, default=2048)
+    ap.add_argument("--executor-max-tokens", type=int, default=4096)
     ap.add_argument("--epochs", type=float, default=1.0)
     ap.add_argument("--lr", type=float, default=2e-6)
     ap.add_argument("--max-steps", type=int, default=-1,

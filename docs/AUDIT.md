@@ -490,3 +490,19 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   `afterok`. Round 3 removes the proxy entirely: one real Harbor/Terminus task
   must contain executed `tool_calls` in trajectory.json and real pytest output
   before easy25 is released.
+- **Round-3 gate 805028 exposed Qwen3.8 timeout configuration.** Live Harbor
+  integration itself works: 8 trajectory steps, 14 authority-parsed/executed
+  tool calls, and real pytest/reward output. But the episode ended in
+  `AgentTimeoutError` after LiteLLM's fixed 600s request timeout. The gate
+  incorrectly passed because it checked commands+verifier but not
+  `exception.txt`; that is now a hard failure. Dependent baseline 805029 ran
+  for 12h and showed repeated identical 600s request timeouts, so it and data
+  job 805030 were cancelled and are non-results. Root cause: Qwen3.8's native
+  chat template defaults to `reasoning_effort=xhigh`; at ~15 tok/s a long
+  response exceeds 600s. Fix: model-native `reasoning_effort: low` plus
+  LiteLLM timeout=1800, while retaining the 10,240 output budget. The partial
+  baseline directory is archived and never resumed/scored. The same audit
+  found exp24's frozen-executor reward was also using raw `/v1/completions`;
+  before any training, it was changed to native `/v1/chat/completions`, low
+  reasoning effort, a post-compaction handoff message, and raw Terminus JSON
+  parsing. Thus live evaluation and training reward now use the same interface.

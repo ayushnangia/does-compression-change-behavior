@@ -34,6 +34,33 @@ LOOKUP_WORDS = re.compile(r"\b(cat|ls|grep|find|head|tail|less|view|read|open|se
 COMMIT_WORDS = re.compile(r"\b(str_replace|create|write|insert|edit|patch|pytest|test|run|submit|finish|answer)\b", re.I)
 
 
+def _parse_terminus_json(text: str) -> "str | None":
+    """Parse Harbor Terminus' raw JSON response format.
+
+    Live responses are {analysis, plan, commands:[{keystrokes,duration}]};
+    stored trajectories later serialize those as <tool_calls>. exp24 scores
+    raw chat responses, so both sides must map to the same action label.
+    """
+    decoder = json.JSONDecoder()
+    for start, char in enumerate(text):
+        if char != "{":
+            continue
+        try:
+            obj, _ = decoder.raw_decode(text[start:])
+        except (ValueError, TypeError):
+            continue
+        if not isinstance(obj, dict) or not isinstance(obj.get("commands"), list):
+            continue
+        commands = obj["commands"]
+        if not commands or not isinstance(commands[0], dict):
+            return None
+        cmd = commands[0]
+        if not isinstance(cmd.get("keystrokes"), str):
+            return None
+        return "bash_command::" + json.dumps(cmd, sort_keys=True, default=str)
+    return None
+
+
 def parse_action(text: str) -> "str | None":
     """Return a normalized action like 'edit::path=foo.py', or the menu form
     'read_file::foo.py', or None if the continuation contains no tool call. Arguments are kept
@@ -42,6 +69,9 @@ def parse_action(text: str) -> "str | None":
     text = THINK_RE.sub("", text)
     m = TOOLCALL_RE.search(text)
     if not m:
+        terminus = _parse_terminus_json(text)
+        if terminus is not None:
+            return terminus
         # menu-call syntax (read_file(...)): block formats take precedence,
         # and a hedged mention ("I could grep(x)", "e.g. edit(...)") is
         # prose, not an action. "I will read_file(x)" commits and counts.
@@ -134,7 +164,7 @@ def parse_diagnosis(text: str) -> str:
     if parse_action(text) is not None:
         return "acted"
     stripped = THINK_RE.sub("", text)
-    if re.search(r"<tool_calls?|function_name|\"name\"\s*:", text) and stripped.strip():
+    if re.search(r"<tool_calls?|function_name|\"name\"\s*:|\"commands\"\s*:", text) and stripped.strip():
         return "toolish_unparsed"
     if "<think>" in text and not stripped.strip():
         return "think_runaway"

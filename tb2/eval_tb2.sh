@@ -127,6 +127,13 @@ INPUT_CAP=$BUDGET
 sed -e "s|@SERVED@|$SERVED|g" -e "s|@TB2@|$TB2_DIR|g" -e "s|@PORT@|$PORT|g" \
     -e "s|max_input_tokens: .*|max_input_tokens: $INPUT_CAP|" \
     "$HERE/config_template.yaml" > "$CONFIG"
+# Qwen3.8's native template defaults to reasoning_effort=xhigh; at ~15 tok/s
+# 10k-token responses exceed LiteLLM's default 600s timeout. Use its native
+# LOW effort mode (not a homegrown prompt) and leave enough request time for
+# the full output budget. Job 805029 established this failure mode.
+if [[ "$MODEL" == *Qwen3.8* ]]; then
+    sed -i "/api_base:/a\\      reasoning_effort: low\n      llm_kwargs:\n        timeout: 1800" "$CONFIG"
+fi
 # SUBSET: 'easy25' or a path to any task-list file (one task name per line)
 SUBSET_FILE=""
 [ "$SUBSET" = "easy25" ] && SUBSET_FILE="$HERE/easy25.txt"

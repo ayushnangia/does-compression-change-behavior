@@ -53,6 +53,12 @@ check("parse menu-example-prose", parse_action("Use a tool, for example edit(pat
 check("parse glm-native", (parse_action(
     "<tool_call>execute_bash<arg_key>command</arg_key><arg_value>ls -la</arg_value></tool_call>")
     or "").startswith("execute_bash::"))
+check("parse raw Terminus JSON", (parse_action(
+    'Analysis first\n{"analysis":"x","plan":"y","commands":'
+    '[{"keystrokes":"ls -la\\n","duration":0.1}]}') or "").startswith(
+        'bash_command::'))
+check("parse raw Terminus empty commands", parse_action(
+    '{"analysis":"done","plan":"none","commands":[]}') is None)
 check("kind menu-lookup", action_kind("read_file::x") == "lookup")
 check("kind menu-commit", action_kind("submit::") == "commit")
 check("kind bash-ls", action_kind('execute_bash::{"command": "ls -la"}') == "lookup")
@@ -349,8 +355,14 @@ check("exp24 disables model generation defaults", "--generation-config vllm" in
       _exp24_job_text)
 check("exp24 final executor is Qwen3.8-27B",
       "Qwen/Qwen3.8-27B" in _exp24_job_text and "exp24_qwen38_data" in _exp24_job_text)
+_exp24_trainer_text = (REPO / "experiments/exp24_grpo_train.py").read_text()
 check("exp24 trainer has lineage guard", "OFF-POLICY DATA REFUSED" in
-      (REPO / "experiments/exp24_grpo_train.py").read_text())
+      _exp24_trainer_text)
+check("exp24 reward uses native chat interface",
+      "/v1/chat/completions" in _exp24_trainer_text and
+      '"reasoning_effort": "low"' in _exp24_trainer_text)
+check("exp24 reward rejects raw completion proxy",
+      'url.rstrip("/") + "/v1/completions"' not in _exp24_trainer_text)
 _q38_preflight = (REPO / "tb2/preflight_qwen38_27b.sh").read_text()
 check("Qwen3.8 preflight runs real Harbor",
       "bash tb2/eval_tb2.sh" in _q38_preflight)
@@ -358,6 +370,11 @@ check("Qwen3.8 preflight requires Harbor-parsed commands",
       "tool_calls" in _q38_preflight and "actions > 0" in _q38_preflight)
 check("Qwen3.8 preflight requires executed verifier",
       "test-stdout.txt" in _q38_preflight and "pytest did not execute" in _q38_preflight)
+check("Qwen3.8 preflight rejects trial exceptions", "exception.txt" in _q38_preflight)
+_eval_tb2 = (REPO / "tb2/eval_tb2.sh").read_text()
+check("Qwen3.8 uses native low reasoning effort",
+      "reasoning_effort: low" in _eval_tb2)
+check("Qwen3.8 request timeout fits output budget", "timeout: 1800" in _eval_tb2)
 check("Qwen3.8 preflight does not use raw completion proxy",
       "/v1/completions" not in _q38_preflight and
       "from behavior import parse_action" not in _q38_preflight)

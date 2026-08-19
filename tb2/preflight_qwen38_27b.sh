@@ -24,6 +24,7 @@ TRAJ="$TRIAL/agent/trajectory.json"
 REWARD="$TRIAL/verifier/reward.txt"
 TESTOUT="$TRIAL/verifier/test-stdout.txt"
 [ -s "$TRAJ" ] || { echo "LIVE GATE FAILED: missing trajectory"; exit 1; }
+[ ! -s "$TRIAL/exception.txt" ] || { echo "LIVE GATE FAILED: trial exception"; cat "$TRIAL/exception.txt"; exit 1; }
 [ -s "$REWARD" ] || { echo "LIVE GATE FAILED: missing reward"; exit 1; }
 [ -s "$TESTOUT" ] || { echo "LIVE GATE FAILED: missing verifier stdout"; exit 1; }
 

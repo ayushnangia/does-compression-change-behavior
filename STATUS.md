@@ -6,9 +6,10 @@ verdicts and retractions: `docs/AUDIT.md`.
 
 ## Current state
 
-- Slurm chain now uses durable dependencies: full Harbor live gate 805028 →
-  valid Qwen3.8 baseline 805029 → on-policy data build 805030. GRPO is not
-  auto-submitted; baseline competence and data power are manual gates.
+- Slurm chain now uses durable dependencies: corrected low-reasoning Harbor
+  gate 809199 → clean Qwen3.8 baseline 809200 → on-policy data build 809201.
+  GRPO is not auto-submitted; baseline competence and data power are manual
+  gates.
 - Repository/data: on-policy dataset (64 examples, 2k–209k tokens) and all
   Aug 4–6 powered result artifacts are committed.
 - Test gate: **119/119** after exp22/exp24 lineage, budget, parser and
@@ -90,9 +91,11 @@ establishes a non-floor outcome evaluator.
 - Qwen3.8-27B cache: **DONE**, snapshot `1d4bf0f...`, 52 GiB;
 - full-window serving: **DONE** (77,824 tokens, 51.1 GiB weights, job 803407);
 - raw-interface preflights 803407/803548: **retired as invalid proxies**;
-- full Harbor live gate: job 805028;
-- competent easy25 baseline: job 805029, Slurm `afterok:805028`;
-- Qwen3.8 on-policy exp24 data build: job 805030, `afterok:805029`;
+- Harbor gate 805028: commands+verifier green but trial timeout; gate fixed;
+- partial baseline 805029/data 805030: **cancelled non-results**;
+- corrected full Harbor gate: job 809199 (`reasoning_effort=low`, timeout=1800);
+- clean easy25 baseline: job 809200, Slurm `afterok:809199`;
+- Qwen3.8 on-policy exp24 data build: job 809201, `afterok:809200`;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

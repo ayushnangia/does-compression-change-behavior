@@ -361,7 +361,13 @@ check("exp24 uses valid Trillium whole-node request",
 check("exp24 executor uses working Alliance Python 3.12/opencv stack",
       "module load gcc cuda python/3.12 arrow/19.0.1 opencv/4.13.0" in
       _exp24_job_text and "module purge" in _exp24_job_text)
+check("exp24 selector uses complete clean-node Alliance stack",
+      "python-build-bundle/2026a" in _exp24_job_text and
+      "scipy-stack/2026a" in _exp24_job_text)
 _exp24_trainer_text = (REPO / "experiments/exp24_grpo_train.py").read_text()
+check("exp24 has one-GPU selector construction gate",
+      "--preflight-only" in _exp24_trainer_text and
+      (REPO / "experiments/exp24_selector_preflight.sh").exists())
 check("exp24 trainer has lineage guard", "OFF-POLICY DATA REFUSED" in
       _exp24_trainer_text)
 check("exp24 reward uses native chat interface",

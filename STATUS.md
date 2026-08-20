@@ -12,7 +12,7 @@ verdicts and retractions: `docs/AUDIT.md`.
   gates.
 - Repository/data: on-policy dataset (64 examples, 2k–209k tokens) and all
   Aug 4–6 powered result artifacts are committed.
-- Test gate: **122/122** after exp22/exp24 lineage, budget, parser and
+- Test gate: **124/124** after exp22/exp24 lineage, budget, parser and
   generation-default guards.
 - Paper policy: on-policy results only; off-policy appears only as evidence
   that evaluation regimes do not reliably transfer.
@@ -101,10 +101,13 @@ establishes a non-floor outcome evaluator.
 - full Qwen3.8 data build 809201: **GREEN**, 210 points/12 tasks, task-disjoint
   148 train / 23 validation / 39 test; below the 1,000-train main-run gate;
 - immutable pilot snapshot: 66 points/3 tasks (809850), plumbing only;
-- exp24 GRPO pilot 809859: **FAILED BEFORE MODEL LOAD/TRAINING** because the
-  clean-node launcher mixed Python 3.11 modules with Python-3.12 ENV-vllm2
-  (`packaging` absent). Executor module stack is now isolated and matched to
-  the green live gate; corrected 10-step rerun **PENDING** as job 813697;
+- exp24 pilot 809859: failed before model load (`packaging`); fixed executor
+  module isolation;
+- exp24 pilot 813697: executor **GREEN** through `/health`, then failed before
+  selector load because clean-node ENV-compress2 lacked `typing_extensions`;
+  no training/reward rows/checkpoint. Complete Alliance selector stack is now
+  explicit and checked before executor startup. One-H100 model+LoRA+TRL
+  construction gate must pass before the next four-H100 10-step pilot;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

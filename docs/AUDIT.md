@@ -525,4 +525,14 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   `ModuleNotFoundError: packaging`; no model or training state was touched.
   The executor now starts in an isolated, known-working Python 3.12 + arrow +
   opencv module subshell (matching the green live gate), while selector
-  training retains Python 3.11. A second plumbing pilot is required.
+  training retains Python 3.11.
+- **exp24 GRPO pilot round 2 (813697) reached a healthy executor but failed
+  before selector load/training:** Qwen3.8 loaded and `/health` returned 200;
+  then clean-node ENV-compress2 lacked `typing_extensions`. The login-node
+  import test had been falsely green because it inherited a richer module
+  stack. Reproduction after `module purge` identified the complete selector
+  stack: `StdEnv/2023`, Python 3.11, `python-build-bundle/2026a`,
+  `scipy-stack/2026a`, arrow, gcc, and CUDA. The launcher now imports all
+  training dependencies *before* starting the 27B server. A new one-H100 gate
+  constructs Qwen3.5-4B + LoRA + the installed GRPOTrainer before another
+  four-H100 pilot can be released.

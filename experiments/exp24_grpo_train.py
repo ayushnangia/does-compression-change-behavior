@@ -123,6 +123,8 @@ def main():
                     help="pilot plumbing: set e.g. 10; main run leaves -1")
     ap.add_argument("--min-train-examples", type=int, default=1000,
                     help="hard power gate; lower only for labeled plumbing pilots")
+    ap.add_argument("--preflight-only", action="store_true",
+                    help="construct model/LoRA/TRL trainer but do not train")
     args = ap.parse_args()
 
     import torch
@@ -159,6 +161,9 @@ def main():
         save_total_limit=2, report_to=[], eval_strategy="no")
     trainer = GRPOTrainer(model=args.model, reward_funcs=reward, args=cfg,
         train_dataset=ds["train"], processing_class=tokenizer, peft_config=peft)
+    if args.preflight_only:
+        print("EXP24 SELECTOR PREFLIGHT GREEN: model + LoRA + GRPOTrainer constructed")
+        return
     trainer.train()
     trainer.save_model(args.out)
     print(f"saved exp24 GRPO adapter -> {args.out}")

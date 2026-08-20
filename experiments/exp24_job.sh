@@ -26,7 +26,9 @@ module load gcc cuda python/3.11 python-build-bundle/2026a \
 REAL_HOME=$HOME
 export HOME=$SCRATCH/compute_home HF_HOME=$SCRATCH/hf HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1 VLLM_NO_USAGE_STATS=1 PYTHONUNBUFFERED=1
-export PYTHONPATH=$ROOT
+# Preserve Alliance's sitecustomize path: it expands EBPYTHONPREFIXES for
+# module-provided typing_extensions/numpy/etc. Never replace PYTHONPATH.
+export PYTHONPATH=$ROOT:${PYTHONPATH:-}
 mkdir -p "$HOME/.cache" "$SLURM_TMPDIR/triton-vllm" "$SLURM_TMPDIR/triton-train"
 
 # Fail before the 27B startup if the selector's clean-node dependency stack is

@@ -19,7 +19,10 @@ module load gcc cuda python/3.11 python-build-bundle/2026a \
 module list
 REAL_HOME=$HOME
 export HOME=$SCRATCH/compute_home HF_HOME=$SCRATCH/hf HF_HUB_OFFLINE=1
-export TRANSFORMERS_OFFLINE=1 PYTHONUNBUFFERED=1 PYTHONPATH=$ROOT
+export TRANSFORMERS_OFFLINE=1 PYTHONUNBUFFERED=1
+# Alliance's existing PYTHONPATH contains sitecustomize, which exposes the
+# packages in EBPYTHONPREFIXES. Prepend the repo; do not overwrite that path.
+export PYTHONPATH=$ROOT:${PYTHONPATH:-}
 mkdir -p "$HOME/.cache" "$SLURM_TMPDIR/triton-selector-preflight"
 CUDA_VISIBLE_DEVICES=0 TRITON_CACHE_DIR=$SLURM_TMPDIR/triton-selector-preflight \
   $REAL_HOME/ENV-compress2/bin/python experiments/exp24_grpo_train.py \

@@ -371,6 +371,9 @@ check("exp24 has one-GPU selector construction gate",
 check("selector gate loads hierarchical StdEnv separately",
       "module load StdEnv/2023\nmodule load gcc" in _exp24_selector_gate and
       "module list" in _exp24_selector_gate)
+check("exp24 preserves Alliance sitecustomize PYTHONPATH",
+      'PYTHONPATH=$ROOT:${PYTHONPATH:-}' in _exp24_selector_gate and
+      'PYTHONPATH=$ROOT:${PYTHONPATH:-}' in _exp24_job_text)
 check("exp24 trainer has lineage guard", "OFF-POLICY DATA REFUSED" in
       _exp24_trainer_text)
 check("exp24 reward uses native chat interface",

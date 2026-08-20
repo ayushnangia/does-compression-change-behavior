@@ -543,3 +543,10 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   the absent modules were visible only at the import assertion. StdEnv is now
   loaded separately, module errors are no longer hidden, and `module list` is
   recorded. This consumed 10 seconds on one H100, not a full-node pilot.
+- **selector gate round 2 (813711) loaded every requested module but still
+  failed fast:** the script replaced `PYTHONPATH` with the repository root,
+  deleting Alliance's `sitecustomize` path. Without that hook Python does not
+  expand `EBPYTHONPREFIXES`, so module-provided `typing_extensions` remained
+  invisible despite appearing in `module list`. Both exp24 launchers now
+  prepend the repo (`$ROOT:${PYTHONPATH:-}`) instead of replacing the cluster
+  path. This again consumed only 10 seconds on one H100.

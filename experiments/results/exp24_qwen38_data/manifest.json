@@ -1,0 +1,35 @@
+{
+  "source_model": "Qwen/Qwen3.8-27B",
+  "source_file": "/scratch/anangia/dccb/data/examples_qwen38_exp24.json",
+  "source_sha256": "753ffb01bfbdfefbbb0841eaa74099883f3612162b28223414b9c6d9dbadf3d6",
+  "budget_fraction": 0.25,
+  "splits": {
+    "train": {
+      "examples": 148,
+      "tasks": [
+        "break-filter-js-from-html",
+        "code-from-image",
+        "configure-git-webserver",
+        "crack-7z-hash",
+        "custom-memory-heap-crash",
+        "financial-document-processor",
+        "mteb-retrieve",
+        "polyglot-c-py"
+      ]
+    },
+    "validation": {
+      "examples": 23,
+      "tasks": [
+        "hf-model-inference"
+      ]
+    },
+    "test": {
+      "examples": 39,
+      "tasks": [
+        "dna-insert",
+        "extract-elf",
+        "merge-diff-arc-agi-task"
+      ]
+    }
+  }
+}

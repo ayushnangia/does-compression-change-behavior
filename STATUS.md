@@ -12,7 +12,7 @@ verdicts and retractions: `docs/AUDIT.md`.
   gates.
 - Repository/data: on-policy dataset (64 examples, 2k–209k tokens) and all
   Aug 4–6 powered result artifacts are committed.
-- Test gate: **121/121** after exp22/exp24 lineage, budget, parser and
+- Test gate: **122/122** after exp22/exp24 lineage, budget, parser and
   generation-default guards.
 - Paper policy: on-policy results only; off-policy appears only as evidence
   that evaluation regimes do not reliably transfer.
@@ -95,12 +95,16 @@ establishes a non-floor outcome evaluator.
 - partial baseline 805029/data 805030: **cancelled non-results**;
 - corrected full Harbor gate 809199: **GREEN**, reward=1, 14 tool calls,
   no exception, real pytest, 19 minutes;
-- easy25 baseline 809200: **RUNNING**; already 2 clean successes, while
-  environment failures/timeouts are classified for retry rather than scored;
+- easy25 baseline 809200: **COMPLETE BUT INFRA-CONFOUNDED**; 6 clean
+  successes and 1 clean failure, plus 8 agent timeouts and 10 environment
+  start failures. This clears competence but is not a reportable Pass@1;
+- full Qwen3.8 data build 809201: **GREEN**, 210 points/12 tasks, task-disjoint
+  148 train / 23 validation / 39 test; below the 1,000-train main-run gate;
 - immutable pilot snapshot: 66 points/3 tasks (809850), plumbing only;
-- exp24 10-step GRPO plumbing pilot: **PENDING** job 809859 (4-H100 whole
-  node; Trillium does not permit a 2-GPU request);
-- full Qwen3.8 on-policy exp24 data build: job 809201, `afterok:809200`;
+- exp24 GRPO pilot 809859: **FAILED BEFORE MODEL LOAD/TRAINING** because the
+  clean-node launcher mixed Python 3.11 modules with Python-3.12 ENV-vllm2
+  (`packaging` absent). Executor module stack is now isolated and matched to
+  the green live gate; rerun required;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

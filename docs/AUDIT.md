@@ -517,3 +517,12 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   points from 3 tasks in 28 seconds. All three hash to train (0 validation),
   which is acceptable only for the 10-step plumbing pilot; the launcher now
   omits an empty eval file. This dataset is explicitly too small for evidence.
+- **exp24 GRPO pilot round 1 (809859) failed before model load/training:** the
+  launcher loaded the selector's Python 3.11 modules before invoking the
+  Python-3.12 `ENV-vllm2`. On a clean `--export=NONE` node this omitted the
+  Alliance opencv stack through which the vLLM environment receives
+  `packaging` and other system wheels. It failed in 19 seconds with
+  `ModuleNotFoundError: packaging`; no model or training state was touched.
+  The executor now starts in an isolated, known-working Python 3.12 + arrow +
+  opencv module subshell (matching the green live gate), while selector
+  training retains Python 3.11. A second plumbing pilot is required.

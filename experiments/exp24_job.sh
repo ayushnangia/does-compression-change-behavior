@@ -26,11 +26,17 @@ export PYTHONPATH=$ROOT
 mkdir -p "$HOME/.cache" "$SLURM_TMPDIR/triton-vllm" "$SLURM_TMPDIR/triton-train"
 
 # Frozen executor on GPU 1. Training never updates or co-locates with it.
-CUDA_VISIBLE_DEVICES=1 TRITON_CACHE_DIR=$SLURM_TMPDIR/triton-vllm \
-  $REAL_HOME/ENV-vllm2/bin/vllm serve Qwen/Qwen3.8-27B \
-  --port 8001 --served-model-name qwen38-27b-exp24 --max-model-len 32768 \
-  --generation-config vllm --gpu-memory-utilization 0.92 --max-num-seqs 16 \
-  > experiments/vllm_exp24_$SLURM_JOB_ID.log 2>&1 &
+# ENV-vllm2 is Python 3.12 and intentionally relies on Alliance's opencv
+# module for packaging/psutil/etc. Keep that module stack in an isolated
+# subshell: the selector ENV-compress2 below requires the Python 3.11 stack.
+(
+  module purge
+  module load gcc cuda python/3.12 arrow/19.0.1 opencv/4.13.0 2>/dev/null
+  exec env CUDA_VISIBLE_DEVICES=1 TRITON_CACHE_DIR=$SLURM_TMPDIR/triton-vllm \
+    $REAL_HOME/ENV-vllm2/bin/vllm serve Qwen/Qwen3.8-27B \
+    --port 8001 --served-model-name qwen38-27b-exp24 --max-model-len 32768 \
+    --generation-config vllm --gpu-memory-utilization 0.92 --max-num-seqs 16
+) > experiments/vllm_exp24_$SLURM_JOB_ID.log 2>&1 &
 SERVER=$!
 trap 'kill $SERVER 2>/dev/null || true' EXIT
 for i in $(seq 1 180); do

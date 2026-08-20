@@ -104,7 +104,7 @@ establishes a non-floor outcome evaluator.
 - exp24 GRPO pilot 809859: **FAILED BEFORE MODEL LOAD/TRAINING** because the
   clean-node launcher mixed Python 3.11 modules with Python-3.12 ENV-vllm2
   (`packaging` absent). Executor module stack is now isolated and matched to
-  the green live gate; rerun required;
+  the green live gate; corrected 10-step rerun **PENDING** as job 813697;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

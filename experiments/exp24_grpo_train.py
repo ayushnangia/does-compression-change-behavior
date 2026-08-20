@@ -33,6 +33,10 @@ class ExecutorReward:
     """Callable TRL reward backed by a frozen OpenAI-compatible vLLM server."""
 
     def __init__(self, url, model, samples, max_tokens, log_path):
+        # TRL 0.29 records reward function names and assumes function-like
+        # callables expose __name__. Keep the stateful class but satisfy that
+        # installed interface explicitly (selector gate 813716).
+        self.__name__ = "executor_behavior_reward"
         self.url = url.rstrip("/") + "/v1/chat/completions"
         self.model = model
         self.samples = samples

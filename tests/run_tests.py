@@ -341,7 +341,10 @@ check("exp24 task split deterministic", stable_split("task-x") == stable_split("
 from exp24_grpo_train import ExecutorReward
 _exp24_log = REPO / "tests" / ".exp24_reward_test.jsonl"
 _exp24_log.unlink(missing_ok=True)
-_bad_reward = ExecutorReward("http://127.0.0.1:9", "unused", 1, 8, _exp24_log)(
+_executor_reward = ExecutorReward("http://127.0.0.1:9", "unused", 1, 8, _exp24_log)
+check("exp24 reward callable exposes TRL name", _executor_reward.__name__ ==
+      "executor_behavior_reward")
+_bad_reward = _executor_reward(
     prompts=["p"], completions=["bad"], header=["h"],
     units_json=['["u"]'], recent_text=["r"], logged_action=["bash::x"],
     budget_chars=[1], task=["t"], id=[0])

@@ -550,3 +550,9 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   invisible despite appearing in `module list`. Both exp24 launchers now
   prepend the repo (`$ROOT:${PYTHONPATH:-}`) instead of replacing the cluster
   path. This again consumed only 10 seconds on one H100.
+- **selector gate round 3 (813716) reached model+LoRA/TRL construction:** the
+  full Qwen3.5-4B weights loaded, then installed TRL 0.29 rejected the stateful
+  reward callable because it assumes every reward function has `__name__`.
+  `ExecutorReward` now exposes the stable name `executor_behavior_reward`.
+  This was the first gate to clear dependencies, data loading, lineage, and
+  model loading; it stopped after 35 seconds on one H100.

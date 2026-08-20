@@ -12,7 +12,7 @@ verdicts and retractions: `docs/AUDIT.md`.
   gates.
 - Repository/data: on-policy dataset (64 examples, 2k–209k tokens) and all
   Aug 4–6 powered result artifacts are committed.
-- Test gate: **126/126** after exp22/exp24 lineage, budget, parser and
+- Test gate: **127/127** after exp22/exp24 lineage, budget, parser and
   generation-default guards.
 - Paper policy: on-policy results only; off-policy appears only as evidence
   that evaluation regimes do not reliably transfer.
@@ -111,7 +111,9 @@ establishes a non-floor outcome evaluator.
   StdEnv ordering, then an overwritten Alliance `PYTHONPATH` hid packages from
   `EBPYTHONPREFIXES`. Dependent full-node 813708 never ran. StdEnv is separated,
   module errors are visible, and repo path is now prepended without deleting
-  cluster `sitecustomize`; corrected one-H100 gate must pass next;
+  cluster `sitecustomize`. Gate 813716 then loaded the full 4B selector and
+  reached GRPOTrainer, exposing TRL 0.29's `reward_func.__name__` requirement;
+  fixed and regression-tested. Corrected one-H100 gate must pass next;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

@@ -18,8 +18,11 @@ MIN_TRAIN=1000
 ROOT=${SLURM_SUBMIT_DIR:-$SCRATCH/dccb}
 [ -f "$ROOT/experiments/exp24_grpo_train.py" ] || ROOT=$SCRATCH/dccb
 cd "$ROOT"
-module load StdEnv/2023 gcc cuda python/3.11 python-build-bundle/2026a \
-  scipy-stack/2026a arrow/19.0.1 2>/dev/null
+# StdEnv changes MODULEPATH; on a pristine --export=NONE shell it must be a
+# separate transaction before hierarchical Python modules are resolved.
+module load StdEnv/2023
+module load gcc cuda python/3.11 python-build-bundle/2026a \
+  scipy-stack/2026a arrow/19.0.1
 REAL_HOME=$HOME
 export HOME=$SCRATCH/compute_home HF_HOME=$SCRATCH/hf HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1 VLLM_NO_USAGE_STATS=1 PYTHONUNBUFFERED=1

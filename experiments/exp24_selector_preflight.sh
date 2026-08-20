@@ -11,8 +11,12 @@ DATA_DIR=${1:-experiments/results/exp24_qwen38_pilot_data}
 ROOT=${SLURM_SUBMIT_DIR:-$SCRATCH/dccb}
 [ -f "$ROOT/experiments/exp24_grpo_train.py" ] || ROOT=$SCRATCH/dccb
 cd "$ROOT"
-module load StdEnv/2023 gcc cuda python/3.11 python-build-bundle/2026a \
-  scipy-stack/2026a arrow/19.0.1 2>/dev/null
+# Loading StdEnv changes MODULEPATH, so this must be a separate transaction
+# on Trillium's pristine --export=NONE compute shell.
+module load StdEnv/2023
+module load gcc cuda python/3.11 python-build-bundle/2026a \
+  scipy-stack/2026a arrow/19.0.1
+module list
 REAL_HOME=$HOME
 export HOME=$SCRATCH/compute_home HF_HOME=$SCRATCH/hf HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1 PYTHONUNBUFFERED=1 PYTHONPATH=$ROOT

@@ -365,9 +365,12 @@ check("exp24 selector uses complete clean-node Alliance stack",
       "python-build-bundle/2026a" in _exp24_job_text and
       "scipy-stack/2026a" in _exp24_job_text)
 _exp24_trainer_text = (REPO / "experiments/exp24_grpo_train.py").read_text()
+_exp24_selector_gate = (REPO / "experiments/exp24_selector_preflight.sh").read_text()
 check("exp24 has one-GPU selector construction gate",
-      "--preflight-only" in _exp24_trainer_text and
-      (REPO / "experiments/exp24_selector_preflight.sh").exists())
+      "--preflight-only" in _exp24_trainer_text and bool(_exp24_selector_gate))
+check("selector gate loads hierarchical StdEnv separately",
+      "module load StdEnv/2023\nmodule load gcc" in _exp24_selector_gate and
+      "module list" in _exp24_selector_gate)
 check("exp24 trainer has lineage guard", "OFF-POLICY DATA REFUSED" in
       _exp24_trainer_text)
 check("exp24 reward uses native chat interface",

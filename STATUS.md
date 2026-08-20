@@ -12,7 +12,7 @@ verdicts and retractions: `docs/AUDIT.md`.
   gates.
 - Repository/data: on-policy dataset (64 examples, 2k–209k tokens) and all
   Aug 4–6 powered result artifacts are committed.
-- Test gate: **124/124** after exp22/exp24 lineage, budget, parser and
+- Test gate: **125/125** after exp22/exp24 lineage, budget, parser and
   generation-default guards.
 - Paper policy: on-policy results only; off-policy appears only as evidence
   that evaluation regimes do not reliably transfer.
@@ -106,8 +106,10 @@ establishes a non-floor outcome evaluator.
 - exp24 pilot 813697: executor **GREEN** through `/health`, then failed before
   selector load because clean-node ENV-compress2 lacked `typing_extensions`;
   no training/reward rows/checkpoint. Complete Alliance selector stack is now
-  explicit and checked before executor startup. One-H100 model+LoRA+TRL
-  construction gate must pass before the next four-H100 10-step pilot;
+  explicit and checked before executor startup. First one-H100 construction
+  gate 813707 failed in 10s because hierarchical StdEnv was loaded in the same
+  transaction; dependent 813708 never ran. StdEnv loading is now separated and
+  unsuppressed; corrected one-H100 gate must pass before another full-node pilot;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

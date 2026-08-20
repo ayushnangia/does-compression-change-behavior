@@ -536,3 +536,10 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   training dependencies *before* starting the 27B server. A new one-H100 gate
   constructs Qwen3.5-4B + LoRA + the installed GRPOTrainer before another
   four-H100 pilot can be released.
+- **selector gate round 1 (813707) failed fast; dependent pilot 813708 never
+  ran:** on a pristine Slurm shell `StdEnv/2023` changes the hierarchical
+  `MODULEPATH` and therefore cannot reliably be loaded in the same transaction
+  as Python/build-bundle/scipy-stack. Because stderr had also been suppressed,
+  the absent modules were visible only at the import assertion. StdEnv is now
+  loaded separately, module errors are no longer hidden, and `module list` is
+  recorded. This consumed 10 seconds on one H100, not a full-node pilot.

@@ -113,7 +113,9 @@ establishes a non-floor outcome evaluator.
   module errors are visible, and repo path is now prepended without deleting
   cluster `sitecustomize`. Gate 813716 then loaded the full 4B selector and
   reached GRPOTrainer, exposing TRL 0.29's `reward_func.__name__` requirement;
-  fixed and regression-tested. Corrected one-H100 gate must pass next;
+  fixed and regression-tested. One-H100 gate 813721 is now **GREEN**: full 4B
+  load + LoRA + GRPOTrainer construction in 33s. Four-H100 10-step integration
+  pilot 813724 is **PENDING**;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

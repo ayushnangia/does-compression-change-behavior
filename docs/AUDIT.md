@@ -556,3 +556,8 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   `ExecutorReward` now exposes the stable name `executor_behavior_reward`.
   This was the first gate to clear dependencies, data loading, lineage, and
   model loading; it stopped after 35 seconds on one H100.
+- **selector gate round 4 (813721) GREEN:** complete clean-node dependencies,
+  66-row pilot data and lineage guard, full Qwen3.5-4B load, LoRA attachment,
+  and installed TRL GRPOTrainer construction all completed in 33 seconds on
+  one H100. This authorizes only the 10-step integration pilot 813724, not a
+  powered result.

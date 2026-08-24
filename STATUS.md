@@ -12,7 +12,7 @@ verdicts and retractions: `docs/AUDIT.md`.
   gates.
 - Repository/data: on-policy dataset (64 examples, 2k–209k tokens) and all
   Aug 4–6 powered result artifacts are committed.
-- Test gate: **132/132** after exp22/exp24 lineage, budget, parser and
+- Test gate: **133/133** after exp22/exp24 lineage, budget, parser and
   generation-default guards.
 - Paper policy: on-policy results only; off-policy appears only as evidence
   that evaluation regimes do not reliably transfer.
@@ -122,8 +122,12 @@ establishes a non-floor outcome evaluator.
   then understood the task but spent all 64 tokens in default `<think>` prose
   (0/4 JSON); it correctly refused release. TRL/preflight now use Qwen3.5's
   native `enable_thinking=False`. One-H100 gate 828065 is now **GREEN**, 4/4
-  parseable JSON candidates with diverse selections. Dependent four-H100
-  10-step integration pilot 828066 is **PENDING** for resources;
+  parseable JSON candidates with diverse selections. Four-H100 integration
+  pilot 828066 is **GREEN WITH A FIXED WARNING**: 10/10 steps, 80 rewards,
+  28 strict-valid selections, 20 positive rewards, 11/20 nonconstant groups,
+  nonzero gradients on all steps, and an 84.97MB adapter. This is plumbing,
+  not evidence. Decoder-only right-padding warning is fixed by forcing left
+  padding; a short confirmation run is required before scale;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

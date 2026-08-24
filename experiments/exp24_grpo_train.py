@@ -150,6 +150,10 @@ def main():
         raise SystemExit(f"UNDERPOWERED DATA REFUSED: {len(ds['train'])} train "
                          f"rows < {args.min_train_examples}")
     tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
+    # GRPO batches variable-length decoder-only prompts. Right padding changes
+    # the generation boundary and triggered a Transformers correctness warning
+    # on every step of otherwise-green pilot 828066.
+    tokenizer.padding_side = "left"
     peft = LoraConfig(r=16, lora_alpha=32, lora_dropout=0.05,
         task_type="CAUSAL_LM", target_modules=["q_proj", "k_proj", "v_proj",
         "o_proj", "gate_proj", "up_proj", "down_proj"])

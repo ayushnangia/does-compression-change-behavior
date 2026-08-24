@@ -383,6 +383,8 @@ check("exp24 selector gate requires valid JSON generation",
 check("exp24 selector disables native thinking for JSON budget",
       'chat_template_kwargs={"enable_thinking": False}' in _exp24_trainer_text and
       "enable_thinking=False" in _exp24_trainer_text)
+check("exp24 decoder-only GRPO uses left padding",
+      'tokenizer.padding_side = "left"' in _exp24_trainer_text)
 check("exp24 prepared selector prompts use native chat",
       '"prompt": [{"role": "user"' in
       (REPO / "experiments/exp24_prepare.py").read_text())

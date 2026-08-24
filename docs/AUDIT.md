@@ -586,3 +586,15 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   construction also remained green. This releases only dependent 10-step
   integration pilot 828066; budget-overflow candidates still receive the hard
   penalty during reward execution.
+- **GRPO integration pilot 828066 GREEN WITH ONE FIXED WARNING:** completed
+  10/10 steps and saved an 84,972,248-byte LoRA adapter. Frozen Qwen3.8 reward
+  execution produced 80 records: 28 strict-JSON selections, 52 invalid, 7
+  budget overflows, and 20 positive behavioral rewards. Rewards ranged
+  -4.0002..0.90; 11/20 contextual-bandit groups had nonzero variance, and all
+  ten optimizer steps reported nonzero gradient norm. Thus generation → exact
+  selection → executor calls → direct group reward → Dr-GRPO backward → LoRA
+  checkpoint is operational. This remains a 66-row/3-task plumbing pilot, not
+  evidence. Transformers warned that decoder-only batches were right-padded;
+  tokenizer padding is now explicitly left, and a short clean confirmation is
+  required before scaling. Durable summary/reward log:
+  `experiments/results/exp24_pilot_828066/`.

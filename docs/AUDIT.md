@@ -580,3 +580,9 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   producing JSON. Use Qwen3.5's native `enable_thinking=False` template option
   in both TRL rollout and preflight. This preserves the intentionally short
   structured-action budget and does not weaken the parser or reward gate.
+- **native no-thinking selector gate 828065 GREEN:** 4/4 sampled completions
+  parsed under the strict selector JSON parser, with diverse keep sets (short,
+  all-block, and intermediate selections). Qwen3.5-4B + LoRA + installed TRL
+  construction also remained green. This releases only dependent 10-step
+  integration pilot 828066; budget-overflow candidates still receive the hard
+  penalty during reward execution.

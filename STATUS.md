@@ -121,8 +121,9 @@ establishes a non-floor outcome evaluator.
   boundary, and normalize conversational completions. Native-chat gate 828054
   then understood the task but spent all 64 tokens in default `<think>` prose
   (0/4 JSON); it correctly refused release. TRL/preflight now use Qwen3.5's
-  native `enable_thinking=False`; the next one-H100 gate must show >=1/4 valid
-  JSON before another full-node pilot;
+  native `enable_thinking=False`. One-H100 gate 828065 is now **GREEN**, 4/4
+  parseable JSON candidates with diverse selections. Dependent four-H100
+  10-step integration pilot 828066 is **PENDING** for resources;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

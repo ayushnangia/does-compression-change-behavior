@@ -22,7 +22,7 @@ REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
 
 from exp24_credit import selector_reward
-from exp24_data import parse_keep, render_selection
+from exp24_data import completion_text, parse_keep, render_selection
 
 
 def _tool(action):
@@ -48,6 +48,7 @@ class ExecutorReward:
     def _one(self, completion, header, units_json, recent_text,
              logged_action, budget_chars, task, row_id):
         import requests
+        completion = completion_text(completion)
         from behavior import parse_action
         from metrics import _verb
 
@@ -166,7 +167,33 @@ def main():
     trainer = GRPOTrainer(model=args.model, reward_funcs=reward, args=cfg,
         train_dataset=ds["train"], processing_class=tokenizer, peft_config=peft)
     if args.preflight_only:
-        print("EXP24 SELECTOR PREFLIGHT GREEN: model + LoRA + GRPOTrainer constructed")
+        # Competence gate, not just an import gate: native-chat Qwen3.5 must
+        # emit at least one parseable selector action before GRPO can have a
+        # non-constant group reward. Pilot 813724 established the all-invalid
+        # failure mode for raw string prompts.
+        sample = ds["train"][0]
+        prompt = sample["prompt"]
+        if not isinstance(prompt, list):
+            raise SystemExit("SELECTOR PREFLIGHT REFUSED: prompt is not native chat")
+        encoded = tokenizer.apply_chat_template(
+            prompt, tokenize=True, add_generation_prompt=True,
+            return_tensors="pt", return_dict=True).to(trainer.model.device)
+        with torch.inference_mode():
+            generated = trainer.model.generate(
+                **encoded, max_new_tokens=64, do_sample=True, temperature=1.0,
+                top_p=1.0, num_return_sequences=4,
+                pad_token_id=tokenizer.pad_token_id)
+        prompt_len = encoded["input_ids"].shape[1]
+        texts = tokenizer.batch_decode(
+            generated[:, prompt_len:], skip_special_tokens=True)
+        n_units = len(json.loads(sample["units_json"]))
+        parsed = [parse_keep(text, n_units)[1] for text in texts]
+        for text, valid in zip(texts, parsed):
+            print(f"selector_candidate valid={valid}: {text!r}")
+        if not any(parsed):
+            raise SystemExit("SELECTOR PREFLIGHT REFUSED: 0/4 valid JSON candidates")
+        print(f"EXP24 SELECTOR PREFLIGHT GREEN: model + LoRA + GRPOTrainer; "
+              f"valid_json={sum(parsed)}/4")
         return
     trainer.train()
     trainer.save_model(args.out)

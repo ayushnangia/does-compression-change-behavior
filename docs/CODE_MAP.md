@@ -31,7 +31,7 @@ is homegrown vs external: docs/DECISIONS.md.
 | `experiments/vllm_scorer.py` | same sampling via vLLM (6x faster), equivalence-tested against the HF path | - |
 | `exp22/` | compaction policies inside LIVE harbor episodes (smoke GREEN; Wave-2 pilot next - see STATUS.md) | actions parsed by HARBOR'S OWN parser, imported as-is; agents subclass Terminus-2 overriding one method |
 | `tb2/` | offline Terminal-Bench harness | harbor + vLLM, config-only |
-| `tests/run_tests.py` | 127 checks, run before every job | - |
+| `tests/run_tests.py` | 131 checks, run before every job | - |
 
 ## The honest answer to "are tools/actions hardcoded?"
 

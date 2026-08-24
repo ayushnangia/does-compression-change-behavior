@@ -559,5 +559,17 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
 - **selector gate round 4 (813721) GREEN:** complete clean-node dependencies,
   66-row pilot data and lineage guard, full Qwen3.5-4B load, LoRA attachment,
   and installed TRL GRPOTrainer construction all completed in 33 seconds on
-  one H100. This authorizes only the 10-step integration pilot 813724, not a
+  one H100. This authorized only the 10-step integration pilot 813724, not a
   powered result.
+- **integration pilot 813724 cancelled after step 1/10 as invalid:** both
+  models loaded, executor `/health` was green, TRL generated/scored a group,
+  and backward plumbing ran. But all 8 logged selector completions were trace
+  fragments rather than JSON, hence reward=-1 for every candidate, group
+  variance=0, loss=0, grad_norm=0. No checkpoint was saved or interpreted.
+  Root cause: prepared `prompt` was a plain string, so TRL performed raw LM
+  continuation rather than applying Qwen3.5's native chat template; the long
+  block manifest also separated generation from the initial JSON instruction.
+  Fix: conversational user-message prompts, repeated JSON contract at the
+  generation boundary, and reward normalization for TRL's conversational
+  completion structure. The one-H100 gate now requires >=1/4 parseable JSON
+  generations before another full-node allocation.

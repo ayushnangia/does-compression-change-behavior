@@ -50,8 +50,11 @@ def main():
             split = stable_split(ex["repo"])
             row = {
                 "id": i, "task": ex["repo"], "source_model": args.model,
-                "prompt": make_selector_prompt(
-                    units, budget, args.max_prompt_chars),
+                # Conversational form makes TRL apply Qwen3.5's native chat
+                # template. A plain string is treated as raw LM continuation;
+                # pilot 813724 then copied trace fragments instead of JSON.
+                "prompt": [{"role": "user", "content": make_selector_prompt(
+                    units, budget, args.max_prompt_chars)}],
                 "header": header, "units_json": json.dumps(units),
                 "recent_text": recent_text, "logged_action": ex.get("logged_action"),
                 "budget_chars": budget,

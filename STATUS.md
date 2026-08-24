@@ -12,7 +12,7 @@ verdicts and retractions: `docs/AUDIT.md`.
   gates.
 - Repository/data: on-policy dataset (64 examples, 2k–209k tokens) and all
   Aug 4–6 powered result artifacts are committed.
-- Test gate: **127/127** after exp22/exp24 lineage, budget, parser and
+- Test gate: **131/131** after exp22/exp24 lineage, budget, parser and
   generation-default guards.
 - Paper policy: on-policy results only; off-policy appears only as evidence
   that evaluation regimes do not reliably transfer.
@@ -114,8 +114,12 @@ establishes a non-floor outcome evaluator.
   cluster `sitecustomize`. Gate 813716 then loaded the full 4B selector and
   reached GRPOTrainer, exposing TRL 0.29's `reward_func.__name__` requirement;
   fixed and regression-tested. One-H100 gate 813721 is now **GREEN**: full 4B
-  load + LoRA + GRPOTrainer construction in 33s. Four-H100 10-step integration
-  pilot 813724 is **PENDING**;
+  load + LoRA + GRPOTrainer construction in 33s. Four-H100 pilot 813724 reached
+  step 1/10 but was **CANCELLED AS INVALID**: 8/8 non-JSON raw continuations,
+  constant reward=-1, loss/grad=0, no checkpoint. Prepared prompts now use the
+  native Qwen3.5 chat template, repeat the JSON contract at the generation
+  boundary, and normalize conversational completions. A one-H100 generation
+  gate must show >=1/4 valid JSON before another full-node pilot;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

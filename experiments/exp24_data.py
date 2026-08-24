@@ -72,4 +72,22 @@ def make_selector_prompt(units: list[str], budget_chars: int, max_chars=24000) -
         preview = " ".join(unit.split())[:per]
         lines.append(f"[{i}] chars={len(unit)} {preview}")
     body = "\n".join(lines)
-    return intro + body[:remaining]
+    # Repeat the output contract at the generation boundary. Long block
+    # manifests otherwise bury the instruction thousands of tokens earlier.
+    suffix = '\n\nReturn JSON only now, exactly: {"keep":[0,3,...]}'
+    return intro + body[:max(0, remaining - len(suffix))] + suffix
+
+
+def completion_text(completion) -> str:
+    """Normalize TRL standard or conversational completion structures."""
+    if isinstance(completion, str):
+        return completion
+    if isinstance(completion, dict):
+        return str(completion.get("content") or "")
+    if isinstance(completion, list):
+        for message in reversed(completion):
+            if isinstance(message, dict) and message.get("role") == "assistant":
+                return str(message.get("content") or "")
+        if completion:
+            return completion_text(completion[-1])
+    return ""

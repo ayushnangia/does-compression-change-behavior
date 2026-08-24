@@ -315,7 +315,8 @@ check("exp22 live policy alignment guard", _alignment_raises)
 
 # ---------------- exp24 direct-reward extractive GRPO ----------------
 from exp24_credit import group_advantages, event_weights, selector_reward
-from exp24_data import extract_turns, parse_keep, render_selection, stable_split
+from exp24_data import (completion_text, extract_turns, make_selector_prompt,
+                        parse_keep, render_selection, stable_split)
 
 _ga = group_advantages([0.0, 1.0, 2.0, 3.0])
 check("exp24 group advantages centered", abs(sum(_ga)) < 1e-9)
@@ -335,6 +336,11 @@ check("exp24 selector JSON strict", _valid and _keep == [0, 1])
 check("exp24 selector rejects range", not parse_keep('{"keep":[2]}', 2)[1])
 check("exp24 parser finds first valid JSON", parse_keep(
       'bad {x} then {"keep":[1]} trailing {"junk":0}', 2) == ([1], True))
+check("exp24 conversational completion normalization", completion_text(
+      [{"role": "assistant", "content": '{"keep":[1]}'}]) == '{"keep":[1]}')
+check("exp24 prompt repeats JSON contract at boundary", make_selector_prompt(
+      ["A" * 1000, "B" * 1000], 500).endswith(
+          'Return JSON only now, exactly: {"keep":[0,3,...]}'))
 _rendered = render_selection(_hdr, _turns, [1], "RECENT")
 check("exp24 renderer copies exact bytes", _rendered == _hdr + _turns[1] + "RECENT")
 check("exp24 task split deterministic", stable_split("task-x") == stable_split("task-x"))
@@ -345,7 +351,8 @@ _executor_reward = ExecutorReward("http://127.0.0.1:9", "unused", 1, 8, _exp24_l
 check("exp24 reward callable exposes TRL name", _executor_reward.__name__ ==
       "executor_behavior_reward")
 _bad_reward = _executor_reward(
-    prompts=["p"], completions=["bad"], header=["h"],
+    prompts=[[{"role": "user", "content": "p"}]],
+    completions=[[{"role": "assistant", "content": "bad"}]], header=["h"],
     units_json=['["u"]'], recent_text=["r"], logged_action=["bash::x"],
     budget_chars=[1], task=["t"], id=[0])
 check("exp24 invalid completion needs no executor", _bad_reward[0] < 0)
@@ -371,6 +378,11 @@ _exp24_trainer_text = (REPO / "experiments/exp24_grpo_train.py").read_text()
 _exp24_selector_gate = (REPO / "experiments/exp24_selector_preflight.sh").read_text()
 check("exp24 has one-GPU selector construction gate",
       "--preflight-only" in _exp24_trainer_text and bool(_exp24_selector_gate))
+check("exp24 selector gate requires valid JSON generation",
+      "0/4 valid JSON candidates" in _exp24_trainer_text)
+check("exp24 prepared selector prompts use native chat",
+      '"prompt": [{"role": "user"' in
+      (REPO / "experiments/exp24_prepare.py").read_text())
 check("selector gate loads hierarchical StdEnv separately",
       "module load StdEnv/2023\nmodule load gcc" in _exp24_selector_gate and
       "module list" in _exp24_selector_gate)

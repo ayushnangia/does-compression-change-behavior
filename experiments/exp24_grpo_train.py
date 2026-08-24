@@ -162,6 +162,10 @@ def main():
         max_completion_length=64, temperature=1.0, top_p=1.0,
         beta=0.01, scale_rewards="group", loss_type="dr_grpo",
         importance_sampling_level="sequence", gradient_checkpointing=True,
+        # Qwen3.5 otherwise starts every completion with unconstrained
+        # <think> prose and exhausts the 64-token structured-action budget.
+        # This is the model's native chat-template switch, not prompt hacking.
+        chat_template_kwargs={"enable_thinking": False},
         bf16=torch.cuda.is_available(), logging_steps=1, save_steps=50,
         save_total_limit=2, report_to=[], eval_strategy="no")
     trainer = GRPOTrainer(model=args.model, reward_funcs=reward, args=cfg,
@@ -177,7 +181,8 @@ def main():
             raise SystemExit("SELECTOR PREFLIGHT REFUSED: prompt is not native chat")
         encoded = tokenizer.apply_chat_template(
             prompt, tokenize=True, add_generation_prompt=True,
-            return_tensors="pt", return_dict=True).to(trainer.model.device)
+            enable_thinking=False, return_tensors="pt",
+            return_dict=True).to(trainer.model.device)
         with torch.inference_mode():
             generated = trainer.model.generate(
                 **encoded, max_new_tokens=64, do_sample=True, temperature=1.0,

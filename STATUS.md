@@ -12,7 +12,7 @@ verdicts and retractions: `docs/AUDIT.md`.
   gates.
 - Repository/data: on-policy dataset (64 examples, 2k–209k tokens) and all
   Aug 4–6 powered result artifacts are committed.
-- Test gate: **131/131** after exp22/exp24 lineage, budget, parser and
+- Test gate: **132/132** after exp22/exp24 lineage, budget, parser and
   generation-default guards.
 - Paper policy: on-policy results only; off-policy appears only as evidence
   that evaluation regimes do not reliably transfer.
@@ -118,8 +118,11 @@ establishes a non-floor outcome evaluator.
   step 1/10 but was **CANCELLED AS INVALID**: 8/8 non-JSON raw continuations,
   constant reward=-1, loss/grad=0, no checkpoint. Prepared prompts now use the
   native Qwen3.5 chat template, repeat the JSON contract at the generation
-  boundary, and normalize conversational completions. A one-H100 generation
-  gate must show >=1/4 valid JSON before another full-node pilot;
+  boundary, and normalize conversational completions. Native-chat gate 828054
+  then understood the task but spent all 64 tokens in default `<think>` prose
+  (0/4 JSON); it correctly refused release. TRL/preflight now use Qwen3.5's
+  native `enable_thinking=False`; the next one-H100 gate must show >=1/4 valid
+  JSON before another full-node pilot;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

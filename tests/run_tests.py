@@ -380,6 +380,9 @@ check("exp24 has one-GPU selector construction gate",
       "--preflight-only" in _exp24_trainer_text and bool(_exp24_selector_gate))
 check("exp24 selector gate requires valid JSON generation",
       "0/4 valid JSON candidates" in _exp24_trainer_text)
+check("exp24 selector disables native thinking for JSON budget",
+      'chat_template_kwargs={"enable_thinking": False}' in _exp24_trainer_text and
+      "enable_thinking=False" in _exp24_trainer_text)
 check("exp24 prepared selector prompts use native chat",
       '"prompt": [{"role": "user"' in
       (REPO / "experiments/exp24_prepare.py").read_text())

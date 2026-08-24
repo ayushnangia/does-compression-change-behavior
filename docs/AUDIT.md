@@ -573,3 +573,10 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   generation boundary, and reward normalization for TRL's conversational
   completion structure. The one-H100 gate now requires >=1/4 parseable JSON
   generations before another full-node allocation.
+- **native-chat selector gate 828054 still refused 0/4 JSON outputs:** unlike
+  813724, all candidates correctly understood and analyzed the selection task,
+  proving chat formatting was fixed. But Qwen3.5's template defaults to an
+  open `<think>` block, so four 64-token completions ended during prose before
+  producing JSON. Use Qwen3.5's native `enable_thinking=False` template option
+  in both TRL rollout and preflight. This preserves the intentionally short
+  structured-action budget and does not weaken the parser or reward gate.

@@ -129,9 +129,10 @@ establishes a non-floor outcome evaluator.
   not evidence. Left-padding confirmation 828149 is **GREEN**: 2/2 steps,
   zero padding warnings, all 4 groups nonconstant, nonzero gradients, adapter
   saved. The exp24 plumbing path is now clean; main training remains blocked
-  at 148/1,000 task-disjoint train rows. Three independent low-reasoning,
-  concurrency-1 easy25 collection replicas are queued as 834653/834654/834655;
-  combined task-split data rebuild 834656 runs automatically after all three;
+  at 148/1,000 task-disjoint train rows. Low-reasoning, concurrency-1 easy25
+  replicas 834653/834654 are running. Original r4 job 834655 was invalidated
+  after a co-scheduled fixed-port collision; replacement 834686 uses a unique
+  per-job port. Combined data rebuild 834687 runs after all three valid jobs;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

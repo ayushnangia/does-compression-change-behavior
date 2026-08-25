@@ -619,4 +619,11 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   received repeated 404s. No r4 trajectory is data. Its directory is archived
   as `.portcollision834655`, dependent builder 834656 was cancelled, and r2/r3
   continue. `eval_tb2.sh` now derives a job-unique port from `SLURM_JOB_ID`
-  (with explicit override support), safe for co-scheduled GPU jobs.
+  (with explicit override support), safe for co-scheduled GPU jobs. Replacement
+  r4 834686 is healthy while co-scheduled with r3 on distinct ports.
+- **Collection expanded before rebuild:** one baseline produced only 148 train
+  rows. Three additional replicas would plausibly remain below 1,000, so r5-r7
+  (834739-834741) were added while model/node setup is known healthy. One
+  combined rebuild 834742 depends on all six valid replicas (r2-r7 plus the
+  original baseline through the glob). This is data collection, not repeated
+  hypothesis testing; the predeclared 100-row-per-task cap still applies.

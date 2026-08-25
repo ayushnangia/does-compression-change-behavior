@@ -130,9 +130,11 @@ establishes a non-floor outcome evaluator.
   zero padding warnings, all 4 groups nonconstant, nonzero gradients, adapter
   saved. The exp24 plumbing path is now clean; main training remains blocked
   at 148/1,000 task-disjoint train rows. Low-reasoning, concurrency-1 easy25
-  replicas 834653/834654 are running. Original r4 job 834655 was invalidated
-  after a co-scheduled fixed-port collision; replacement 834686 uses a unique
-  per-job port. Combined data rebuild 834687 runs after all three valid jobs;
+  replicas r2/r3 (834653/834654) and fixed-port-safe replacement r4 (834686)
+  are running. Original r4 job 834655 is invalid and archived. To avoid an
+  expected underpowered rebuild, additional independent replicas r5/r6/r7 are
+  834739/834740/834741. Combined data rebuild 834742 runs after all six valid
+  jobs; no main training is auto-released unless the ≥1,000 gate passes;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

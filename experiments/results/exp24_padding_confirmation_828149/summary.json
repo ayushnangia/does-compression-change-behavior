@@ -1,0 +1,18 @@
+{
+  "job_id": 828149,
+  "disposition": "left-padding plumbing confirmation only; not evidence",
+  "slurm_state": "COMPLETED",
+  "train_steps": 2,
+  "reward_records": 16,
+  "strict_json_valid": 11,
+  "positive_reward": 4,
+  "nonconstant_grpo_groups": 4,
+  "total_grpo_groups": 4,
+  "grad_norms": [
+    0.5543,
+    0.5648
+  ],
+  "right_padding_warnings": 0,
+  "adapter_bytes": 84972248,
+  "adapter_sha256": "3bfd0485016da5c1713ae1009073539be853f1b00c8c0f3f07fee592b496eaee"
+}

@@ -598,3 +598,17 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   tokenizer padding is now explicitly left, and a short clean confirmation is
   required before scaling. Durable summary/reward log:
   `experiments/results/exp24_pilot_828066/`.
+- **left-padding confirmation 828149 GREEN:** 2/2 steps completed with zero
+  right-padding warnings, 16 rewards, 11 strict-valid selections, 4 positive
+  rewards, nonzero variance in all 4 groups, gradient norms 0.5543/0.5648,
+  and a saved adapter. This closes the known plumbing warning. Durable record:
+  `experiments/results/exp24_padding_confirmation_828149/`. Main training is
+  still forbidden because only 148 task-disjoint train rows exist (<1,000).
+- **Power-gate collection design:** collect independent low-reasoning Qwen3.8
+  easy25 replicas under distinct served names and combine only the
+  `tb2-qwen38-27b-valid*` lineage. Use one concurrent Harbor trial per GPU node
+  rather than two: baseline 809200 lost 10/25 tasks to environment-start
+  timeout, and data collection values complete trajectories over throughput.
+  Agent timeouts remain usable on-policy behavioral traces; environment-start
+  failures do not. Rebuild task-level deterministic splits only after all
+  replicas finish; main GRPO still refuses <1,000 train rows.

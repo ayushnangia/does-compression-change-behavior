@@ -418,6 +418,11 @@ _eval_tb2 = (REPO / "tb2/eval_tb2.sh").read_text()
 check("Qwen3.8 uses native low reasoning effort",
       "reasoning_effort: low" in _eval_tb2)
 check("Qwen3.8 request timeout fits output budget", "timeout: 1800" in _eval_tb2)
+check("TB2 collection concurrency is configurable",
+      "n_concurrent_trials: $N_CONCURRENT" in _eval_tb2)
+check("exp24 data builder combines valid collection replicas",
+      "tb2-qwen38-27b-valid*-easy25" in
+      (REPO / "experiments/exp24_build_data.sh").read_text())
 check("Qwen3.8 preflight does not use raw completion proxy",
       "/v1/completions" not in _q38_preflight and
       "from behavior import parse_action" not in _q38_preflight)

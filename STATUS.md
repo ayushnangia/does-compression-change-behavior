@@ -12,7 +12,7 @@ verdicts and retractions: `docs/AUDIT.md`.
   gates.
 - Repository/data: on-policy dataset (64 examples, 2k–209k tokens) and all
   Aug 4–6 powered result artifacts are committed.
-- Test gate: **133/133** after exp22/exp24 lineage, budget, parser and
+- Test gate: **135/135** after exp22/exp24 lineage, budget, parser and
   generation-default guards.
 - Paper policy: on-policy results only; off-policy appears only as evidence
   that evaluation regimes do not reliably transfer.
@@ -126,8 +126,10 @@ establishes a non-floor outcome evaluator.
   pilot 828066 is **GREEN WITH A FIXED WARNING**: 10/10 steps, 80 rewards,
   28 strict-valid selections, 20 positive rewards, 11/20 nonconstant groups,
   nonzero gradients on all steps, and an 84.97MB adapter. This is plumbing,
-  not evidence. Decoder-only right-padding warning is fixed by forcing left
-  padding; a short confirmation run is required before scale;
+  not evidence. Left-padding confirmation 828149 is **GREEN**: 2/2 steps,
+  zero padding warnings, all 4 groups nonconstant, nonzero gradients, adapter
+  saved. The exp24 plumbing path is now clean; main training remains blocked
+  at 148/1,000 task-disjoint train rows;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

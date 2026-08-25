@@ -49,7 +49,7 @@ tb2/                      offline Terminal-Bench 2.0 harness (vLLM+harbor+Apptai
 paper/                    ICLR layer: RQ, RELATED, OUTLINE, LITERATURE
 docs/                     ICLR_PLAN, EXPERIMENT_LEDGER, AUDIT,
                           MIGRATION (cluster runbook), slides
-tests/run_tests.py        133 checks; gate for every job submission
+tests/run_tests.py        135 checks; gate for every job submission
 ```
 
 **Current state**: [STATUS.md](STATUS.md) is the live board;

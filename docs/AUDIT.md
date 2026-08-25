@@ -612,3 +612,11 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   Agent timeouts remain usable on-policy behavioral traces; environment-start
   failures do not. Rebuild task-level deterministic splits only after all
   replicas finish; main GRPO still refuses <1,000 train rows.
+- **collection replica 834655 invalidated and cancelled after 17 minutes:**
+  Slurm co-scheduled single-GPU replicas 834654/834655 on trig0011. Both used
+  fixed localhost port 8000; replica 4's readiness check hit replica 3's
+  healthy server, then Harbor requested served name r4 from the r3 server and
+  received repeated 404s. No r4 trajectory is data. Its directory is archived
+  as `.portcollision834655`, dependent builder 834656 was cancelled, and r2/r3
+  continue. `eval_tb2.sh` now derives a job-unique port from `SLURM_JOB_ID`
+  (with explicit override support), safe for co-scheduled GPU jobs.

@@ -23,12 +23,15 @@
 #SBATCH --output=tb2_%j.out
 set -u
 
-MODEL=${1:?usage: eval_tb2.sh <hf-model-id> <served-name> [tp] [subset] [agent-timeout-mult] [budget] [concurrency]}
+MODEL=${1:?usage: eval_tb2.sh <hf-model-id> <served-name> [tp] [subset] [agent-timeout-mult] [budget] [concurrency] [port]}
 SERVED=${2:?served-model-name (exactly one / rule: hosted_vllm/<served-name>)}
 TP=${3:-1}
 SUBSET=${4:-}
 N_CONCURRENT=${7:-2}
-PORT=8000
+# Single-GPU jobs can share a 4-GPU Trillium node. A fixed localhost port made
+# co-scheduled replica 834655 query replica 834654's server and receive 404s.
+# Derive a stable per-job port; Apptainer shares the host network namespace.
+PORT=${8:-$((10000 + ${SLURM_JOB_ID:-0} % 50000))}
 # Under sbatch, $0 is Slurm's spooled COPY in /var/spool/slurm/... - the
 # sidecar files (config_template.yaml, easy25.txt) are not next to it.
 # Resolve the real tb2/ dir via fallbacks (job 679008 died on this).

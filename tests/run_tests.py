@@ -420,6 +420,8 @@ check("Qwen3.8 uses native low reasoning effort",
 check("Qwen3.8 request timeout fits output budget", "timeout: 1800" in _eval_tb2)
 check("TB2 collection concurrency is configurable",
       "n_concurrent_trials: $N_CONCURRENT" in _eval_tb2)
+check("TB2 co-scheduled jobs use unique localhost ports",
+      "SLURM_JOB_ID" in _eval_tb2 and "10000 +" in _eval_tb2)
 check("exp24 data builder combines valid collection replicas",
       "tb2-qwen38-27b-valid*-easy25" in
       (REPO / "experiments/exp24_build_data.sh").read_text())

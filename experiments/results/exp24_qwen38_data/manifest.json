@@ -1,34 +1,43 @@
 {
   "source_model": "Qwen/Qwen3.8-27B",
   "source_file": "/scratch/anangia/dccb/data/examples_qwen38_exp24.json",
-  "source_sha256": "753ffb01bfbdfefbbb0841eaa74099883f3612162b28223414b9c6d9dbadf3d6",
+  "source_sha256": "b011dd31dd87f432f783a2d5897c79b400db9d9387ff876118b08c178ec87eb6",
   "budget_fraction": 0.25,
   "splits": {
     "train": {
-      "examples": 148,
+      "examples": 967,
       "tasks": [
         "break-filter-js-from-html",
+        "cobol-modernization",
         "code-from-image",
         "configure-git-webserver",
         "crack-7z-hash",
         "custom-memory-heap-crash",
         "financial-document-processor",
+        "fix-git",
+        "kv-store-grpc",
+        "mteb-leaderboard",
         "mteb-retrieve",
-        "polyglot-c-py"
+        "nginx-request-logging",
+        "polyglot-c-py",
+        "vulnerable-secret"
       ]
     },
     "validation": {
-      "examples": 23,
+      "examples": 182,
       "tasks": [
+        "count-dataset-tokens",
         "hf-model-inference"
       ]
     },
     "test": {
-      "examples": 39,
+      "examples": 313,
       "tasks": [
         "dna-insert",
         "extract-elf",
-        "merge-diff-arc-agi-task"
+        "merge-diff-arc-agi-task",
+        "pytorch-model-recovery",
+        "raman-fitting"
       ]
     }
   }

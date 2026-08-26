@@ -627,3 +627,11 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   combined rebuild 834742 depends on all six valid replicas (r2-r7 plus the
   original baseline through the glob). This is data collection, not repeated
   hypothesis testing; the predeclared 100-row-per-task cap still applies.
+- **Combined r2-r7 rebuild 834742 remains under the hard gate:** 1,462 total
+  rows from 21 tasks, split task-disjoint as 967 train/14 tasks, 182 val/2,
+  and 313 test/5. No 404 contamination was found in the six valid jobs. The
+  main run was correctly not submitted. Seven train tasks remain below the
+  100-row cap (configure 97, mteb-leaderboard 59, cobol 42, fix-git 23,
+  vulnerable-secret 21, polyglot 13, break-filter 12), so one independent r8
+  replica (840989) is a resource-proportionate way to close the 33-row gap;
+  rebuild 840990 follows via `afterok`. The 1,000 threshold is unchanged.

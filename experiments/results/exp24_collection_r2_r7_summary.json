@@ -1,0 +1,124 @@
+{
+  "disposition": "on-policy power-gate collection; not a model result",
+  "source_model": "Qwen/Qwen3.8-27B",
+  "reasoning_effort": "low",
+  "context_budget": 65536,
+  "runs": [
+    {
+      "replica": 2,
+      "job_id": 834653,
+      "trials": 25,
+      "trajectories": 16,
+      "infrastructure_failure": 9,
+      "agent_timeout": 7,
+      "clean": 9,
+      "clean_reward_1": 7,
+      "clean_reward_0": 2,
+      "model_404s": 0
+    },
+    {
+      "replica": 3,
+      "job_id": 834654,
+      "trials": 25,
+      "trajectories": 20,
+      "clean": 14,
+      "agent_timeout": 6,
+      "infrastructure_failure": 5,
+      "clean_reward_1": 9,
+      "clean_reward_0": 5,
+      "model_404s": 0
+    },
+    {
+      "replica": 4,
+      "job_id": 834686,
+      "trials": 25,
+      "trajectories": 20,
+      "infrastructure_failure": 5,
+      "clean": 10,
+      "agent_timeout": 10,
+      "clean_reward_1": 7,
+      "clean_reward_0": 3,
+      "model_404s": 0
+    },
+    {
+      "replica": 5,
+      "job_id": 834739,
+      "trials": 25,
+      "trajectories": 18,
+      "clean": 10,
+      "infrastructure_failure": 7,
+      "agent_timeout": 8,
+      "clean_reward_1": 7,
+      "clean_reward_0": 3,
+      "model_404s": 0
+    },
+    {
+      "replica": 6,
+      "job_id": 834740,
+      "trials": 25,
+      "trajectories": 22,
+      "clean": 12,
+      "agent_timeout": 10,
+      "infrastructure_failure": 3,
+      "clean_reward_1": 8,
+      "clean_reward_0": 4,
+      "model_404s": 0
+    },
+    {
+      "replica": 7,
+      "job_id": 834741,
+      "trials": 25,
+      "trajectories": 21,
+      "clean": 14,
+      "agent_timeout": 7,
+      "infrastructure_failure": 4,
+      "clean_reward_1": 10,
+      "clean_reward_0": 4,
+      "model_404s": 0
+    }
+  ],
+  "rebuild_job": 834742,
+  "rows_total": 1462,
+  "splits": {
+    "train": {
+      "examples": 967,
+      "tasks": [
+        "break-filter-js-from-html",
+        "cobol-modernization",
+        "code-from-image",
+        "configure-git-webserver",
+        "crack-7z-hash",
+        "custom-memory-heap-crash",
+        "financial-document-processor",
+        "fix-git",
+        "kv-store-grpc",
+        "mteb-leaderboard",
+        "mteb-retrieve",
+        "nginx-request-logging",
+        "polyglot-c-py",
+        "vulnerable-secret"
+      ]
+    },
+    "validation": {
+      "examples": 182,
+      "tasks": [
+        "count-dataset-tokens",
+        "hf-model-inference"
+      ]
+    },
+    "test": {
+      "examples": 313,
+      "tasks": [
+        "dna-insert",
+        "extract-elf",
+        "merge-diff-arc-agi-task",
+        "pytorch-model-recovery",
+        "raman-fitting"
+      ]
+    }
+  },
+  "train_gate_required": 1000,
+  "train_gate_passed": false,
+  "gap_replica_job": 840989,
+  "gap_rebuild_job": 840990
+}

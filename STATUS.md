@@ -133,8 +133,10 @@ establishes a non-floor outcome evaluator.
   replicas r2/r3 (834653/834654) and fixed-port-safe replacement r4 (834686)
   are running. Original r4 job 834655 is invalid and archived. To avoid an
   expected underpowered rebuild, additional independent replicas r5/r6/r7 are
-  834739/834740/834741. Combined data rebuild 834742 runs after all six valid
-  jobs; no main training is auto-released unless the ≥1,000 gate passes;
+  834739/834740/834741. All six completed; rebuild 834742 produced 1,462
+  total task-disjoint rows but only **967 train / 182 validation / 313 test**.
+  The 1,000 gate correctly blocked training. Gap replica r8 is job 840989;
+  rebuild 840990 follows automatically. Main is still not auto-released;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

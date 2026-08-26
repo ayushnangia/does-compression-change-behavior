@@ -13,6 +13,7 @@ set -euo pipefail
 
 MAX_STEPS=${1:-10}
 DATA_DIR=${2:-experiments/results/exp24_qwen38_data}
+SEED=${3:-42}
 MIN_TRAIN=1000
 [ "$MAX_STEPS" != "-1" ] && MIN_TRAIN=20  # labeled plumbing pilot only
 ROOT=${SLURM_SUBMIT_DIR:-$SCRATCH/dccb}
@@ -68,4 +69,5 @@ CUDA_VISIBLE_DEVICES=0 TRITON_CACHE_DIR=$SLURM_TMPDIR/triton-train \
   --train-file "$DATA_DIR/train.jsonl" "${EVAL_ARGS[@]}" \
   --out experiments/results/exp24_grpo_$SLURM_JOB_ID \
   --reward-log experiments/results/exp24_grpo_rewards_$SLURM_JOB_ID.jsonl \
-  --max-steps "$MAX_STEPS" --min-train-examples "$MIN_TRAIN"
+  --max-steps "$MAX_STEPS" --min-train-examples "$MIN_TRAIN" \
+  --seed "$SEED"

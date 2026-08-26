@@ -124,6 +124,7 @@ def main():
     ap.add_argument("--executor-max-tokens", type=int, default=4096)
     ap.add_argument("--epochs", type=float, default=1.0)
     ap.add_argument("--lr", type=float, default=2e-6)
+    ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--max-steps", type=int, default=-1,
                     help="pilot plumbing: set e.g. 10; main run leaves -1")
     ap.add_argument("--min-train-examples", type=int, default=1000,
@@ -170,6 +171,7 @@ def main():
         # <think> prose and exhausts the 64-token structured-action budget.
         # This is the model's native chat-template switch, not prompt hacking.
         chat_template_kwargs={"enable_thinking": False},
+        seed=args.seed, data_seed=args.seed,
         bf16=torch.cuda.is_available(), logging_steps=1, save_steps=50,
         save_total_limit=2, report_to=[], eval_strategy="no")
     trainer = GRPOTrainer(model=args.model, reward_funcs=reward, args=cfg,

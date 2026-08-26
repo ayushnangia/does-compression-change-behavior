@@ -635,3 +635,9 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   vulnerable-secret 21, polyglot 13, break-filter 12), so one independent r8
   replica (840989) is a resource-proportionate way to close the 33-row gap;
   rebuild 840990 follows via `afterok`. The 1,000 threshold is unchanged.
+- **Powered-release guard added while r8 runs:** `exp24_power_gate.sh` verifies
+  actual JSONL counts against the manifest, native-chat prompt shape, Qwen3.8
+  lineage on every row, pairwise task disjointness, nonempty held-out splits,
+  source SHA when available, and train>=1,000. Full-node jobs may depend only
+  on its `afterok`. The trainer/launcher now expose explicit `seed` and
+  `data_seed`; powered Dr-GRPO requires at least seeds 42 and 43.

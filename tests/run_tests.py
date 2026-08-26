@@ -385,6 +385,15 @@ check("exp24 selector disables native thinking for JSON budget",
       "enable_thinking=False" in _exp24_trainer_text)
 check("exp24 decoder-only GRPO uses left padding",
       'tokenizer.padding_side = "left"' in _exp24_trainer_text)
+check("exp24 powered runs expose deterministic seed",
+      "seed=args.seed" in _exp24_trainer_text and "data_seed=args.seed" in
+      _exp24_trainer_text and '--seed "$SEED"' in _exp24_job_text)
+_power_gate = (REPO / "experiments/exp24_power_gate.sh").read_text()
+check("exp24 power gate requires 1000 task-disjoint chat rows",
+      "MIN_TRAIN=${2:-1000}" in _power_gate and "overlap" in _power_gate and
+      "non-chat prompt" in _power_gate)
+check("exp24 power gate enforces Qwen3.8 lineage and source SHA",
+      "Qwen/Qwen3.8-27B" in _power_gate and "source SHA mismatch" in _power_gate)
 check("exp24 prepared selector prompts use native chat",
       '"prompt": [{"role": "user"' in
       (REPO / "experiments/exp24_prepare.py").read_text())

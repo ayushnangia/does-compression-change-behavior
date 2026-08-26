@@ -12,7 +12,7 @@ verdicts and retractions: `docs/AUDIT.md`.
   gates.
 - Repository/data: on-policy dataset (64 examples, 2k–209k tokens) and all
   Aug 4–6 powered result artifacts are committed.
-- Test gate: **136/136** after exp22/exp24 lineage, budget, parser and
+- Test gate: **139/139** after exp22/exp24 lineage, budget, parser and
   generation-default guards.
 - Paper policy: on-policy results only; off-policy appears only as evidence
   that evaluation regimes do not reliably transfer.
@@ -135,8 +135,10 @@ establishes a non-floor outcome evaluator.
   expected underpowered rebuild, additional independent replicas r5/r6/r7 are
   834739/834740/834741. All six completed; rebuild 834742 produced 1,462
   total task-disjoint rows but only **967 train / 182 validation / 313 test**.
-  The 1,000 gate correctly blocked training. Gap replica r8 is job 840989;
-  rebuild 840990 follows automatically. Main is still not auto-released;
+  The 1,000 gate correctly blocked training. Gap replica r8 job 840989 is
+  running; rebuild 840990 follows automatically. A CPU integrity gate now
+  verifies >=1,000 rows, manifest counts/SHA, chat shape, Qwen3.8 lineage, and
+  task disjointness before two explicit Dr-GRPO seeds (42/43) can be released;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

@@ -640,4 +640,7 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   lineage on every row, pairwise task disjointness, nonempty held-out splits,
   source SHA when available, and train>=1,000. Full-node jobs may depend only
   on its `afterok`. The trainer/launcher now expose explicit `seed` and
-  `data_seed`; powered Dr-GRPO requires at least seeds 42 and 43.
+  `data_seed`; powered Dr-GRPO requires at least seeds 42 and 43. First gate
+  submission was rejected before job creation because Trillium requires
+  `--gpus-per-node` even for this CPU-only check; encode one H100 (unused by
+  validation) rather than relying on an invalid resource header.

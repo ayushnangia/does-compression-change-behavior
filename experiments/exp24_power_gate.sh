@@ -1,9 +1,11 @@
 #!/bin/bash
 #SBATCH --account=def-rgrosse
 #SBATCH --job-name=exp24powergate
+#SBATCH --gpus-per-node=h100:1
 #SBATCH --time=0-00:10
 #SBATCH --output=exp24_power_gate_%j.out
-# CPU-only integrity/power gate. Full-node GRPO jobs depend on afterok here.
+# Integrity/power gate; it does not use CUDA, but Trillium rejects jobs without
+# an explicit GPU request. Full-node GRPO jobs depend on afterok here.
 set -euo pipefail
 DATA_DIR=${1:-experiments/results/exp24_qwen38_data}
 MIN_TRAIN=${2:-1000}

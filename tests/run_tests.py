@@ -394,6 +394,8 @@ check("exp24 power gate requires 1000 task-disjoint chat rows",
       "non-chat prompt" in _power_gate)
 check("exp24 power gate enforces Qwen3.8 lineage and source SHA",
       "Qwen/Qwen3.8-27B" in _power_gate and "source SHA mismatch" in _power_gate)
+check("exp24 power gate has valid Trillium resource request",
+      "#SBATCH --gpus-per-node=h100:1" in _power_gate)
 check("exp24 prepared selector prompts use native chat",
       '"prompt": [{"role": "user"' in
       (REPO / "experiments/exp24_prepare.py").read_text())

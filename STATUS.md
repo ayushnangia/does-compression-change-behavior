@@ -138,7 +138,9 @@ establishes a non-floor outcome evaluator.
   The 1,000 gate correctly blocked training. Gap replica r8 job 840989 is
   running; rebuild 840990 follows automatically. A CPU integrity gate now
   verifies >=1,000 rows, manifest counts/SHA, chat shape, Qwen3.8 lineage, and
-  task disjointness before two explicit Dr-GRPO seeds (42/43) can be released;
+  task disjointness as job 841033 (`afterok:840990`). Powered Dr-GRPO seeds 42
+  and 43 are queued as 841034/841035 with `afterok:841033`; if r8 still leaves
+  <1,000 rows, the gate fails and both full-node jobs are cancelled untouched;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

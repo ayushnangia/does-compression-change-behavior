@@ -396,6 +396,16 @@ check("exp24 power gate enforces Qwen3.8 lineage and source SHA",
       "Qwen/Qwen3.8-27B" in _power_gate and "source SHA mismatch" in _power_gate)
 check("exp24 power gate has valid Trillium resource request",
       "#SBATCH --gpus-per-node=h100:1" in _power_gate)
+_hf_export = (REPO / "experiments/export_hf_traces.py").read_text()
+check("HF trace export excludes invalid collections",
+      "834655" in _hf_export and "803407/803548" in _hf_export and
+      "805029" in _hf_export)
+check("HF trace export preserves exact bytes and checksums",
+      "trajectory_json" in _hf_export and "checksums.sha256" in _hf_export and
+      "trajectory_sha256" in _hf_export)
+check("HF trace push requires environment token",
+      'os.environ.get("HF_TOKEN")' in _hf_export and
+      "HfApi(token=token)" in _hf_export)
 check("exp24 prepared selector prompts use native chat",
       '"prompt": [{"role": "user"' in
       (REPO / "experiments/exp24_prepare.py").read_text())

@@ -640,7 +640,18 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   lineage on every row, pairwise task disjointness, nonempty held-out splits,
   source SHA when available, and train>=1,000. Full-node jobs may depend only
   on its `afterok`. The trainer/launcher now expose explicit `seed` and
-  `data_seed`; powered Dr-GRPO requires at least seeds 42 and 43. First gate
-  submission was rejected before job creation because Trillium requires
+  `data_seed`; powered Dr-GRPO requires at least seeds 42 and 43.
+- **Citable trajectory package prepared, remote push credential-blocked:**
+  reproducible exporter packages 132 byte-exact Qwen3.8 trajectories from
+  baseline+r2-r7 (76 clean, 56 agent-timeout; 25 tasks), with per-file SHA-256,
+  metadata/index JSONL, raw Harbor files, dataset card, explicit invalid-run
+  exclusions, and BibTeX. Secret scan: zero GitHub/HF/AWS token or private-key
+  patterns and zero exact configured-secret matches. Dataset card discloses
+  that shared `/scratch` was mounted and some agents inspected prior-run paths;
+  therefore this release supports behavior/compaction analysis, not Pass@1.
+  Staged at `$SCRATCH/hf_datasets/does-compression-change-behavior-traces`.
+  Hugging Face upload cannot occur until a write-scoped `HF_TOKEN` is placed
+  in gitignored `.env`; no token is currently configured.
+- **First integrity-gate submission was rejected before job creation** because Trillium requires
   `--gpus-per-node` even for this CPU-only check; encode one H100 (unused by
   validation) rather than relying on an invalid resource header.

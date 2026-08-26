@@ -6,13 +6,17 @@ verdicts and retractions: `docs/AUDIT.md`.
 
 ## Current state
 
-- Slurm chain now uses durable dependencies: corrected low-reasoning Harbor
-  gate 809199 → clean Qwen3.8 baseline 809200 → on-policy data build 809201.
-  GRPO is not auto-submitted; baseline competence and data power are manual
-  gates.
+- Active durable chain: r8 gap collection 840989 → rebuild 840990 → integrity
+  gate 841033 → powered Dr-GRPO seeds 42/43 (841034/841035). Full-node jobs
+  release only if the rebuilt train split reaches ≥1,000 and passes lineage,
+  SHA, chat-shape, and task-disjointness checks.
 - Repository/data: on-policy dataset (64 examples, 2k–209k tokens) and all
   Aug 4–6 powered result artifacts are committed.
-- Test gate: **140/140** after exp22/exp24 lineage, budget, parser and
+- Citable HF package staged: 132 byte-exact valid Qwen3.8 trajectories with
+  checksums, index, provenance/exclusions, limitations, and BibTeX. Remote
+  push is blocked only by a missing write-scoped `HF_TOKEN`; put it in
+  gitignored `.env`, never chat.
+- Test gate: **143/143** after exp22/exp24 lineage, budget, parser and
   generation-default guards.
 - Paper policy: on-policy results only; off-policy appears only as evidence
   that evaluation regimes do not reliably transfer.

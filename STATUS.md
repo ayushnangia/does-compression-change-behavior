@@ -17,7 +17,7 @@ verdicts and retractions: `docs/AUDIT.md`.
   https://huggingface.co/datasets/Ayushnangia/does-compression-change-behavior-traces
   (immutable revision `2fee2eed5a0f464ae768b8e1f7821dd6b5e4872a`). The HF
   token was pasted in chat and must be revoked/rotated; it was not committed.
-- Test gate: **144/144** after exp22/exp24 lineage, budget, parser and
+- Test gate: **148/148** after exp22/exp24 lineage, budget, parser and
   generation-default guards.
 - Paper policy: on-policy results only; off-policy appears only as evidence
   that evaluation regimes do not reliably transfer.
@@ -133,12 +133,9 @@ establishes a non-floor outcome evaluator.
   nonzero gradients on all steps, and an 84.97MB adapter. This is plumbing,
   not evidence. Left-padding confirmation 828149 is **GREEN**: 2/2 steps,
   zero padding warnings, all 4 groups nonconstant, nonzero gradients, adapter
-  saved. The exp24 plumbing path is now clean; main training remains blocked
-  at 148/1,000 task-disjoint train rows. Low-reasoning, concurrency-1 easy25
-  replicas r2/r3 (834653/834654) and fixed-port-safe replacement r4 (834686)
-  are running. Original r4 job 834655 is invalid and archived. To avoid an
-  expected underpowered rebuild, additional independent replicas r5/r6/r7 are
-  834739/834740/834741. All six completed; rebuild 834742 produced 1,462
+  saved. The exp24 plumbing path is now clean. Original r4 job 834655 is
+  invalid and archived. Low-reasoning, concurrency-1 replicas r2-r7 completed;
+  rebuild 834742 produced 1,462
   total task-disjoint rows but only **967 train / 182 validation / 313 test**.
   r8 completed with 19 trajectories; rebuild 840990 reached **973 train / 190
   validation / 321 test**, so gate 841033 correctly failed and seed jobs
@@ -146,6 +143,9 @@ establishes a non-floor outcome evaluator.
   under-cap train tasks are 874043/874044 → rebuild 874045 → integrity gate
   874046 → powered Dr-GRPO seeds 42/43 as 874047/874048. The threshold remains
   1,000; full-node jobs release only through gate `afterok`;
+- exp25 frozen open-source LLMLingua-2 baseline: **IMPLEMENTED/PREFETCHED**;
+  held-out Qwen3.8 rows, full vs LLMLingua-2 vs actual-token-matched verbatim
+  recency, same frozen native executor. Exploratory job releases after 874045;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

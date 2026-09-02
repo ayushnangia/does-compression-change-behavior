@@ -664,6 +664,16 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   authenticated case-sensitive `Ayushnangia` namespace succeeded. The write
   token was exposed in chat, was used transiently rather than committed, and
   must be revoked/rotated.
+- **exp25 external compressor baseline added, not yet a result:** LLMLingua-2
+  (`microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank`, pinned
+  `llmlingua==0.2.2`) is a frozen, open-source token-deletion baseline. On
+  task-held-out Qwen3.8 rows it is compared with full context and verbatim
+  keep-recent matched to LLMLingua's *actual Qwen token count*, removing budget
+  mismatch. All arms use the same native low-reasoning frozen Qwen3.8 executor
+  and grounded logged-action metrics. N=2 rows per held-out task x 4 samples is
+  explicitly exploratory. Memento is not run as a drop-in arm because it
+  requires a specially trained model and patched vLLM KV-block masking; list it
+  as related architecture rather than fake equivalence.
 - **First integrity-gate submission was rejected before job creation** because Trillium requires
   `--gpus-per-node` even for this CPU-only check; encode one H100 (unused by
   validation) rather than relying on an invalid resource header.

@@ -453,6 +453,19 @@ check("exp24 gap list targets only deterministic train tasks",
 check("Qwen3.8 preflight does not use raw completion proxy",
       "/v1/completions" not in _q38_preflight and
       "from behavior import parse_action" not in _q38_preflight)
+_exp25 = (REPO / "experiments/exp25_llmlingua2.py").read_text()
+_exp25_job = (REPO / "experiments/exp25_llmlingua2_job.sh").read_text()
+check("exp25 pins frozen LLMLingua-2 baseline",
+      "microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank" in _exp25 and
+      "llmlingua==0.2.2" in (REPO / "requirements.txt").read_text())
+check("exp25 compares actual-token-matched recency",
+      '"keep_recent_matched"' in _exp25 and "matched_n" in _exp25)
+check("exp25 uses held-out Qwen3.8 on-policy rows",
+      "OFF-POLICY ROW REFUSED" in _exp25 and "validation.jsonl" in _exp25_job and
+      "test.jsonl" in _exp25_job)
+check("exp25 uses native frozen executor and disables model defaults",
+      '"reasoning_effort": "low"' in _exp25 and
+      "--generation-config vllm" in _exp25_job)
 
 print(f"\n{PASS} checks passed, {len(FAIL)} failed")
 if FAIL:

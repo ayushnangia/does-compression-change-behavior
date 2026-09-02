@@ -1,7 +1,8 @@
 # exp24 — proper behavioral-reward training experiment
 
-Status: designed, **not run**. Starts only after exp22 Gate 1 demonstrates a
-non-floor task-success evaluator.
+Status: plumbing validated; powered data gate passed at 1,024 train rows.
+Two powered seeds (874047/874048) are queued. No learned-policy quality result
+exists until both training and held-out evaluation complete.
 
 ## What has and has not been done
 
@@ -10,7 +11,9 @@ non-floor task-success evaluator.
 - T4 is the one valid training run: 86 on-policy pairs, LoRA, held-out
   evaluation; DPO 0.73 vs base 0.75, p=0.345. This is a scoped null, not a
   verdict on learning.
-- No PPO, GRPO, or TRPO optimizer has been run in this project.
+- GRPO plumbing is validated only: pilot 828066 completed 10/10 steps with
+  variable rewards and nonzero gradients; padding confirmation 828149 was
+  clean. These runs establish implementation correctness, not policy quality.
 
 ## Question
 
@@ -79,9 +82,13 @@ agreement, and output-token cost.
 
 ### External endpoint
 
-Plug the best frozen compactor and base into exp22 on the same task subset.
-Report valid paired Pass@1. This is required before saying training improves an
-agent rather than merely its behavioral proxy.
+After validation freezes an adapter hash, plug it into exp22 as
+`LearnedSelectorTerminus` on the same task subset. Qwen3.5 selects blocks from
+the acting Qwen3.8 agent's own live history; selected messages and a reserved
+recent suffix are copied verbatim into the shared handoff budget. Report valid
+paired Pass@1 and selector fallback rate. This delegated self-compaction test
+is required before saying training improves an agent rather than merely its
+behavioral proxy.
 
 ## Power and stop rules
 
@@ -100,14 +107,18 @@ agent rather than merely its behavioral proxy.
 - `exp24_prepare.py`: deterministic task-level split and selector manifests.
 - `exp24_credit.py`: group advantages, unit trajectory mass, frozen reward.
 - `exp24_grpo_train.py`: LoRA Dr-GRPO with a frozen vLLM executor reward.
-- `exp24_job.sh`: supported two-H100 Slurm launcher (GPU0 train, GPU1 execute).
+- `exp24_job.sh`: Trillium four-GPU allocation (GPU0 trains, GPU1 executes).
+- `exp22/compaction_agents.py`: strict live learned-selector policy with logged
+  fallback.
+- `tb2/eval_learned_self_compaction.sh`: hash-gated two-server deployment and
+  Harbor outcome runner.
 
 The old 64-example Qwen3.5-derived data yielded only 31/8/13 rows and is
 **forbidden for training this lineage**. After the Qwen3.8 baseline, an
 efficient turn-boundary-aware builder harvests up to 2,000 decision points
 from Qwen3.8's own trajectories and splits by task. The trainer hard-fails if
-any row's `source_model` is not `Qwen/Qwen3.8-27B`. The main run still requires
->=1,000 points; smaller data is plumbing only.
+any row's `source_model` is not `Qwen/Qwen3.8-27B`. Rebuild 874045 produced 1,024 train / 190 validation / 321 test rows and gate
+874046 passed. Smaller historical runs remain plumbing only.
 
 ## Required artifacts
 

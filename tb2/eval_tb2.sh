@@ -132,6 +132,15 @@ sed -e "s|@SERVED@|$SERVED|g" -e "s|@TB2@|$TB2_DIR|g" -e "s|@PORT@|$PORT|g" \
     -e "s|max_input_tokens: .*|max_input_tokens: $INPUT_CAP|" \
     -e "s|n_concurrent_trials: .*|n_concurrent_trials: $N_CONCURRENT|" \
     "$HERE/config_template.yaml" > "$CONFIG"
+# Optional custom Terminus subclass (used by exp22/24 live compaction). The
+# default remains stock `name: terminus-2`; only an explicit environment value
+# changes it, and the generated config records the exact import path.
+if [ -n "${TB2_AGENT_IMPORT_PATH:-}" ]; then
+    sed -i "s|  - name: terminus-2|  - import_path: $TB2_AGENT_IMPORT_PATH|" "$CONFIG"
+    grep -q "import_path: $TB2_AGENT_IMPORT_PATH" "$CONFIG" || {
+        echo "failed to install custom agent import path"; exit 1;
+    }
+fi
 # Qwen3.8's native template defaults to reasoning_effort=xhigh; at ~15 tok/s
 # 10k-token responses exceed LiteLLM's default 600s timeout. Use its native
 # LOW effort mode (not a homegrown prompt) and leave enough request time for

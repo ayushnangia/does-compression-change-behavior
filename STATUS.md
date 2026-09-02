@@ -17,7 +17,7 @@ verdicts and retractions: `docs/AUDIT.md`.
   https://huggingface.co/datasets/Ayushnangia/does-compression-change-behavior-traces
   (immutable revision `2fee2eed5a0f464ae768b8e1f7821dd6b5e4872a`). The HF
   token was pasted in chat and must be revoked/rotated; it was not committed.
-- Test gate: **148/148** after exp22/exp24 lineage, budget, parser and
+- Test gate: **154/154** after exp22/exp24 lineage, budget, parser and
   generation-default guards.
 - Paper policy: on-policy results only; off-policy appears only as evidence
   that evaluation regimes do not reliably transfer.
@@ -140,13 +140,15 @@ establishes a non-floor outcome evaluator.
   r8 completed with 19 trajectories; rebuild 840990 reached **973 train / 190
   validation / 321 test**, so gate 841033 correctly failed and seed jobs
   841034/841035 were cancelled untouched. Two targeted replicas over six
-  under-cap train tasks 874043/874044 are **COMPLETE** with 11 trajectories →
-  rebuild 874045 → integrity gate 874046 → powered Dr-GRPO seeds 42/43 as
-  874047/874048. The threshold remains 1,000; full-node jobs release only
-  through gate `afterok`;
-- exp25 frozen open-source LLMLingua-2 baseline: **QUEUED** as 874848 after
-  rebuild 874045; held-out Qwen3.8 rows, full vs LLMLingua-2 vs actual-token-
-  matched verbatim recency, same frozen native executor. Exploratory only;
-- exp22 four-arm pilot: **OPEN** after baseline competence check;
+  under-cap train tasks 874043/874044 completed with 11 trajectories. Rebuild
+  874045 produced **1,024 train / 190 validation / 321 test**; integrity gate
+  874046 is **GREEN**. Powered Dr-GRPO seeds 42/43 (874047/874048) are queued
+  through its `afterok` dependency. The >=1,000 threshold was not weakened;
+- learned closed-loop self-compaction arm: **IMPLEMENTED, HASH-GATED**;
+  `LearnedSelectorTerminus` delegates live Qwen3.8 history selection to a
+  frozen powered Qwen3.5 adapter, preserves selected blocks/recent suffix
+  verbatim, logs fallback rate, and uses a separate selector endpoint. It runs
+  only after held-out validation freezes one adapter;
+- exp22 outcome pilot: **OPEN** after powered selector validation;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

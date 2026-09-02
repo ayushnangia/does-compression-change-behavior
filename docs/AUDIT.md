@@ -642,6 +642,24 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   concentrated in six deterministic-train tasks, so two targeted replicas
   874043/874044 replace wasteful full-easy25 collection. Their chain is rebuild
   874045 → gate 874046 → seeds 874047/874048, with the same threshold.
+- **Powered data gate passed without weakening it:** targeted r9a/r9b jobs
+  874043/874044 completed with 11 trajectories. Rebuild 874045 produced 1,535
+  task-disjoint examples: **1,024 train / 190 validation / 321 test**, source
+  SHA-256 `421b29c...599128`. Gate 874046 completed cleanly; powered seeds
+  874047/874048 are therefore legitimately released and pending resources.
+- **Closed-loop delegated self-compaction is staged, not yet a result:**
+  `LearnedSelectorTerminus` sends old blocks from Qwen3.8's current live history
+  to the frozen Qwen3.5 LoRA, accepts only strict in-budget `{"keep":[...]}`,
+  copies selected message bodies verbatim, always retains an exact recent
+  suffix, and logs every fallback. `tb2/eval_learned_self_compaction.sh`
+  fingerprints the adapter, serves selector and actor separately, and gates
+  deployed JSON competence before Harbor. It cannot run until held-out
+  comparison freezes one powered adapter; this is “delegated self-compaction,”
+  not a claim that Qwen3.8 and the selector share weights.
+- **Abandoned external-baseline attempt is a non-result:** job 874848 was an
+  LLMLingua setup attempt prompted by a misunderstanding, failed after 2m40s,
+  produced no scored rows, and is excluded. No BERT compressor is part of the
+  method or final run matrix.
 - **Powered-release guard added while r8 runs:** `exp24_power_gate.sh` verifies
   actual JSONL counts against the manifest, native-chat prompt shape, Qwen3.8
   lineage on every row, pairwise task disjointness, nonempty held-out splits,
@@ -664,16 +682,6 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   authenticated case-sensitive `Ayushnangia` namespace succeeded. The write
   token was exposed in chat, was used transiently rather than committed, and
   must be revoked/rotated.
-- **exp25 external compressor baseline added, not yet a result:** LLMLingua-2
-  (`microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank`, pinned
-  `llmlingua==0.2.2`) is a frozen, open-source token-deletion baseline. On
-  task-held-out Qwen3.8 rows it is compared with full context and verbatim
-  keep-recent matched to LLMLingua's *actual Qwen token count*, removing budget
-  mismatch. All arms use the same native low-reasoning frozen Qwen3.8 executor
-  and grounded logged-action metrics. N=2 rows per held-out task x 4 samples is
-  explicitly exploratory. Memento is not run as a drop-in arm because it
-  requires a specially trained model and patched vLLM KV-block masking; list it
-  as related architecture rather than fake equivalence.
 - **First integrity-gate submission was rejected before job creation** because Trillium requires
   `--gpus-per-node` even for this CPU-only check; encode one H100 (unused by
   validation) rather than relying on an invalid resource header.

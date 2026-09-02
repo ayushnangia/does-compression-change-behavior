@@ -298,7 +298,8 @@ check("exp23 raw blocks longer than canonical",
       sum(len(u) for u in _units_raw) > sum(len(u) for u in _units))
 
 # ---------------- exp22 live raw-skeleton policy ----------------
-from exp22.policy_utils import fit_raw_skeleton
+from exp22.policy_utils import (fit_raw_skeleton, render_live_selection,
+                                split_old_recent)
 
 _live_texts = ["OBS-old", "CMD exact --flag x", "OBS-new", "CMD newest"]
 _live_mask = [False, True, False, True]
@@ -312,6 +313,36 @@ try:
 except ValueError:
     _alignment_raises = True
 check("exp22 live policy alignment guard", _alignment_raises)
+_live_old, _live_recent = split_old_recent(["old", "new-a", "new-b"], 12)
+check("exp22 learned arm reserves exact recent messages",
+      _live_old == ["old"] and _live_recent == "new-a\n\nnew-b")
+_giant_old, _giant_recent = split_old_recent(["old", "0123456789"], 4)
+check("exp22 learned arm giant recent is verbatim suffix",
+      _giant_old == ["old"] and _giant_recent == "6789")
+_live_body, _live_valid = render_live_selection(
+    ["zero", "one", "two"], [2, 0, 2], "recent", 30)
+check("exp22 learned arm copies sorted unique blocks",
+      _live_valid and _live_body == "zero\n\ntwo\n\nrecent")
+check("exp22 learned arm rejects handoff overflow",
+      not render_live_selection(["long block"], [0], "recent", 5)[1])
+_live_agent_code = (REPO / "exp22/compaction_agents.py").read_text()
+check("exp22 learned arm calls Qwen selector JSON-only",
+      "class LearnedSelectorTerminus" in _live_agent_code and
+      "make_selector_prompt" in _live_agent_code and "parse_keep" in _live_agent_code)
+check("exp22 learned arm logs and safely exposes fallback",
+      "EXP24_SELECTOR_LOG" in _live_agent_code and
+      'record["fallback"] = "keep_recent"' in _live_agent_code)
+_self_compact_job = (REPO / "tb2/eval_learned_self_compaction.sh").read_text()
+check("self-compaction runner serves Qwen3.5 LoRA beside frozen Qwen3.8",
+      "Qwen/Qwen3.5-4B" in _self_compact_job and
+      "--enable-lora" in _self_compact_job and
+      "Qwen/Qwen3.8-27B" in _self_compact_job)
+check("self-compaction runner freezes adapter provenance",
+      "adapter_sha256" in _self_compact_job and "adapter_model.safetensors" in
+      _self_compact_job)
+check("self-compaction runner gates strict selector JSON",
+      "deployed selector emitted invalid JSON" in _self_compact_job and
+      "enable_thinking" in _self_compact_job)
 
 # ---------------- exp24 direct-reward extractive GRPO ----------------
 from exp24_credit import group_advantages, event_weights, selector_reward
@@ -443,6 +474,9 @@ check("TB2 collection concurrency is configurable",
       "n_concurrent_trials: $N_CONCURRENT" in _eval_tb2)
 check("TB2 co-scheduled jobs use unique localhost ports",
       "SLURM_JOB_ID" in _eval_tb2 and "10000 +" in _eval_tb2)
+check("TB2 runner supports an explicit audited custom agent",
+      "TB2_AGENT_IMPORT_PATH" in _eval_tb2 and
+      "failed to install custom agent import path" in _eval_tb2)
 check("exp24 data builder combines valid collection replicas",
       "tb2-qwen38-27b-valid*-easy25*" in
       (REPO / "experiments/exp24_build_data.sh").read_text())
@@ -453,20 +487,6 @@ check("exp24 gap list targets only deterministic train tasks",
 check("Qwen3.8 preflight does not use raw completion proxy",
       "/v1/completions" not in _q38_preflight and
       "from behavior import parse_action" not in _q38_preflight)
-_exp25 = (REPO / "experiments/exp25_llmlingua2.py").read_text()
-_exp25_job = (REPO / "experiments/exp25_llmlingua2_job.sh").read_text()
-check("exp25 pins frozen LLMLingua-2 baseline",
-      "microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank" in _exp25 and
-      "llmlingua==0.2.2" in (REPO / "requirements.txt").read_text())
-check("exp25 compares actual-token-matched recency",
-      '"keep_recent_matched"' in _exp25 and "matched_n" in _exp25)
-check("exp25 uses held-out Qwen3.8 on-policy rows",
-      "OFF-POLICY ROW REFUSED" in _exp25 and "validation.jsonl" in _exp25_job and
-      "test.jsonl" in _exp25_job)
-check("exp25 uses native frozen executor and disables model defaults",
-      '"reasoning_effort": "low"' in _exp25 and
-      "--generation-config vllm" in _exp25_job)
-
 print(f"\n{PASS} checks passed, {len(FAIL)} failed")
 if FAIL:
     for f in FAIL:

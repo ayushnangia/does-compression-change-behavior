@@ -7,7 +7,7 @@ experiment dispositions are in `docs/EXPERIMENT_LEDGER.md`.
 |---|---|---|
 | On-policy evidence for main claims | DONE | 64-example own-agent dataset; powered N=25 exp4/8/17/20/21/23 |
 | Full real contexts and deployment sampling | DONE | 2k–209k histories; temp=1/top_p=1; adaptive sampling |
-| Parser/call equality certified | DONE | authority parser tests + BFCL AST matching; 148/148 test gate |
+| Parser/call equality certified | DONE | authority parser tests + BFCL AST matching; 154/154 test gate |
 | Noise-honest behavioral metric | DONE | floors, paired tests, raw arrays; exp19 exact-TV audit |
 | Logged-action grounding | DONE | exp8: full 0.65, keep-recent 0.66, summary 0.46 |
 | Matched-budget verbatim-vs-rewrite test | DONE | exp23 N=25; verbatim tie, rewriting loses |

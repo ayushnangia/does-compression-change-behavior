@@ -4,5 +4,3 @@ datasets>=3,<4
 accelerate
 sentencepiece
 protobuf
-# Frozen open-source compressor baseline (exp25 only)
-llmlingua==0.2.2

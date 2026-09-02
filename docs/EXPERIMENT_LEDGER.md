@@ -27,10 +27,9 @@ Off-policy results are retained only for the regime-dependence comparison.
 | 19 | Does sampled D reflect exact tool TV? | Exact 0.029 vs sampled 0.275, N=10 | Methods validation; appendix |
 | 20 | Does verbatim containment predict preservation? | Powered on-policy N=25: rho=-0.23; stronger than NLL (-0.12) | Supporting, predictive-only |
 | 21 | Does canonical shorthand preserve action history? | Powered on-policy N=25: wrapped 0.49 vs bare 0.55, p=0.36; raw beats canonical | On-policy null for wrapper; supports **do not rewrite** |
-| 22 | Do policies change real task success? | Harness smoke only; offline verifier and oracle reward=1 now green | **SOLE NEXT EXPERIMENT / submission gate** |
+| 22 | Do policies change real task success? | Harness/verifier/oracle green; learned Qwen3.5→Qwen3.8 delegated self-compaction arm staged with adapter hash, JSON, budget, and fallback gates | **Run learned smoke/easy25 only after powered held-out selector validation** |
 | 23 | Raw skeleton+tail vs rewritten one-liners | Powered on-policy N=25: verbatim policies tie (pooled p=0.39); rewriting costs about 13 points | **Headline matched-budget evidence** |
 | 24 | Can direct behavioral-reward training work? | Plumbing green: 10-step pilot with variable rewards/nonzero gradients/adapter; clean padding confirmation. Qwen3.8 task-split data at 973 train; targeted gap chain running | **Engineering established, performance unknown. Powered seeds remain hard-gated at >=1k** |
-| 25 | Does frozen open-source LLMLingua-2 preserve coding-agent behavior? | Designed on held-out Qwen3.8-on-policy rows: full vs LLMLingua-2 vs actual-token-matched keep-recent; same native frozen executor | **Exploratory external baseline; no claim until result lands; do not displace exp24/22** |
 
 ## The evidence package we already have
 

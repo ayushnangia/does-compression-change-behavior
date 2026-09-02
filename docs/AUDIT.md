@@ -635,23 +635,35 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   vulnerable-secret 21, polyglot 13, break-filter 12), so one independent r8
   replica (840989) is a resource-proportionate way to close the 33-row gap;
   rebuild 840990 follows via `afterok`. The 1,000 threshold is unchanged.
+- **r8 did not close the gate and no training ran:** r8 produced 19 trajectories,
+  but per-task caps meant rebuild 840990 moved train only 967→973 (total 1,484:
+  973/190/321). Gate 841033 refused `train=973 < 1000`; dependent seeds
+  841034/841035 were cancelled before allocation. Remaining capacity is
+  concentrated in six deterministic-train tasks, so two targeted replicas
+  874043/874044 replace wasteful full-easy25 collection. Their chain is rebuild
+  874045 → gate 874046 → seeds 874047/874048, with the same threshold.
 - **Powered-release guard added while r8 runs:** `exp24_power_gate.sh` verifies
   actual JSONL counts against the manifest, native-chat prompt shape, Qwen3.8
   lineage on every row, pairwise task disjointness, nonempty held-out splits,
   source SHA when available, and train>=1,000. Full-node jobs may depend only
   on its `afterok`. The trainer/launcher now expose explicit `seed` and
   `data_seed`; powered Dr-GRPO requires at least seeds 42 and 43.
-- **Citable trajectory package prepared, remote push credential-blocked:**
-  reproducible exporter packages 132 byte-exact Qwen3.8 trajectories from
+- **Citable trajectory dataset public:** reproducible exporter packages 132
+  byte-exact Qwen3.8 trajectories from
   baseline+r2-r7 (76 clean, 56 agent-timeout; 25 tasks), with per-file SHA-256,
   metadata/index JSONL, raw Harbor files, dataset card, explicit invalid-run
   exclusions, and BibTeX. Secret scan: zero GitHub/HF/AWS token or private-key
   patterns and zero exact configured-secret matches. Dataset card discloses
   that shared `/scratch` was mounted and some agents inspected prior-run paths;
   therefore this release supports behavior/compaction analysis, not Pass@1.
-  Staged at `$SCRATCH/hf_datasets/does-compression-change-behavior-traces`.
-  Hugging Face upload cannot occur until a write-scoped `HF_TOKEN` is placed
-  in gitignored `.env`; no token is currently configured.
+  Public release:
+  `https://huggingface.co/datasets/Ayushnangia/does-compression-change-behavior-traces`,
+  immutable revision `2fee2eed5a0f464ae768b8e1f7821dd6b5e4872a`; anonymous API
+  verification reports public/private=false, 139 files, and 132 rows in the
+  release manifest. The first lowercase-namespace create returned 403; the
+  authenticated case-sensitive `Ayushnangia` namespace succeeded. The write
+  token was exposed in chat, was used transiently rather than committed, and
+  must be revoked/rotated.
 - **First integrity-gate submission was rejected before job creation** because Trillium requires
   `--gpus-per-node` even for this CPU-only check; encode one H100 (unused by
   validation) rather than relying on an invalid resource header.

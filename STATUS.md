@@ -12,10 +12,11 @@ verdicts and retractions: `docs/AUDIT.md`.
   SHA, chat-shape, and task-disjointness checks.
 - Repository/data: on-policy dataset (64 examples, 2k–209k tokens) and all
   Aug 4–6 powered result artifacts are committed.
-- Citable HF package staged: 132 byte-exact valid Qwen3.8 trajectories with
-  checksums, index, provenance/exclusions, limitations, and BibTeX. Remote
-  push is blocked only by a missing write-scoped `HF_TOKEN`; put it in
-  gitignored `.env`, never chat.
+- Citable HF dataset is public: 132 byte-exact valid Qwen3.8 trajectories with
+  checksums, index, provenance/exclusions, limitations, and BibTeX:
+  https://huggingface.co/datasets/Ayushnangia/does-compression-change-behavior-traces
+  (immutable revision `2fee2eed5a0f464ae768b8e1f7821dd6b5e4872a`). The HF
+  token was pasted in chat and must be revoked/rotated; it was not committed.
 - Test gate: **144/144** after exp22/exp24 lineage, budget, parser and
   generation-default guards.
 - Paper policy: on-policy results only; off-policy appears only as evidence
@@ -139,12 +140,12 @@ establishes a non-floor outcome evaluator.
   expected underpowered rebuild, additional independent replicas r5/r6/r7 are
   834739/834740/834741. All six completed; rebuild 834742 produced 1,462
   total task-disjoint rows but only **967 train / 182 validation / 313 test**.
-  The 1,000 gate correctly blocked training. Gap replica r8 job 840989 is
-  running; rebuild 840990 follows automatically. A CPU integrity gate now
-  verifies >=1,000 rows, manifest counts/SHA, chat shape, Qwen3.8 lineage, and
-  task disjointness as job 841033 (`afterok:840990`). Powered Dr-GRPO seeds 42
-  and 43 are queued as 841034/841035 with `afterok:841033`; if r8 still leaves
-  <1,000 rows, the gate fails and both full-node jobs are cancelled untouched;
+  r8 completed with 19 trajectories; rebuild 840990 reached **973 train / 190
+  validation / 321 test**, so gate 841033 correctly failed and seed jobs
+  841034/841035 were cancelled untouched. Two targeted replicas over six
+  under-cap train tasks are 874043/874044 → rebuild 874045 → integrity gate
+  874046 → powered Dr-GRPO seeds 42/43 as 874047/874048. The threshold remains
+  1,000; full-node jobs release only through gate `afterok`;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

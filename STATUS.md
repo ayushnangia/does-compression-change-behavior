@@ -16,7 +16,7 @@ verdicts and retractions: `docs/AUDIT.md`.
   checksums, index, provenance/exclusions, limitations, and BibTeX. Remote
   push is blocked only by a missing write-scoped `HF_TOKEN`; put it in
   gitignored `.env`, never chat.
-- Test gate: **143/143** after exp22/exp24 lineage, budget, parser and
+- Test gate: **144/144** after exp22/exp24 lineage, budget, parser and
   generation-default guards.
 - Paper policy: on-policy results only; off-policy appears only as evidence
   that evaluation regimes do not reliably transfer.

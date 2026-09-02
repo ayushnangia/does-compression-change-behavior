@@ -14,7 +14,7 @@ export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 PYTHONUNBUFFERED=1
 mkdir -p "$HOME/.cache"
 # Include independently named Qwen3.8 collection replicas while excluding
 # invalid old xhigh-timeout runs, whose served names do not use this prefix.
-GLOB=${1:-"$SCRATCH/tb2/jobs/tb2-qwen38-27b-valid*-easy25/*/agent/trajectory.json"}
+GLOB=${1:-"$SCRATCH/tb2/jobs/tb2-qwen38-27b-valid*-easy25*/*/agent/trajectory.json"}
 EXAMPLES=${2:-data/examples_qwen38_exp24.json}
 OUT_DIR=${3:-experiments/results/exp24_qwen38_data}
 $REAL_HOME/ENV-compress2/bin/python experiments/exp24_prefetch_onpolicy.py \

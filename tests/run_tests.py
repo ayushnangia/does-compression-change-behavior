@@ -444,8 +444,12 @@ check("TB2 collection concurrency is configurable",
 check("TB2 co-scheduled jobs use unique localhost ports",
       "SLURM_JOB_ID" in _eval_tb2 and "10000 +" in _eval_tb2)
 check("exp24 data builder combines valid collection replicas",
-      "tb2-qwen38-27b-valid*-easy25" in
+      "tb2-qwen38-27b-valid*-easy25*" in
       (REPO / "experiments/exp24_build_data.sh").read_text())
+_gap_tasks = [x for x in (REPO / "tb2/easy25-train-gap.txt").read_text().splitlines()
+              if x]
+check("exp24 gap list targets only deterministic train tasks",
+      len(_gap_tasks) == 6 and all(stable_split(x) == "train" for x in _gap_tasks))
 check("Qwen3.8 preflight does not use raw completion proxy",
       "/v1/completions" not in _q38_preflight and
       "from behavior import parse_action" not in _q38_preflight)

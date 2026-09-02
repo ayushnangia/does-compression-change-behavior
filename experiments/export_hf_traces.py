@@ -113,7 +113,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--jobs-dir", required=True)
     ap.add_argument("--out", required=True)
-    ap.add_argument("--repo-id", default="ayushnangia/does-compression-change-behavior-traces")
+    ap.add_argument("--repo-id", default="Ayushnangia/does-compression-change-behavior-traces")
     ap.add_argument("--push", action="store_true",
                     help="create/update a public Hugging Face dataset repo")
     args = ap.parse_args()

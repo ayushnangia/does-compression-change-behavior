@@ -140,12 +140,13 @@ establishes a non-floor outcome evaluator.
   r8 completed with 19 trajectories; rebuild 840990 reached **973 train / 190
   validation / 321 test**, so gate 841033 correctly failed and seed jobs
   841034/841035 were cancelled untouched. Two targeted replicas over six
-  under-cap train tasks are 874043/874044 → rebuild 874045 → integrity gate
-  874046 → powered Dr-GRPO seeds 42/43 as 874047/874048. The threshold remains
-  1,000; full-node jobs release only through gate `afterok`;
-- exp25 frozen open-source LLMLingua-2 baseline: **IMPLEMENTED/PREFETCHED**;
-  held-out Qwen3.8 rows, full vs LLMLingua-2 vs actual-token-matched verbatim
-  recency, same frozen native executor. Exploratory job releases after 874045;
+  under-cap train tasks 874043/874044 are **COMPLETE** with 11 trajectories →
+  rebuild 874045 → integrity gate 874046 → powered Dr-GRPO seeds 42/43 as
+  874047/874048. The threshold remains 1,000; full-node jobs release only
+  through gate `afterok`;
+- exp25 frozen open-source LLMLingua-2 baseline: **QUEUED** as 874848 after
+  rebuild 874045; held-out Qwen3.8 rows, full vs LLMLingua-2 vs actual-token-
+  matched verbatim recency, same frozen native executor. Exploratory only;
 - exp22 four-arm pilot: **OPEN** after baseline competence check;
 - powered outcome row: **OPEN**;
 - paper draft/figures: **OPEN**.

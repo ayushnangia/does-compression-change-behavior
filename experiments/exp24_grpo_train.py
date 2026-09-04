@@ -131,6 +131,8 @@ def main():
                     help="hard power gate; lower only for labeled plumbing pilots")
     ap.add_argument("--preflight-only", action="store_true",
                     help="construct model/LoRA/TRL trainer but do not train")
+    ap.add_argument("--resume-from-checkpoint",
+                    help="Trainer checkpoint directory for exact Slurm continuation")
     args = ap.parse_args()
 
     import torch
@@ -206,7 +208,7 @@ def main():
         print(f"EXP24 SELECTOR PREFLIGHT GREEN: model + LoRA + GRPOTrainer; "
               f"valid_json={sum(parsed)}/4")
         return
-    trainer.train()
+    trainer.train(resume_from_checkpoint=args.resume_from_checkpoint)
     trainer.save_model(args.out)
     print(f"saved exp24 GRPO adapter -> {args.out}")
 

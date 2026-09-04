@@ -5,7 +5,8 @@
 #SBATCH --time=1-00:00
 #SBATCH --output=exp24_grpo_%j.out
 # Usage after Gate 1: sbatch exp24_job.sh 10   # plumbing pilot only
-# Main run:          sbatch exp24_job.sh -1
+# Main run:          sbatch exp24_job.sh -1 DATA_DIR SEED
+# Exact continuation: sbatch exp24_job.sh -1 DATA_DIR SEED auto ORIGINAL_JOB_ID
 # Trillium allocates either 1 or a multiple of 4 GPUs. We request one node;
 # GPU0 trains, GPU1 serves the frozen executor, GPUs2-3 remain unused.
 # Final frozen executor: Qwen3.8-27B bf16. The 4B model only selects indices.
@@ -14,6 +15,10 @@ set -euo pipefail
 MAX_STEPS=${1:-10}
 DATA_DIR=${2:-experiments/results/exp24_qwen38_data}
 SEED=${3:-42}
+RESUME=${4:-}
+# Continuations must write into the original run directory/log. Fresh jobs
+# default to their own Slurm ID; resume jobs pass the original run ID.
+RUN_ID=${5:-$SLURM_JOB_ID}
 MIN_TRAIN=1000
 [ "$MAX_STEPS" != "-1" ] && MIN_TRAIN=20  # labeled plumbing pilot only
 ROOT=${SLURM_SUBMIT_DIR:-$SCRATCH/dccb}
@@ -64,10 +69,22 @@ curl -sf http://127.0.0.1:8001/health >/dev/null || { echo 'executor failed read
 # sequence-level importance weights match the sequence-level selector reward.
 EVAL_ARGS=()
 [ -s "$DATA_DIR/validation.jsonl" ] && EVAL_ARGS=(--eval-file "$DATA_DIR/validation.jsonl")
+OUT=experiments/results/exp24_grpo_$RUN_ID
+REWARD_LOG=experiments/results/exp24_grpo_rewards_$RUN_ID.jsonl
+RESUME_ARGS=()
+if [ "$RESUME" = auto ]; then
+  LATEST=$(find "$OUT" -maxdepth 1 -type d -name 'checkpoint-*' 2>/dev/null \
+    | sort -V | tail -1)
+  [ -n "$LATEST" ] || { echo "resume requested but no checkpoint in $OUT"; exit 1; }
+  RESUME_ARGS=(--resume-from-checkpoint "$LATEST")
+  echo "resuming original run $RUN_ID from $LATEST"
+elif [ -n "$RESUME" ]; then
+  [ -d "$RESUME" ] || { echo "resume checkpoint missing: $RESUME"; exit 1; }
+  RESUME_ARGS=(--resume-from-checkpoint "$RESUME")
+fi
 CUDA_VISIBLE_DEVICES=0 TRITON_CACHE_DIR=$SLURM_TMPDIR/triton-train \
   $REAL_HOME/ENV-compress2/bin/python experiments/exp24_grpo_train.py \
   --train-file "$DATA_DIR/train.jsonl" "${EVAL_ARGS[@]}" \
-  --out experiments/results/exp24_grpo_$SLURM_JOB_ID \
-  --reward-log experiments/results/exp24_grpo_rewards_$SLURM_JOB_ID.jsonl \
+  --out "$OUT" --reward-log "$REWARD_LOG" \
   --max-steps "$MAX_STEPS" --min-train-examples "$MIN_TRAIN" \
-  --seed "$SEED"
+  --seed "$SEED" "${RESUME_ARGS[@]}"

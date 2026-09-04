@@ -419,6 +419,9 @@ check("exp24 decoder-only GRPO uses left padding",
 check("exp24 powered runs expose deterministic seed",
       "seed=args.seed" in _exp24_trainer_text and "data_seed=args.seed" in
       _exp24_trainer_text and '--seed "$SEED"' in _exp24_job_text)
+check("exp24 supports exact Slurm checkpoint continuation",
+      "resume_from_checkpoint=args.resume_from_checkpoint" in _exp24_trainer_text and
+      "RESUME_ARGS" in _exp24_job_text and "RUN_ID" in _exp24_job_text)
 _power_gate = (REPO / "experiments/exp24_power_gate.sh").read_text()
 check("exp24 power gate requires 1000 task-disjoint chat rows",
       "MIN_TRAIN=${2:-1000}" in _power_gate and "overlap" in _power_gate and

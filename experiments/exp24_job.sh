@@ -77,6 +77,22 @@ if [ "$RESUME" = auto ]; then
     | sort -V | tail -1)
   [ -n "$LATEST" ] || { echo "resume requested but no checkpoint in $OUT"; exit 1; }
   RESUME_ARGS=(--resume-from-checkpoint "$LATEST")
+  STEP=${LATEST##*-}
+  # This frozen config writes 4 generations for each of two accumulated
+  # microbatches per optimizer step. A wall-time kill can leave reward rows
+  # newer than the last atomic Trainer checkpoint; archive then remove those
+  # rows so resumed logs correspond exactly to restored optimizer/RNG state.
+  EXPECTED_REWARDS=$((STEP * 8))
+  ACTUAL_REWARDS=$(wc -l < "$REWARD_LOG")
+  [ "$ACTUAL_REWARDS" -ge "$EXPECTED_REWARDS" ] || {
+    echo "reward log shorter than checkpoint: $ACTUAL_REWARDS < $EXPECTED_REWARDS"; exit 1;
+  }
+  if [ "$ACTUAL_REWARDS" -gt "$EXPECTED_REWARDS" ]; then
+    cp "$REWARD_LOG" "${REWARD_LOG%.jsonl}.pre_resume_${SLURM_JOB_ID}.jsonl"
+    head -n "$EXPECTED_REWARDS" "$REWARD_LOG" > "$REWARD_LOG.tmp"
+    mv "$REWARD_LOG.tmp" "$REWARD_LOG"
+    echo "archived/truncated $((ACTUAL_REWARDS-EXPECTED_REWARDS)) post-checkpoint reward rows"
+  fi
   echo "resuming original run $RUN_ID from $LATEST"
 elif [ -n "$RESUME" ]; then
   [ -d "$RESUME" ] || { echo "resume checkpoint missing: $RESUME"; exit 1; }

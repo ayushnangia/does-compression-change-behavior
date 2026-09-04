@@ -17,7 +17,7 @@ verdicts and retractions: `docs/AUDIT.md`.
   https://huggingface.co/datasets/Ayushnangia/does-compression-change-behavior-traces
   (immutable revision `2fee2eed5a0f464ae768b8e1f7821dd6b5e4872a`). The HF
   token was pasted in chat and must be revoked/rotated; it was not committed.
-- Test gate: **155/155** after exp22/exp24 lineage, budget, parser and
+- Test gate: **156/156** after exp22/exp24 lineage, budget, parser and
   generation-default guards.
 - Paper policy: on-policy results only; off-policy appears only as evidence
   that evaluation regimes do not reliably transfer.

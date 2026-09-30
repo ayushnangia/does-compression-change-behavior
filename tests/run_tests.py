@@ -425,6 +425,27 @@ check("exp24 supports exact Slurm checkpoint continuation",
 check("exp24 resume removes post-checkpoint reward rows",
       "EXPECTED_REWARDS=$((STEP * 8))" in _exp24_job_text and
       "pre_resume_" in _exp24_job_text)
+from exp24_evaluate import keep_recent as _eval_recent, random_matched as _eval_random
+check("exp24 validation recency obeys exact budget",
+      _eval_recent(["aaaa", "bb", "ccc"], 5) == [1, 2])
+_eval_rand = _eval_random(["a", "bb", "ccc", "dddd"], [0, 1], 5, "unit")
+check("exp24 random control matches cardinality and budget",
+      len(_eval_rand) == 2 and sum(len(["a", "bb", "ccc", "dddd"][i])
+                                   for i in _eval_rand) <= 5)
+_exp24_eval_job = (REPO / "experiments/exp24_eval_job.sh").read_text()
+_exp24_eval_code = (REPO / "experiments/exp24_evaluate.py").read_text()
+check("exp24 powered eval reads validation but not test",
+      'DATA=experiments/results/exp24_qwen38_data/validation.jsonl' in
+      _exp24_eval_job and "test.jsonl" not in _exp24_eval_job.split("# Stage 1:")[1])
+check("exp24 powered eval uses both frozen adapters and base",
+      "grpo_seed42=$A42" in _exp24_eval_job and "grpo_seed43=$A43" in
+      _exp24_eval_job and "base_qwen35" in _exp24_eval_job)
+check("exp24 powered eval matches frozen native-chat reward",
+      '"reasoning_effort": "low"' in _exp24_eval_code and
+      "selector_reward" in _exp24_eval_code and "render_selection" in _exp24_eval_code)
+check("exp24 validation selection rule freezes adapter hash",
+      "selected_adapter_sha256" in _exp24_eval_code and
+      "higher validation mean direct reward" in _exp24_eval_code)
 _power_gate = (REPO / "experiments/exp24_power_gate.sh").read_text()
 check("exp24 power gate requires 1000 task-disjoint chat rows",
       "MIN_TRAIN=${2:-1000}" in _power_gate and "overlap" in _power_gate and

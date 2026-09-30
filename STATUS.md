@@ -142,8 +142,11 @@ establishes a non-floor outcome evaluator.
   841034/841035 were cancelled untouched. Two targeted replicas over six
   under-cap train tasks 874043/874044 completed with 11 trajectories. Rebuild
   874045 produced **1,024 train / 190 validation / 321 test**; integrity gate
-  874046 is **GREEN**. Powered Dr-GRPO seeds 42/43 (874047/874048) are queued
-  through its `afterok` dependency. The >=1,000 threshold was not weakened;
+  874046 is **GREEN**. Powered Dr-GRPO seeds 42/43 completed all 512 steps via
+  exact checkpoint continuations 886119/886120 (exit 0). Frozen adapter hashes:
+  `55fc509a...36acd` and `e6dc2ca9...e5fb`. The >=1,000 threshold was not
+  weakened. Task-held-out validation job 1007773 is queued on 190 validation
+  rows and does not read the 321-row test split;
 - learned closed-loop self-compaction arm: **IMPLEMENTED, HASH-GATED**;
   `LearnedSelectorTerminus` delegates live Qwen3.8 history selection to a
   frozen powered Qwen3.5 adapter, preserves selected blocks/recent suffix

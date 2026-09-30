@@ -646,7 +646,19 @@ non-easy25 images remain stale. This does not block the easy25 validity gate.
   874043/874044 completed with 11 trajectories. Rebuild 874045 produced 1,535
   task-disjoint examples: **1,024 train / 190 validation / 321 test**, source
   SHA-256 `421b29c...599128`. Gate 874046 completed cleanly; powered seeds
-  874047/874048 are therefore legitimately released and pending resources.
+  874047/874048 were therefore legitimately released.
+- **Both powered seeds completed; training curves remain non-evidence:** the
+  initial one-day allocations timed out after checkpoint 350, then exact
+  optimizer/scheduler/RNG continuations 886119/886120 archived and removed
+  post-checkpoint reward rows before resuming. Both reached 512/512, produced
+  4,096 canonical reward rows, and exited 0. Adapter SHA-256 values are
+  `55fc509a4b404e4e030ce8ff59d65f8a295480c9abb6d7b713687322bce36acd`
+  (seed 42) and
+  `e6dc2ca9fe6db0f948163d2763a35d966c6cf084271844373909627d058fe5fb`
+  (seed 43). Rising train reward mostly reflects JSON/budget compliance and is
+  not a quality claim. Validation job 1007773 compares both frozen adapters,
+  base Qwen3.5, keep-recent, raw skeleton, and cardinality-matched random on
+  190 task-held-out rows using the frozen Qwen3.8 reward; test remains unread.
 - **Closed-loop delegated self-compaction is staged, not yet a result:**
   `LearnedSelectorTerminus` sends old blocks from Qwen3.8's current live history
   to the frozen Qwen3.5 LoRA, accepts only strict in-budget `{"keep":[...]}`,

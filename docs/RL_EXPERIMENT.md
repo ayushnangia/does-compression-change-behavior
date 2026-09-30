@@ -1,8 +1,10 @@
 # exp24 — proper behavioral-reward training experiment
 
 Status: plumbing validated; powered data gate passed at 1,024 train rows.
-Two powered seeds (874047/874048) are queued. No learned-policy quality result
-exists until both training and held-out evaluation complete.
+Both powered seeds completed 512/512 steps with exact checkpoint continuation;
+frozen adapters are `55fc509a...36acd` (seed 42) and `e6dc2ca9...e5fb`
+(seed 43). Held-out validation job 1007773 is queued. No learned-policy quality
+result exists until that evaluation completes.
 
 ## What has and has not been done
 
